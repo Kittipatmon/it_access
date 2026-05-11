@@ -92,19 +92,42 @@
                     @foreach($allRequests as $request)
                     <tr class="hover:bg-slate-50/50 transition">
                         <td class="px-8 py-5 text-sm font-bold text-blue-600">{{ $request->request_no }}</td>
-                        <td class="px-8 py-5 text-sm text-slate-700 font-medium">{{ $request->user->name }}</td>
-                        <td class="px-8 py-5 text-sm">
-                            @if($request->status == 'pending')
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-orange-50 text-orange-600 border border-orange-100 uppercase">Pending</span>
-                            @elseif($request->status == 'approved')
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-50 text-green-600 border border-green-100 uppercase">Approved</span>
+                        <td class="px-8 py-5">
+                            <div class="text-sm font-medium text-slate-700">{{ $request->firstname }} {{ $request->lastname }}</div>
+                            <div class="text-[10px] text-slate-400 uppercase font-bold">{{ $request->department_name }}</div>
+                        </td>
+                        <td class="px-8 py-5">
+                            @if($request->status === 'completed')
+                                <span class="px-2 py-0.5 rounded-full bg-green-600 text-white text-[10px] font-bold uppercase shadow-sm">เสร็จสมบูรณ์</span>
+                            @elseif($request->status === 'approved' && $request->it_status == 'completed')
+                                <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-bold uppercase border border-blue-200">รอผู้ใช้งานยืนยัน</span>
+                            @elseif($request->status === 'approved')
+                                <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-bold uppercase">อนุมัติแล้ว</span>
+                            @elseif($request->status === 'rejected')
+                                <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-[10px] font-bold uppercase">ปฏิเสธ</span>
                             @else
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-50 text-red-600 border border-red-100 uppercase">Rejected</span>
+                                <span class="px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600 text-[10px] font-bold uppercase">รอดำเนินการ</span>
                             @endif
                         </td>
-                        <td class="px-8 py-5 text-sm">
-                            @php $currentStep = $request->steps->where('step_order', $request->current_step)->first(); @endphp
-                            <span class="text-slate-400 text-xs">{{ $currentStep ? $currentStep->step_name : 'Complete' }}</span>
+                        <td class="px-8 py-5 text-sm text-slate-500">
+                            @if($request->status === 'completed')
+                                <span class="inline-flex items-center gap-1 text-green-600 font-bold text-xs">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    เสร็จสมบูรณ์
+                                </span>
+                            @elseif($request->status === 'approved' && $request->it_status == 'completed')
+                                <span class="inline-flex items-center gap-1 text-orange-500 font-bold text-xs animate-pulse">
+                                    รอผู้ใช้งานยืนยัน
+                                </span>
+                            @elseif($request->status === 'approved')
+                                <span class="inline-flex items-center gap-1 text-blue-600 font-bold text-xs">
+                                    เจ้าหน้าที่ IT ดำเนินการ
+                                </span>
+                            @elseif($request->status === 'rejected')
+                                <span class="text-red-400 text-xs font-medium">ถูกยกเลิก</span>
+                            @else
+                                {{ $request->steps->where('status', 'pending')->first()->step_name ?? '-' }}
+                            @endif
                         </td>
                         <td class="px-8 py-5 text-sm text-slate-400 text-right">{{ $request->created_at->format('d/m/Y') }}</td>
                     </tr>

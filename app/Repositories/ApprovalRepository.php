@@ -22,6 +22,9 @@ class ApprovalRepository
     {
         return ApprovalStep::where('approver_id', $approverId)
             ->where('status', 'pending')
+            ->whereHas('requestForm', function ($query) {
+                $query->whereColumn('current_step', 'approval_steps.step_order');
+            })
             ->with('requestForm.user')
             ->get();
     }

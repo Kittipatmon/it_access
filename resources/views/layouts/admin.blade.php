@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=sarabun:300,400,500,600,700&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         body {
@@ -179,12 +180,7 @@
 
             <!-- Main Scrollable Area -->
             <main class="flex-1 overflow-x-hidden overflow-y-auto p-8">
-                @if(session('success'))
-                    <div class="mb-6 bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-r-lg shadow-sm">
-                        <p class="font-bold">สำเร็จ!</p>
-                        <p class="text-sm">{{ session('success') }}</p>
-                    </div>
-                @endif
+
 
                 @yield('content')
 
@@ -206,6 +202,16 @@
                                 icon: 'error',
                                 title: 'เกิดข้อผิดพลาด',
                                 text: "{{ session('error') }}"
+                            });
+                        @endif
+
+                        @if($errors->any())
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'ข้อมูลไม่ถูกต้อง',
+                                html: `{!! implode('<br>', $errors->all()) !!}`,
+                                confirmButtonColor: '#3b82f6',
+                                confirmButtonText: 'ตกลง'
                             });
                         @endif
                     });

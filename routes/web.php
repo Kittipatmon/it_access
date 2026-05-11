@@ -33,6 +33,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/tracking', [TrackingController::class, 'index'])->name('tracking.index');
     Route::get('/tracking/{requestNo}', [TrackingController::class, 'show'])->name('tracking.show');
+    Route::get('/tracking/{requestNo}/print', [TrackingController::class, 'print'])->name('tracking.print');
     Route::delete('/tracking/{requestNo}', [TrackingController::class, 'destroy'])->name('tracking.destroy');
 
     // Backend (Normally would have 'role:admin' middleware)
@@ -47,6 +48,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/approvals/{id}', [ApprovalController::class, 'show'])->name('approvals.show');
         Route::post('/approvals/{stepId}/approve', [ApprovalController::class, 'approve'])->name('approvals.approve');
         Route::post('/approvals/{stepId}/reject', [ApprovalController::class, 'reject'])->name('approvals.reject');
+        Route::post('/approvals/{id}/complete', [ApprovalController::class, 'complete'])->name('approvals.complete');
 
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
         Route::post('/users/{id}/toggle', [UserManagementController::class, 'toggleStatus'])->name('users.toggle');

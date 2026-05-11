@@ -40,4 +40,15 @@ class RequestFormRepository
     {
         return RequestForm::where('user_id', $userId)->latest()->get();
     }
+
+    public function getInvolvedRequests(int $userId): Collection
+    {
+        return RequestForm::where('user_id', $userId)
+            ->orWhereHas('steps', function ($query) use ($userId) {
+                $query->where('approver_id', $userId);
+            })
+            ->with(['user', 'steps.approver'])
+            ->latest()
+            ->get();
+    }
 }

@@ -32,6 +32,7 @@ class AccessOptionController extends Controller
             'has_sub_options' => 'boolean',
             'sub_options_list' => 'nullable|string',
             'sub_option_type' => 'nullable|in:radio,checkbox',
+            'custom_fields_list' => 'nullable|string',
         ]);
 
         $maxSort = AccessOption::where('category', $validated['category'])->max('sort_order') ?? 0;
@@ -43,6 +44,7 @@ class AccessOptionController extends Controller
             'has_sub_options' => $request->has('has_sub_options'),
             'sub_options' => $this->parseSubOptions($validated['sub_options_list']),
             'sub_option_type' => $validated['sub_option_type'] ?? 'radio',
+            'custom_fields' => $this->parseSubOptions($validated['custom_fields_list']),
             'sort_order' => $maxSort + 1,
             'is_active' => true,
         ]);
@@ -62,6 +64,7 @@ class AccessOptionController extends Controller
             'sort_order' => 'nullable|integer|min:1',
             'sub_options_list' => 'nullable|string',
             'sub_option_type' => 'nullable|in:radio,checkbox',
+            'custom_fields_list' => 'nullable|string',
         ]);
 
         $option->update([
@@ -70,6 +73,7 @@ class AccessOptionController extends Controller
             'has_sub_options' => $request->has('has_sub_options'),
             'sub_options' => $this->parseSubOptions($validated['sub_options_list']),
             'sub_option_type' => $validated['sub_option_type'] ?? 'radio',
+            'custom_fields' => $this->parseSubOptions($validated['custom_fields_list']),
             'sort_order' => $validated['sort_order'] ?? $option->sort_order,
         ]);
 

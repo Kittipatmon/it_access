@@ -16,7 +16,7 @@ class ApprovalController extends Controller
     protected $approvalService;
 
     public function __construct(
-        ApprovalRepository $approvalRepo, 
+        ApprovalRepository $approvalRepo,
         RequestFormRepository $requestRepo,
         ApprovalService $approvalService
     ) {
@@ -43,22 +43,43 @@ class ApprovalController extends Controller
             return redirect()->route('backend.approvals.index')->with('error', 'ไม่พบรายการคำร้อง');
         }
 
-        return view('backend.approvals.show', compact('request'));
+        $accessOptions = \App\Models\AccessOption::active()->get();
+
+        return view('backend.approvals.show', compact('request', 'accessOptions'));
     }
 
     public function approve(Request $request, $stepId)
     {
+        $step = $this->approvalRepo->findStepById($stepId);
+        if (!$step) {
+            return redirect()->back()->with('error', 'ไม่พบขั้นตอนการอนุมัติ');
+        }
+
+        // Verify sequential approval
+        if ($step->step_order != $step->requestForm->current_step) {
+            return redirect()->back()->with('error', 'ยังไม่ถึงลำดับการอนุมัติของคุณ');
+        }
+
         $success = $this->approvalService->approve(
-            $stepId, 
-            Auth::id(), 
-            $request->remark, 
+            $stepId,
+            Auth::id(),
+            $request->remark,
             $request->signature,
             $request->use_existing == '1',
             $request->file('signature_file')
         );
-        
+
         if ($success) {
-            return redirect()->back()->with('success', 'อนุมัติคำร้องเรียบร้อยแล้ว');
+            $requestForm = $this->requestRepo->findById($step->request_form_id);
+            $message = 'อนุมัติคำร้องเรียบร้อยแล้ว';
+            
+            if ($requestForm->status === 'approved') {
+                $message .= ' (ขั้นตอนการอนุมัติครบถ้วนแล้ว กรุณาดำเนินการขั้นตอนที่ 3 ต่อไป)';
+            } else {
+                $message .= ' (ส่งต่อให้ผู้ลำดับถัดไปพิจารณาเรียบร้อยแล้ว)';
+            }
+
+            return redirect()->route('backend.approvals.show', $requestForm->id)->with('success', $message);
         }
 
         return redirect()->back()->with('error', 'ไม่สามารถดำเนินการได้');
@@ -67,13 +88,45 @@ class ApprovalController extends Controller
     public function reject(Request $request, $stepId)
     {
         $request->validate(['remark' => 'required']);
-        
+        $step = $this->approvalRepo->findStepById($stepId);
+        if (!$step) {
+            return redirect()->back()->with('error', 'ไม่พบขั้นตอนการอนุมัติ');
+        }
+
+        // Verify sequential approval
+        if ($step->step_order != $step->requestForm->current_step) {
+            return redirect()->back()->with('error', 'ยังไม่ถึงลำดับการอนุมัติของคุณ');
+        }
+
         $success = $this->approvalService->reject($stepId, Auth::id(), $request->remark);
-        
+
         if ($success) {
-            return redirect()->back()->with('success', 'ปฏิเสธคำร้องเรียบร้อยแล้ว');
+            return redirect()->route('backend.approvals.index')->with('success', 'ปฏิเสธคำร้องเรียบร้อยแล้ว (คำร้องถูกยกเลิกแล้ว)');
         }
 
         return redirect()->back()->with('error', 'ไม่สามารถดำเนินการได้');
+    }
+
+    public function complete(Request $request, $id)
+    {
+        $form = $this->requestRepo->findById($id);
+        if (!$form) {
+            return redirect()->back()->with('error', 'ไม่พบใบคำร้อง');
+        }
+
+        if (Auth::user()->role !== 'admin' && Auth::user()->dept_id != 16) {
+            return redirect()->back()->with('error', 'ไม่มีสิทธิ์ดำเนินการในส่วนนี้');
+        }
+
+        $form->update([
+            'it_staff_id' => Auth::id(),
+            'it_configured_at' => now(),
+            'it_remark' => $request->it_remark,
+            'it_status' => 'completed',
+            'it_system_config' => $request->it_system_config,
+            'it_program_config' => $request->it_program_config,
+        ]);
+
+        return redirect()->back()->with('success', 'ดำเนินการขั้นตอนที่ 3 เสร็จสมบูรณ์แล้ว (ข้อมูลถูกบันทึกเข้าระบบเรียบร้อย)');
     }
 }

@@ -11,11 +11,12 @@ class ApprovalStepConfigController extends Controller
 {
     public function index()
     {
-        $configs = ApprovalStepConfig::with('approver')->orderBy('step_order')->get();
+        $configs = \App\Models\ApprovalStepConfig::with('approver')->orderBy('step_order')->get();
         // ดึงเฉพาะ Admin หรือ ICT หรือคนที่มีบทบาทเป็นผู้อนุมัติ (ถ้ามี)
-        $users = User::orderBy('firstname')->get(); 
+        $users = User::with('department_rel')->where('status', 'active')->orderBy('firstname')->get(); 
+        $departments = \App\Models\Department::orderBy('name')->get();
         
-        return view('backend.approval-configs.index', compact('configs', 'users'));
+        return view('backend.approval-configs.index', compact('configs', 'users', 'departments'));
     }
 
     public function store(Request $request)
@@ -23,7 +24,9 @@ class ApprovalStepConfigController extends Controller
         $request->validate([
             'step_name' => 'required|string|max:255',
             'approver_id' => 'required',
-            'step_order' => 'required|integer',
+            'step_order' => 'required|integer|unique:approval_step_configs,step_order',
+        ], [
+            'step_order.unique' => 'ลำดับขั้นตอนนี้ถูกใช้งานแล้ว กรุณาเลือกลำดับอื่น',
         ]);
 
         ApprovalStepConfig::create($request->all());
@@ -36,7 +39,9 @@ class ApprovalStepConfigController extends Controller
         $request->validate([
             'step_name' => 'required|string|max:255',
             'approver_id' => 'required',
-            'step_order' => 'required|integer',
+            'step_order' => 'required|integer|unique:approval_step_configs,step_order,' . $id,
+        ], [
+            'step_order.unique' => 'ลำดับขั้นตอนนี้ถูกใช้งานแล้ว กรุณาเลือกลำดับอื่น',
         ]);
 
         $config = ApprovalStepConfig::findOrFail($id);

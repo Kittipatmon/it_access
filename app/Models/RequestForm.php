@@ -32,13 +32,31 @@ class RequestForm extends Model
         'system_access',
         'program_access',
         'signature_path',
+        // ส่วนที่ 3: เจ้าหน้าที่ IT
+        'it_staff_id',
+        'it_configured_at',
+        'it_remark',
+        'it_status',
+        'it_system_config',
+        'it_program_config',
+        'user_signature_path',
+        'user_acknowledged_at',
     ];
 
     protected $casts = [
         'system_access' => 'array',
         'program_access' => 'array',
+        'it_system_config' => 'array',
+        'it_program_config' => 'array',
         'approved_at' => 'datetime',
+        'it_configured_at' => 'datetime',
+        'user_acknowledged_at' => 'datetime',
     ];
+
+    public function itStaff()
+    {
+        return $this->belongsTo(User::class, 'it_staff_id');
+    }
 
     public function user()
     {

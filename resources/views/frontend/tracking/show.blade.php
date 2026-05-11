@@ -1,457 +1,499 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="max-w-5xl mx-auto px-4 py-8">
-        <div class="mb-4">
-            <a href="{{ route('tracking.index') }}"
-                class="inline-flex items-center text-blue-600 hover:text-blue-700 font-bold text-sm transition-colors">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-                กลับไปที่รายการคำร้อง
-            </a>
-        </div>
-
-        <div class="bg-white shadow-sm rounded-2xl overflow-hidden border border-slate-200">
-            <!-- Header: Exact match to index.blade.php -->
-            <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-white">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-800">แบบฟอร์มการร้องขอสิทธิใช้งานเทคโนโลยีสารสนเทศ</h2>
-                        <p class="text-sm text-slate-500 mt-1">QF-IT-08: Rev: 02</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-xs text-slate-400">Request No: <span
-                                class="text-blue-600 font-bold">{{ $request->request_no }}</span></p>
-                        <p class="text-[10px] text-slate-300 mt-1">วันที่สร้าง:
-                            {{ $request->created_at->format('d/m/Y H:i') }}</p>
-                    </div>
+    <div class="max-w-7xl mx-auto px-4 py-8 ">
+            <div class="mb-4 no-print text-center flex justify-between items-center">
+                <a href="{{ route('tracking.index') }}"
+                    class="inline-flex items-center text-blue-600 hover:text-blue-700 font-bold text-sm transition-colors">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    กลับไปที่รายการคำร้อง
+                </a>
+                <div class="flex gap-2">
+                     <a href="{{ route('tracking.print', $request->request_no) }}" target="_blank" class="px-6 py-2 bg-slate-900 text-white rounded-xl font-bold text-sm hover:scale-105 transition-all">
+                        พิมพ์ใบคำร้อง (PDF)
+                     </a>
                 </div>
             </div>
 
-            <div class="p-6 space-y-10">
-                {{-- Status Banner --}}
-                <div
-                    class="flex items-center justify-between p-4 rounded-2xl {{ $request->status == 'approved' ? 'bg-green-50 border border-green-100' : ($request->status == 'rejected' ? 'bg-red-50 border border-red-100' : 'bg-yellow-50 border border-yellow-100') }}">
-                    <div class="flex items-center gap-3">
-                        <div
-                            class="h-10 w-10 rounded-full flex items-center justify-center {{ $request->status == 'approved' ? 'bg-green-500' : ($request->status == 'rejected' ? 'bg-red-500' : 'bg-yellow-500') }}">
-                            @if($request->status == 'approved')
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                </svg>
-                            @elseif($request->status == 'rejected')
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
+            <div class="bg-white shadow-sm rounded-2xl overflow-hidden border border-slate-200 printable-content">
+                <!-- Header -->
+                <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-white flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <img src="https://www.kumwell.com/wp-content/uploads/2021/04/Logo-Kumwell-PNG.png" class="h-10 w-auto" alt="Kumwell Logo">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">แบบฟอร์มการร้องขอสิทธิใช้งานเทคโนโลยีสารสนเทศ</h2>
+                            <p class="text-[10px] text-slate-500">QF-IT-08: Rev: 02 (06-07-20)</p>
+                        </div>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-2">
+                        <p class="text-xs text-slate-400">Request No: <span class="text-blue-600 font-bold">{{ $request->request_no }}</span></p>
+                        @if($request->status == 'pending')
+                            <span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-[10px] font-bold uppercase border border-yellow-200">รออนุมัติ</span>
+                        @elseif($request->status == 'completed')
+                            <span class="px-3 py-1 rounded-full bg-green-600 text-white text-[10px] font-bold uppercase border border-green-600 shadow-sm">เสร็จสมบูรณ์</span>
+                        @elseif($request->status == 'approved' && $request->it_status == 'completed')
+                            <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold uppercase border border-blue-200">รอคุณยืนยัน</span>
+                        @elseif($request->status == 'approved')
+                            <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold uppercase border border-blue-200">อนุมัติแล้ว</span>
+                        @else
+                            <span class="px-3 py-1 rounded-full bg-red-100 text-red-800 text-[10px] font-bold uppercase border border-red-200">ถูกปฏิเสธ</span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="p-6 space-y-10">
+                    {{-- ส่วนที่ 1: ผู้ร้องขอ --}}
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest bg-slate-100 py-2 px-4 rounded-lg">ส่วนที่ 1 ผู้ร้องขอ</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
+                            <div class="md:col-span-3">
+                                 <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">ประเภทคำร้อง</label>
+                                 <p class="font-bold text-slate-800">
+                                    @php $types = ['new_employee' => 'พนักงานใหม่', 'resign' => 'ลาออก', 'position_change' => 'ปรับตำแหน่ง', 'transfer' => 'โอนย้าย', 'add_remove_access' => 'เพิ่มสิทธิ์/ลบสิทธิ์']; @endphp
+                                    {{ $types[$request->request_type] ?? $request->request_type }}
+                                 </p>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">ชื่อ-นามสกุล</label>
+                                <p class="text-sm text-slate-700 font-medium">{{ $request->firstname }} {{ $request->lastname }} ({{ $request->nickname_th ?: '-' }})</p>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">รหัสพนักงาน</label>
+                                <p class="text-sm text-slate-700 font-bold">{{ $request->emp_code }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">แผนก/ฝ่าย</label>
+                                <p class="text-sm text-slate-700 font-medium">{{ $request->department_name }} {{ $request->division_name ? '/ ' . $request->division_name : '' }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- ส่วนที่ 2: การเข้าถึง --}}
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest bg-slate-100 py-2 px-4 rounded-lg">ส่วนที่ 2 การเข้าถึง (ตามความประสงค์)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="border border-slate-200 rounded-xl p-4">
+                                <h4 class="text-xs font-bold text-slate-500 mb-3 underline">ระบบที่ต้องการเข้าถึง</h4>
+                                <ul class="text-xs space-y-1 text-slate-700">
+                                    @php $hasSystem = false; @endphp
+                                    @foreach($request->system_access ?? [] as $key => $val)
+                                        @if($val && !Str::endsWith($key, '_sub') && $key !== 'other_check')
+                                            <li>• {{ ucwords(str_replace('_', ' ', $key)) }}</li>
+                                            @php $hasSystem = true; @endphp
+                                        @endif
+                                    @endforeach
+                                    @if(!$hasSystem) <li>-</li> @endif
+                                </ul>
+                            </div>
+                            <div class="border border-slate-200 rounded-xl p-4">
+                                <h4 class="text-xs font-bold text-slate-500 mb-3 underline">โปรแกรมที่ต้องการ</h4>
+                                <ul class="text-xs space-y-1 text-slate-700">
+                                    @php $hasProgram = false; @endphp
+                                    @foreach($request->program_access ?? [] as $key => $val)
+                                        @if($val && !Str::endsWith($key, '_sub') && $key !== 'other_check')
+                                            <li>• {{ ucwords(str_replace('_', ' ', $key)) }}</li>
+                                            @php $hasProgram = true; @endphp
+                                        @endif
+                                    @endforeach
+                                    @if(!$hasProgram) <li>-</li> @endif
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- ลำดับการอนุมัติ --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-slate-100">
+                        <div class="flex flex-col items-center p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">ลายมือชื่อผู้ร้องขอ</label>
+                            @if($request->signature_path)
+                                <img src="{{ asset('storage/' . $request->signature_path) }}" alt="Signature" class="h-16 w-auto mb-2">
                             @else
-                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <div class="h-16 flex items-center text-slate-300 italic text-xs">ไม่พบข้อมูล</div>
+                            @endif
+                            <div class="w-32 h-px bg-slate-200 mb-1"></div>
+                            <p class="text-[10px] font-bold text-slate-700">{{ $request->firstname }} {{ $request->lastname }}</p>
+                            <p class="text-[8px] text-slate-400">{{ $request->created_at->format('d/m/Y H:i') }}</p>
+                        </div>
+
+                        <div class="space-y-3">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">ลำดับการอนุมัติ</label>
+                            @foreach($request->steps as $step)
+                                <div class="flex items-center justify-between p-3 rounded-xl border {{ $step->status == 'approved' ? 'bg-green-50 border-green-100' : ($step->status == 'rejected' ? 'bg-red-50 border-red-100' : 'bg-white border-slate-100') }}">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold {{ $step->status == 'approved' ? 'bg-green-500 text-white' : ($step->status == 'rejected' ? 'bg-red-500 text-white' : 'bg-slate-100 text-slate-400') }}">
+                                            {{ $step->step_order }}
+                                        </div>
+                                        <div>
+                                            <p class="text-[11px] font-bold text-slate-700">{{ $step->step_name }}</p>
+                                            @if($step->approver)
+                                                <p class="text-[9px] text-slate-500">{{ $step->approver->fullname }}</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[9px] font-bold uppercase {{ $step->status == 'approved' ? 'text-green-600' : ($step->status == 'rejected' ? 'text-red-600' : 'text-slate-400') }}">
+                                            {{ $step->status == 'pending' ? 'รออนุมัติ' : ($step->status == 'approved' ? 'อนุมัติแล้ว' : 'ปฏิเสธ') }}
+                                        </span>
+                                        @if($step->status == 'approved' && $step->approved_at)
+                                            <p class="text-[8px] text-slate-400 mt-0.5">{{ $step->approved_at->format('d/m/Y H:i') }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    {{-- ส่วนที่ 3: สำหรับเจ้าหน้าที่ --}}
+                    <div class="space-y-6 pt-10 border-t-2 border-slate-200">
+                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest bg-slate-100 py-2 px-4 rounded-lg">ส่วนที่ 3 สำหรับเจ้าหน้าที่</h3>
+
+                        @if($request->status == 'approved' || $request->status == 'completed')
+                            @if($request->it_status == 'completed')
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-0 border-2 border-slate-300 rounded-xl overflow-hidden">
+                                    {{-- Left Box: System Access Results --}}
+                                    <div class="p-6 border-r-2 border-slate-300 flex flex-col">
+                                        <h4 class="text-xs font-bold text-slate-600 border-b pb-2 mb-4">การเข้าถึงระบบ</h4>
+                                        <div class="space-y-3 text-[11px] flex-grow">
+                                            @if(isset($request->it_system_config['login_computer_check']))
+                                                <div class="flex justify-between border-b border-slate-100 pb-1">
+                                                    <span class="font-bold text-slate-500">Computer Access:</span>
+                                                    <span>{{ $request->it_system_config['login_computer_user'] ?? '-' }} / {{ $request->it_system_config['login_computer_pass'] ?? '********' }}</span>
+                                                </div>
+                                            @endif
+                                            @if(isset($request->it_system_config['email_check']))
+                                                <div class="flex justify-between border-b border-slate-100 pb-1">
+                                                    <span class="font-bold text-slate-500">Email Address:</span>
+                                                    <span>{{ $request->it_system_config['email_user'] ?? '-' }} / {{ $request->it_system_config['email_pass'] ?? '********' }}</span>
+                                                </div>
+                                            @endif
+                                            @if(isset($request->it_system_config['file_server_check']))
+                                                <div class="flex justify-between border-b border-slate-100 pb-1">
+                                                    <span class="font-bold text-slate-500">File Server:</span>
+                                                    <span>อนุญาตแล้ว</span>
+                                                </div>
+                                            @endif
+
+                                            {{-- Dynamic Generic Systems --}}
+                                            @foreach($request->it_system_config['generic'] ?? [] as $gName => $gVal)
+                                                <div class="flex justify-between border-b border-slate-100 pb-1">
+                                                    <span class="font-bold text-slate-500">{{ $gName }}:</span>
+                                                    <span>{{ $gVal['user'] ?? '-' }}</span>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <div class="mt-6 pt-4 border-t border-slate-200 space-y-1">
+                                            <div class="text-[10px] flex justify-between"><span class="font-bold">สถานะ:</span> <span class="{{ ($request->it_system_config['status'] ?? '') == 'completed' ? 'text-green-600' : 'text-yellow-600' }} font-black uppercase">{{ $request->it_system_config['status'] ?? 'Pending' }}</span></div>
+                                            <div class="text-[10px] flex justify-between"><span class="font-bold">ผู้ดำเนินการ:</span> {{ $request->itStaff->fullname ?? '-' }}</div>
+                                            <div class="text-[9px] text-slate-400 italic text-right">วันที่: {{ $request->it_configured_at->format('d/m/Y H:i') }}</div>
+                                        </div>
+                                    </div>
+                                    {{-- Right Box: Program Access Results --}}
+                                    <div class="p-6 flex flex-col">
+                                        <h4 class="text-xs font-bold text-slate-600 border-b pb-2 mb-4">การเข้าถึงโปรแกรม</h4>
+                                        <div class="space-y-3 text-[11px] flex-grow">
+                                            @if(isset($request->it_program_config['sap_b1_check']))
+                                                <div class="flex justify-between border-b border-slate-100 pb-1">
+                                                    <span class="font-bold text-slate-500">SAP B1:</span>
+                                                    <span>{{ $request->it_program_config['sap_b1_user'] ?? '-' }} ({{ $request->it_program_config['sap_b1_level'] ?? '-' }})</span>
+                                                </div>
+                                            @endif
+                                            @if(isset($request->it_program_config['rapid_payroll_check']))
+                                                <div class="flex justify-between border-b border-slate-100 pb-1">
+                                                    <span class="font-bold text-slate-500">Rapid Payroll:</span>
+                                                    <span>{{ $request->it_program_config['rapid_payroll_user'] ?? '-' }}</span>
+                                                </div>
+                                            @endif
+
+                                            {{-- Dynamic Generic Programs --}}
+                                            @foreach($request->it_program_config['generic'] ?? [] as $gName => $gVal)
+                                                <div class="flex justify-between border-b border-slate-100 pb-1">
+                                                    <span class="font-bold text-slate-500">{{ $gName }}:</span>
+                                                    <span>{{ $gVal['user'] ?? '-' }}</span>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <div class="mt-6 pt-4 border-t border-slate-200 space-y-1">
+                                            <div class="text-[10px] flex justify-between"><span class="font-bold">สถานะ:</span> <span class="{{ ($request->it_program_config['status'] ?? '') == 'completed' ? 'text-green-600' : 'text-yellow-600' }} font-black uppercase">{{ $request->it_program_config['status'] ?? 'Pending' }}</span></div>
+                                            <div class="text-[10px] flex justify-between"><span class="font-bold">ผู้ดำเนินการ:</span> {{ $request->itStaff->fullname ?? '-' }}</div>
+                                            <div class="text-[9px] text-slate-400 italic text-right">วันที่: {{ $request->it_configured_at->format('d/m/Y H:i') }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                {{-- IT ยังไม่ดำเนินการ - แสดงสถานะรอ สำหรับทุกคน --}}
+                                <div class="p-16 text-center bg-gradient-to-b from-blue-50 to-white rounded-3xl border-2 border-blue-100">
+                                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-100 mb-6">
+                                        <svg class="w-10 h-10 text-blue-500 animate-spin" style="animation-duration: 3s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        </svg>
+                                    </div>
+                                    <h4 class="text-lg font-black text-blue-600 mb-2">กำลังดำเนินการ</h4>
+                                    <p class="text-sm text-slate-500 font-medium">รอเจ้าหน้าที่เทคโนโลยีสารสนเทศกำลังดำเนินการตั้งค่าระบบ</p>
+                                    <p class="text-xs text-slate-400 mt-2">กรุณารอสักครู่ ระบบจะอัปเดตสถานะเมื่อดำเนินการเสร็จสิ้น</p>
+                                </div>
+                            @endif
+                        @else
+                             <div class="p-10 text-center bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+                                <p class="text-sm font-bold text-slate-400 italic">รอการอนุมัติให้ครบทุกลำดับก่อนดำเนินการขั้นตอนนี้</p>
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- ส่วนที่ 4: สำหรับผู้ใช้งาน --}}
+                    <div class="space-y-6 pt-10 border-t-2 border-slate-200">
+                         <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest bg-slate-100 py-2 px-4 rounded-lg">ส่วนที่ 4 สำหรับผู้ใช้งาน</h3>
+
+                         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                            <p class="text-[13px] text-slate-700 leading-relaxed text-center font-medium">
+                               "ข้าพเจ้าได้รับข้อมูลผู้ใช้งานและรหัสผ่านเป็นที่เรียบร้อยแล้ว และได้ทำการเปลี่ยนแปลงแก้ไขรหัสผ่านในครั้งแรกที่เข้าใช้งานและจะเก็บข้อมูลดังกล่าวเป็นความลับ"
+                            </p>
+
+                            @if($request->user_acknowledged_at)
+                                <div class="bg-green-50 rounded-xl p-4 border border-green-100 flex items-center justify-center gap-3 text-green-700">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span class="font-bold uppercase tracking-widest text-xs">ยืนยันรับทราบข้อมูลผู้ใช้งานแล้ว</span>
+                                </div>
+                            @else
+                                <div class="p-4 bg-blue-50/30 rounded-xl border border-dashed border-blue-200 text-center no-print">
+                                    <p class="text-[10px] text-blue-400 italic">กรุณาตรวจสอบข้อมูลและกดยืนยันที่ด้านล่างสุดของเอกสาร</p>
+                                </div>
+                            @endif
+                         </div>
+                         </div>
+
+                         <div class="flex justify-end pt-4 print-block">
+                            <div class="text-center w-64 border-t border-slate-200 pt-2">
+                                 <p class="text-[10px] font-bold text-slate-700">ผู้ใช้งาน (User)</p>
+                                 <p class="text-[9px] text-slate-500 mt-1">วันที่ {{ $request->user_acknowledged_at ? $request->user_acknowledged_at->format('d/m/Y') : '........./........./.........' }}</p>
+                            </div>
+                         </div>
+                    </div>
+
+                    {{-- ประกาศ ระเบียบการใช้งานระบบเครือข่ายและคอมพิวเตอร์ --}}
+                    <div class="space-y-6 pt-10 border-t-2 border-slate-200">
+                        <div class="flex items-center justify-center">
+                            <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest bg-red-50 text-red-700 py-2 px-4 rounded-lg border border-red-100 text-center">
+                                ประกาศ ระเบียบการใช้งานระบบเครือข่ายและคอมพิวเตอร์
+                            </h3>
+                        </div>
+
+                        <div class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 text-[11px] text-slate-700 leading-relaxed space-y-4 max-h-[500px] overflow-y-auto no-print-scroll">
+                            <p class="text-center text-sm font-black text-slate-800 mb-2">ประกาศ</p>
+                            <p class="text-center text-xs font-bold text-slate-700 mb-4">ระเบียบการใช้งานระบบเครือข่ายและคอมพิวเตอร์</p>
+
+                            <p class="indent-8">
+                                บริษัท คัมเวล คอร์ปอเรชั่น จำกัด (มหาชน) ได้จัดให้มีระบบเครือข่ายและคอมพิวเตอร์เพื่อสนับสนุนการดำเนินงานของบริษัทฯ 
+                                ให้เกิดประสิทธิภาพ สามารถตอบสนองเป้าหมายทางธุรกิจในประสิทธิผลและรวดเร็วขึ้น ดังนั้น บริษัทฯ จึงจัดว่าระบบเครือข่ายและ
+                                คอมพิวเตอร์เป็นสินทรัพย์ที่สำคัญของบริษัทฯ เพื่อให้การใช้งานเป็นไปอย่างเรียบร้อยและเกิดประโยชน์สูงสุด บริษัทฯ จึงได้ประกาศ
+                                ระเบียบการใช้งานระบบเครือข่ายและคอมพิวเตอร์ โดยมีสาระสำคัญดังนี้
+                            </p>
+
+                            <div class="space-y-4 pl-4">
+                                <div>
+                                    <p class="font-bold text-slate-800">1. บริษัทฯ จะมอบหมายแผนกเทคโนโลยีสารสนเทศ ดูแลบำรุงรักษา พัฒนาและปรับปรุงระบบเครือข่ายและคอมพิวเตอร์ให้พร้อมใช้งานได้อยู่เสมอ พร้อมทั้งมอบบัญชีผู้ใช้งาน (User Account) และรหัสผ่าน (Password) ให้กับผู้ใช้งานเฉพาะบุคคล โดย ผู้ใช้งานจะต้องปฏิบัติ ดังนี้</p>
+                                    <div class="pl-6 space-y-2 mt-2">
+                                        <p>a. ผู้ใช้งาน (User Account) และรหัสผ่าน (Password) ถือเป็นความลับเฉพาะบุคคล ต้องเก็บและรักษาเป็นความลับ ไม่ให้ผู้อื่นนำไปใช้งานได้อย่างเด็ดขาด</p>
+                                        <p>b. ผู้ใช้งานจะต้องเก็บรักษารหัสผ่าน (Password) ไว้เป็นความลับ โดยไม่อาจระ ทำการแสดงถึงการเปิดเผยรหัสผ่าน (Password) ให้ผู้อื่นทราบ และไม่ใช้โปรแกรมคอมพิวเตอร์ช่วยจำรหัสผ่านอัตโนมัติ (Save Password) สำหรับเครื่องคอมพิวเตอร์ที่ผู้ใช้งานใช้ปฏิบัติงาน</p>
+                                        <p>c. ผู้ใช้งานต้องไม่ติดตั้ง Software หรือนำอุปกรณ์ Hardware ส่วนบุคคลที่เกี่ยวข้องกับงานและบอกเหตุข้อจำเป็นกับบริษัทฯ ก่อนนำ หากมีความจำเป็นต้องแจ้งผู้รับผิดชอบ และแผนกเทคโนโลยีสารสนเทศ เพื่อของอนุมัติก่อน</p>
+                                    </div>
+                                </div>
+
+                                <p>d. ผู้ใช้งานต้องไม่ ตัดต่อ เปิดเผย หรืออ่ายโอนข้อมูลข้อมูลไปรูปแบบการ Upload, Download หรือวิธีการใดก็ตามที่อาจก่อให้ เสียหายแก่บริษัทฯ โดยเด็ดขาด ดังเช่น ข้อมูล สิ่งส่งพิมพ์อิเล็กทรอนิกส์ที่เป็นการละเมิดลิขสิทธิ์หรือเป็นข้อมูลของผู้ร้อง จ่ออื่น ข้อมูลที่เป็นความลับในเรื่องเกี่ยวกับธุรกิจ พนักงาน หรือบุคคลภายนอก เป็นต้น</p>
+
+                                <div>
+                                    <p class="font-bold text-slate-800">2. เมื่อผู้ใช้งานว่างจากการใช้เครื่องคอมพิวเตอร์ส่วนบุคคลเกิน 5 นาที ให้ผู้ใช้งานทำการปกหน้าจอ (Lock Screen) หรือทำการปิดเครื่อง (Shut Down) เมื่อการปฏิบัติงานประจำวันเสร็จสิ้น โดย</p>
+                                    <div class="pl-6 space-y-2 mt-2">
+                                        <p>a. กรณีที่ผู้ใช้งานยินยอมให้ผู้อื่นใช้เครื่องคอมพิวเตอร์ของตนเองหรือ ผู้ใช้งานจะต้องทำการออกจากระบบ (Logout) ทันที เพื่อที่ผู้ยืมเข้าทำการเข้าใช้ตัวเอง (Login) ด้วยบัญชีผู้ใช้งาน (User Account) และรหัสผ่าน (Password) ของตนเองเท่านั้น</p>
+                                        <p>b. ผู้ใช้งานจะต้องไม่เปิดเผยพาสส์เวิร์ดตนเองให้คนอื่นทราบ หรือบุคคลอื่นใดก็ตามให้รับรู้หรือ กุญแจ ดังเช่น การบุกรุก (Hack) เจาะเข้าระบบ</p>
+                                    </div>
+                                </div>
+
+                                <p class="font-bold text-slate-800">3. ผู้ใช้งาน (User Account) ของผู้ใช้ที่ถูกตั้งขึ้นมาเพื่อเข้าถึงคอมพิวเตอร์ของบริษัทฯ การเขียน เผยแพร่ข้อความใด ๆ ที่ อาจก่อให้เกิดความเสียหายอาจ เสื่อมเสียแก่ผู้อื่น การใช้เพื่ออุปกรณ์ที่ไม่สุภาพ เป็นต้น หากมีการกระทำเสียหายจากผู้ใช้งาน จะต้องรับผิดชอบชดเชย</p>
+
+                                <p>3. ผู้ใช้งานต้องไม่ปฏิบัติการใด ๆ ที่เป็นการขัดต่อกฎหมายว่าด้วยการประกอบกิจกรรมว่าด้วยคอมพิวเตอร์ ทำให้ผู้ใช้งานบริษัทฯ รับความเสียหาก มีการกระทำการใด ๆ ที่ระบบค่า อ้อมถ้าว่า ย่อมถือว่าผู้ใช้งานผู้นั้นเป็นผิดระบบความรับผิดชอบบริษัทฯ</p>
+
+                                <p class="font-bold text-slate-800">4. ผู้ใช้งานต้องปฏิบัติตามเงื่อนไข กฎระเบียบ ข้อบังคับที่บริษัทฯ กำหนดไว้ โดยเมื่อลงนามในใบสำเร็จ หมี เสมือนประกาศจากบริษัทฯ</p>
+
+                                <p class="font-bold text-slate-800">5. บริษัทฯ ขอสงวนสิทธิ์ในการตรวจสอบเครื่องคอมพิวเตอร์ของผู้ใช้งาน ในกรณีที่พบเห็นการไม่ปฏิบัติตามระเบียบการใช้งานระบบเครือข่ายและคอมพิวเตอร์โดยมีต้องแจ้งให้ทราบล่วงหน้า</p>
+
+                                <div>
+                                    <p class="font-bold text-slate-800">6. หากผู้ใช้งานฝ่าฝืนหรือไม่ปฏิบัติตามระเบียบการใช้งานระบบเครือข่ายและคอมพิวเตอร์ บริษัทฯ จะพิจารณาบทลงโทษ ทันที ตามความเสียหายที่เกิดขึ้น ดังต่อไปนี้</p>
+                                    <ul class="list-disc pl-10 mt-2 space-y-1">
+                                        <li>ตักเตือนด้วยวาจา</li>
+                                        <li>ตักเตือนเป็นลายลักษณ์อักษร</li>
+                                        <li>ไม่พิจารณาขึ้นเงินเดือน</li>
+                                        <li>เลิกจ้างโดยไม่จ่ายค่าชดเชย</li>
+                                        <li>ฟ้องร้องและเรียกค่าเสียหาย</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Consolidated Acceptance Section --}}
+                        <div class="bg-blue-50/50 rounded-2xl border-2 border-blue-100 p-8 space-y-6 no-print">
+                            <div class="space-y-4">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">1</div>
+                                    <p class="text-xs text-slate-700 font-bold leading-relaxed">
+                                        ข้าพเจ้าได้รับข้อมูลผู้ใช้งานและรหัสผ่านเป็นที่เรียบร้อยแล้ว และได้ทำการเปลี่ยนแปลงแก้ไขรหัสผ่านในครั้งแรกที่เข้าใช้งานและจะเก็บข้อมูลดังกล่าวเป็นความลับ
+                                    </p>
+                                </div>
+                                <div class="flex items-start gap-4">
+                                    <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">2</div>
+                                    <p class="text-xs text-slate-700 font-bold leading-relaxed">
+                                        ข้าพเจ้าได้อ่านและทำความเข้าใจระเบียบการใช้งานระบบเครือข่ายและคอมพิวเตอร์ของบริษัทฯ แล้ว ข้าพเจยินยอมที่จะปฏิบัติตามระเบียบดังกล่าวอย่างเคร่งครัด
+                                    </p>
+                                </div>
+                            </div>
+
+                            @if(!$request->user_acknowledged_at)
+                                @if($request->it_status === 'completed' && $request->user_id === Auth::id())
+                                    <form action="{{ route('tracking.acknowledge', $request->request_no) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="w-full py-5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-black text-xl shadow-xl shadow-blue-200 transition transform hover:-translate-y-1 flex items-center justify-center gap-3">
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            ยืนยันรับทราบและยอมรับระเบียบ
+                                        </button>
+                                    </form>
+                                @else
+                                    <div class="p-4 bg-white/50 rounded-xl border border-dashed border-blue-200 text-center">
+                                        <p class="text-sm text-blue-400 italic">
+                                            @if($request->it_status !== 'completed')
+                                                รอเจ้าหน้าที่ IT ดำเนินการตั้งค่าระบบให้เสร็จสิ้นก่อนจึงจะสามารถกดยืนยันได้
+                                            @else
+                                                รอดำเนินการยืนยันจากผู้ใช้งาน
+                                            @endif
+                                        </p>
+                                    </div>
+                                @endif
+                            @else
+                                <div class="bg-green-600 rounded-2xl py-4 px-6 text-white flex items-center justify-between shadow-lg shadow-green-100">
+                                    <div class="flex items-center gap-3">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <div>
+                                            <p class="font-black text-lg">ดำเนินการยืนยันเรียบร้อยแล้ว</p>
+                                            <p class="text-xs text-green-100">บันทึกข้อมูลเมื่อ: {{ $request->user_acknowledged_at->format('d/m/Y H:i') }}</p>
+                                        </div>
+                                    </div>
+                                </div>
                             @endif
                         </div>
-                        <div>
-                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">สถานะปัจจุบัน</p>
-                            <p
-                                class="text-lg font-black {{ $request->status == 'approved' ? 'text-green-700' : ($request->status == 'rejected' ? 'text-red-700' : 'text-yellow-700') }}">
-                                {{ $request->status == 'pending' ? 'รออนุมัติ (Pending)' : ($request->status == 'approved' ? 'อนุมัติแล้ว (Approved)' : 'ถูกปฏิเสธ (Rejected)') }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
 
-                {{-- ส่วนที่ 1: ผู้ร้องขอ --}}
-                <div class="space-y-6">
-                    <h3 class="text-sm font-bold text-blue-600 uppercase tracking-widest border-l-4 border-blue-500 pl-3">
-                        ส่วนที่ 1 ผู้ร้องขอ</h3>
-
-                    <!-- ประเภทคำร้อง -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase mb-3">ประเภทคำร้อง</label>
-                        <div
-                            class="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 rounded-xl border border-blue-200 font-bold text-sm">
-                            @php
-                                $types = [
-                                    'new_employee' => 'พนักงานใหม่',
-                                    'resign' => 'ลาออก',
-                                    'position_change' => 'ปรับตำแหน่ง',
-                                    'transfer' => 'โอนย้าย',
-                                    'add_remove_access' => 'เพิ่มสิทธิ์/ลบสิทธิ์',
-                                ];
-                            @endphp
-                            {{ $types[$request->request_type] ?? $request->request_type }}
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ชื่อ (ภาษาไทย)</label>
-                            <p
-                                class="block w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium">
-                                {{ $request->firstname }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">นามสกุล (ภาษาไทย)</label>
-                            <p
-                                class="block w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium">
-                                {{ $request->lastname }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ชื่อเล่น</label>
-                            <p
-                                class="block w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium">
-                                {{ $request->nickname_th ?: '-' }}</p>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Name (English)</label>
-                            <p
-                                class="block w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium">
-                                {{ $request->firstname_en ?: '-' }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Last Name (English)</label>
-                            <p
-                                class="block w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium">
-                                {{ $request->lastname_en ?: '-' }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nick Name (English)</label>
-                            <p
-                                class="block w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium">
-                                {{ $request->nickname_en ?: '-' }}</p>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">โทรศัพท์</label>
-                            <p
-                                class="block w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium">
-                                {{ $request->phone ?: '-' }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ภายใน (Ext.)</label>
-                            <p
-                                class="block w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium">
-                                {{ $request->phone_ext ?: '-' }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">รหัสพนักงาน</label>
-                            <p
-                                class="block w-full bg-blue-50 border border-blue-100 rounded-xl px-4 py-2.5 text-sm text-blue-700 font-bold">
-                                {{ $request->emp_code }}</p>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ระดับ</label>
-                            <p
-                                class="block w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium">
-                                {{ $request->position_level }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ตำแหน่ง</label>
-                            <p
-                                class="block w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium">
-                                {{ $request->position_name }}</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">แผนก/ฝ่าย</label>
-                            <p
-                                class="block w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium">
-                                {{ $request->department_name }}
-                                {{ $request->division_name ? '/ ' . $request->division_name : '' }}</p>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- ส่วนที่ 2: การเข้าถึง --}}
-                <div class="space-y-6">
-                    <h3 class="text-sm font-bold text-blue-600 uppercase tracking-widest border-l-4 border-blue-500 pl-3">
-                        ส่วนที่ 2 การเข้าถึง</h3>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- การเข้าถึงระบบ -->
-                        <div class="bg-slate-50/50 rounded-2xl border border-slate-200 p-6 space-y-4">
-                            <h4
-                                class="text-xs font-black text-slate-400 uppercase flex items-center gap-2 pb-2 border-b border-slate-100">
-                                <svg class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                                การเข้าถึงระบบ
-                            </h4>
-                            <div class="flex flex-wrap gap-2">
-                                @php $systems = $request->system_access ?? []; @endphp
-                                @foreach($systems as $key => $val)
-                                    @if($val && !Str::endsWith($key, '_sub') && $key !== 'other_check' && $key !== 'other_text')
-                                        <div class="bg-white border border-slate-200 rounded-xl px-4 py-2 shadow-sm">
-                                            <span
-                                                class="text-sm font-bold text-slate-700">{{ ucwords(str_replace('_', ' ', $key)) }}</span>
-                                            @if(isset($systems[$key . '_sub']))
-                                                <span
-                                                    class="ml-1 text-[10px] font-medium text-slate-400 block border-t border-slate-100 mt-1 pt-1">{{ is_array($systems[$key . '_sub']) ? implode(', ', $systems[$key . '_sub']) : $systems[$key . '_sub'] }}</span>
-                                            @endif
-                                        </div>
-                                    @endif
-                                @endforeach
-                            </div>
-                        </div>
-
-                        <!-- การเข้าถึงโปรแกรม -->
-                        <div class="bg-slate-50/50 rounded-2xl border border-slate-200 p-6 space-y-4">
-                            <h4
-                                class="text-xs font-black text-slate-400 uppercase flex items-center gap-2 pb-2 border-b border-slate-100">
-                                <svg class="h-4 w-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                การเข้าถึงโปรแกรม
-                            </h4>
-                            <div class="flex flex-wrap gap-2">
-                                @php $programs = $request->program_access ?? []; @endphp
-                                @foreach($programs as $key => $val)
-                                    @if($val && !Str::endsWith($key, '_sub') && $key !== 'other_check' && $key !== 'other_text')
-                                        <div class="bg-white border border-slate-200 rounded-xl px-4 py-2 shadow-sm">
-                                            <span
-                                                class="text-sm font-bold text-slate-700">{{ ucwords(str_replace('_', ' ', $key)) }}</span>
-                                            @if(isset($programs[$key . '_sub']))
-                                                <span
-                                                    class="ml-1 text-[10px] font-medium text-slate-400 block border-t border-slate-100 mt-1 pt-1">{{ is_array($programs[$key . '_sub']) ? implode(', ', $programs[$key . '_sub']) : $programs[$key . '_sub'] }}</span>
-                                            @endif
-                                        </div>
-                                    @endif
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- รายละเอียดเพิ่มเติม --}}
-                <div class="space-y-4">
-                    <h3 class="text-sm font-bold text-blue-600 uppercase tracking-widest border-l-4 border-blue-500 pl-3">
-                        รายละเอียดเพิ่มเติม</h3>
-                    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-6 text-sm text-slate-600 italic">
-                        {{ $request->details ?: 'ไม่มีรายละเอียดเพิ่มเติม' }}
-                    </div>
-                </div>
-
-                {{-- ลายมือชื่อและการอนุมัติ --}}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-slate-100">
-                    <!-- ลายเซ็น -->
-                    <div class="flex flex-col items-center p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                        <label
-                            class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">ลายมือชื่อผู้ร้องขอ</label>
-                        @if($request->signature_path)
-                            <img src="{{ asset('storage/' . $request->signature_path) }}" alt="Signature"
-                                class="h-20 w-auto mb-2">
-                        @else
-                            <div class="h-20 flex items-center text-slate-300 italic text-xs">ไม่ได้ระบุลายเซ็น</div>
-                        @endif
-                        <div class="w-32 h-px bg-slate-200 mb-2"></div>
-                        <p class="text-xs font-bold text-slate-700">{{ $request->firstname }} {{ $request->lastname }}</p>
-                    </div>
-
-                    <!-- การอนุมัติ -->
-                    <div class="space-y-3">
-                        <label
-                            class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">ขั้นตอนการอนุมัติ</label>
-                        @foreach($request->steps as $step)
-                            <div
-                                class="flex items-center justify-between p-3 rounded-xl border {{ $step->status == 'approved' ? 'bg-green-50 border-green-100' : ($step->status == 'rejected' ? 'bg-red-50 border-red-100' : 'bg-white border-slate-100') }}">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold {{ $step->status == 'approved' ? 'bg-green-500 text-white' : ($step->status == 'rejected' ? 'bg-red-500 text-white' : 'bg-slate-200 text-slate-500') }}">
-                                        {{ $step->step_order }}
-                                    </div>
-                                    <p class="text-[11px] font-bold text-slate-700">{{ $step->step_name }}</p>
-                                </div>
-                                <div class="text-right">
-                                    <span
-                                        class="text-[9px] font-bold uppercase {{ $step->status == 'approved' ? 'text-green-600' : ($step->status == 'rejected' ? 'text-red-600' : 'text-slate-400') }}">
-                                        {{ $step->status == 'pending' ? 'รอคิว' : ($step->status == 'approved' ? 'อนุมัติแล้ว' : 'ปฏิเสธ') }}
-                                    </span>
-                                    @if($step->status == 'approved' && $step->approved_at)
-                                        <p class="text-[8px] text-slate-400 mt-0.5">{{ $step->approved_at->format('d/m/Y H:i') }}</p>
-                                    @endif
+                        {{-- Print version signature --}}
+                        <div class="print-block mt-8">
+                            <div class="flex justify-end">
+                                <div class="text-center w-64 space-y-1">
+                                    <p class="text-[9px] text-slate-500">ลงชื่อ...................................................................ผู้ใช้งานรับทราบ</p>
+                                    <p class="text-[9px] text-slate-500">(..............................................................)</p>
+                                    <p class="text-[9px] text-slate-500">วันที่........../........../...........</p>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
-                </div>
-
-                {{-- ส่วนสำหรับการอนุมัติ (เฉพาะผู้อนุมัติลำดับปัจจุบัน หรือ Admin) --}}
-                @php
-                    $currentStep = $request->steps->where('step_order', $request->current_step)->where('status', 'pending')->first();
-                    $isAdmin = Auth::user()->role === 'admin';
-                    $isMyTurn = $currentStep && ($currentStep->approver_id == Auth::id() || $isAdmin);
-                @endphp
-
-                @if($isMyTurn)
-                    <div class="mt-8 pt-8 border-t-2 border-dashed border-slate-100 no-print animate-fade-in" x-data="{ showForm: false, actionType: '', method: 'draw', previewUrl: null, useExisting: {{ Auth::user()->signature ? 'true' : 'false' }} }">
-                        <div x-show="!showForm" class="bg-blue-600 rounded-3xl p-8 text-center shadow-xl shadow-blue-200">
-                            <h3 class="text-xl font-bold text-white mb-2">{{ $isAdmin && $currentStep->approver_id != Auth::id() ? 'คุณกำลังดำเนินการในฐานะ Administrator' : 'คุณคือผู้อนุมัติในลำดับนี้' }}</h3>
-                            <p class="text-blue-100 text-sm mb-6">กรุณาตรวจสอบข้อมูลและดำเนินการอนุมัติหรือปฏิเสธคำร้อง</p>
-                            <div class="flex items-center justify-center gap-4">
-                                <button @click="showForm = true; actionType = 'approve'" class="px-8 py-3 bg-white text-blue-600 rounded-2xl font-bold hover:bg-blue-50 transition shadow-sm">
-                                    ดำเนินการอนุมัติ
-                                </button>
-                                <button @click="showForm = true; actionType = 'reject'" class="px-8 py-3 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition shadow-sm">
-                                    ปฏิเสธคำร้อง
-                                </button>
-                            </div>
                         </div>
+                    </div>
 
-                        <div x-show="showForm" x-transition class="bg-white rounded-3xl p-8 shadow-xl border border-slate-100">
-                            <div class="flex items-center justify-between mb-8">
+                </div>
+            </div>
+
+            {{-- Interaction สำหรับผู้อนุมัติ --}}
+            @php
+                $currentStep = $request->steps->where('step_order', $request->current_step)->where('status', 'pending')->first();
+                $isAdmin = Auth::user()->role === 'admin';
+                $isMyTurn = $currentStep && ($currentStep->approver_id == Auth::id() || $isAdmin);
+            @endphp
+
+            @if($isMyTurn)
+                <div class="mt-8 no-print animate-fade-in" x-data="{ showForm: false, actionType: '', useExisting: {{ Auth::user()->signature ? 'true' : 'false' }} }">
+                    <div x-show="!showForm" class="bg-blue-600 rounded-3xl p-8 text-center shadow-xl shadow-blue-200">
+                        <h3 class="text-xl font-bold text-white mb-2">{{ $isAdmin && $currentStep->approver_id != Auth::id() ? 'Administrator Action' : 'กรุณาดำเนินการอนุมัติ' }}</h3>
+                        <p class="text-white/70 text-sm mb-6">คำร้องนี้อยู่ในความรับผิดชอบของ: {{ $currentStep->approver->fullname ?? 'N/A' }}</p>
+                        <div class="flex items-center justify-center gap-4">
+                            <button @click="showForm = true; actionType = 'approve'" class="px-10 py-3 bg-white text-blue-600 rounded-2xl font-bold hover:bg-blue-50 transition">อนุมัติคำร้อง</button>
+                            <button @click="showForm = true; actionType = 'reject'" class="px-10 py-3 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition">ปฏิเสธ</button>
+                        </div>
+                    </div>
+
+                    <div x-show="showForm" class="bg-white rounded-3xl p-8 shadow-xl border border-slate-200">
+                        <form :action="actionType === 'approve' ? '{{ route('backend.approvals.approve', $currentStep->id ?? 0) }}' : '{{ route('backend.approvals.reject', $currentStep->id ?? 0) }}'" method="POST" id="approval-form">
+                            @csrf
+                            <div class="space-y-6">
                                 <h3 class="text-xl font-bold text-slate-800" x-text="actionType === 'approve' ? 'ยืนยันการอนุมัติ' : 'ยืนยันการปฏิเสธ'"></h3>
-                                <button @click="showForm = false" class="text-slate-400 hover:text-slate-600">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                    </svg>
-                                </button>
-                            </div>
+                                <textarea name="remark" rows="3" class="w-full rounded-2xl border-slate-200 focus:ring-blue-500" placeholder="ระบุหมายเหตุการตัดสินใจ (ถ้ามี)..."></textarea>
 
-                            <form :action="actionType === 'approve' ? '{{ route('backend.approvals.approve', $currentStep->id) }}' : '{{ route('backend.approvals.reject', $currentStep->id) }}'" method="POST" enctype="multipart/form-data" id="approval-form">
-                                @csrf
-                                <div class="space-y-6">
-                                    <div>
-                                        <label class="block text-sm font-bold text-slate-700 mb-2">ความคิดเห็น / หมายเหตุ</label>
-                                        <textarea name="remark" rows="3" class="w-full rounded-2xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 transition" :required="actionType === 'reject'" placeholder="ระบุเหตุผลหรือข้อเสนอแนะ..."></textarea>
+                                <div x-show="actionType === 'approve'" class="space-y-4">
+                                    <label class="block text-sm font-bold text-slate-700">ลงนามลายมือชื่อ</label>
+                                    @if(Auth::user()->signature)
+                                        <label class="flex items-center gap-2 cursor-pointer mb-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                            <input type="checkbox" name="use_existing" value="1" x-model="useExisting" class="rounded text-blue-600">
+                                            <span class="text-xs text-slate-500 font-bold uppercase">ใช้ลายเซ็นที่บันทึกในระบบ</span>
+                                        </label>
+                                        <div x-show="useExisting" class="p-4 bg-slate-50/50 rounded-2xl border-2 border-dashed border-slate-200 text-center">
+                                            <img src="{{ asset('storage/signatures/' . Auth::user()->signature) }}" class="h-20 w-auto mx-auto grayscale opacity-50">
+                                        </div>
+                                    @endif
+                                    <div x-show="!useExisting" class="bg-slate-50 border-2 border-slate-200 rounded-3xl overflow-hidden">
+                                        <canvas id="approval-signature-pad" class="w-full h-48 touch-none"></canvas>
+                                        <input type="hidden" name="signature" id="approval-signature-input">
                                     </div>
+                                </div>
 
-                                    <div x-show="actionType === 'approve'" class="space-y-6 animate-fade-in">
-                                        <div class="flex items-center justify-between">
-                                            <label class="block text-sm font-bold text-slate-700">ลายมือชื่อผู้อนุมัติ</label>
-                                            @if(Auth::user()->signature)
-                                            <label class="flex items-center cursor-pointer">
-                                                <input type="checkbox" name="use_existing" value="1" x-model="useExisting" class="rounded text-blue-600 mr-2">
-                                                <span class="text-xs text-slate-500">ใช้ลายเซ็นที่บันทึกไว้</span>
-                                            </label>
-                                            @endif
-                                        </div>
-
-                                        <div x-show="useExisting && {{ Auth::user()->signature ? 'true' : 'false' }}" class="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col items-center">
-                                            <img src="{{ asset('storage/signatures/' . Auth::user()->signature) }}" class="h-20 w-auto opacity-80" alt="My Signature">
-                                            <p class="text-[10px] text-slate-400 mt-2 italic">ใช้ลายเซ็นในระบบของคุณ</p>
-                                        </div>
-
-                                        <div x-show="!useExisting" class="space-y-4">
-                                            <div class="flex p-1 bg-slate-100 rounded-xl w-fit">
-                                                <button type="button" @click="method = 'draw'" :class="method === 'draw' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500'" class="px-4 py-1.5 rounded-lg text-xs font-bold transition">วาดใหม่</button>
-                                                <button type="button" @click="method = 'upload'" :class="method === 'upload' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500'" class="px-4 py-1.5 rounded-lg text-xs font-bold transition">อัปโหลดรูป</button>
-                                            </div>
-
-                                            <div x-show="method === 'draw'" class="relative bg-slate-50 border-2 border-slate-100 rounded-3xl overflow-hidden">
-                                                <canvas id="approval-signature-pad" class="w-full h-48 touch-none"></canvas>
-                                                <button type="button" id="clear-approval-signature" class="absolute top-4 right-4 p-2 bg-white shadow-md border border-slate-100 rounded-xl text-slate-400 hover:text-red-500 transition">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                </button>
-                                                <input type="hidden" name="signature" id="approval-signature-input">
-                                            </div>
-
-                                            <div x-show="method === 'upload'">
-                                                <input type="file" name="signature_file" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept="image/*">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <button type="submit" class="w-full py-4 rounded-2xl font-bold transition-all duration-300 text-white shadow-lg" :class="actionType === 'approve' ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-200' : 'bg-red-500 hover:bg-red-600 shadow-red-200'">
-                                        <span x-text="actionType === 'approve' ? 'ยืนยันการอนุมัติคำร้อง' : 'ยืนยันการปฏิเสธคำร้อง'"></span>
+                                <div class="flex gap-4">
+                                    <button type="button" @click="showForm = false" class="flex-1 py-4 bg-slate-100 text-slate-500 rounded-2xl font-bold">ยกเลิก</button>
+                                    <button type="submit" class="flex-2 w-full py-4 rounded-2xl font-bold text-white shadow-lg" :class="actionType === 'approve' ? 'bg-blue-600 shadow-blue-100' : 'bg-red-500 shadow-red-100'">
+                                        ยืนยันดำเนินการ
                                     </button>
                                 </div>
-                            </form>
-                        </div>
+                            </div>
+                        </form>
                     </div>
-                @endif
-            </div>
+                </div>
+            @endif
         </div>
+@endsection
 
-        <!-- Actions -->
-        @yield('scripts')
-            </main>
-        </div>
-    </div>
-
-    @section('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const canvas = document.getElementById('approval-signature-pad');
-                if (!canvas) return;
-
-                const signaturePad = new SignaturePad(canvas, {
-                    backgroundColor: 'rgba(0, 0, 0, 0)',
-                    penColor: 'rgb(30, 41, 59)'
-                });
-
-                function resizeCanvas() {
+@section('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize Approval Signature Pad
+            const canvas = document.getElementById('approval-signature-pad');
+            if (canvas) {
+                const signaturePad = new SignaturePad(canvas, { backgroundColor: 'rgba(0,0,0,0)', penColor: 'rgb(30,41,59)' });
+                function resize() {
                     const ratio = Math.max(window.devicePixelRatio || 1, 1);
                     canvas.width = canvas.offsetWidth * ratio;
                     canvas.height = canvas.offsetHeight * ratio;
                     canvas.getContext("2d").scale(ratio, ratio);
                     signaturePad.clear();
                 }
-
-                window.addEventListener("resize", resizeCanvas);
-                resizeCanvas();
-
-                document.getElementById('clear-approval-signature').addEventListener('click', () => {
-                    signaturePad.clear();
-                });
-
-                const form = document.getElementById('approval-form');
-                form.addEventListener('submit', (e) => {
-                    const alpineData = document.querySelector('[x-data]').__x.$data;
-                    if (alpineData.actionType === 'approve' && !alpineData.useExisting && alpineData.method === 'draw') {
-                        if (signaturePad.isEmpty()) {
-                            e.preventDefault();
-                            alert('กรุณาเซ็นชื่อก่อนดำเนินการอนุมัติ');
-                            return;
-                        }
+                window.onresize = resize; resize();
+                document.getElementById('approval-form').addEventListener('submit', (e) => {
+                    const alpine = document.querySelector('[x-data]').__x.$data;
+                    if (alpine.actionType === 'approve' && !alpine.useExisting) {
+                        if (signaturePad.isEmpty()) { e.preventDefault(); alert('กรุณาลงนามลายมือชื่อ'); return; }
                         document.getElementById('approval-signature-input').value = signaturePad.toDataURL();
                     }
                 });
-            });
-        </script>
-    @endsection
-
-    <style>
-        @media print {
-            .no-print {
-                display: none !important;
             }
-
-            body {
-                background: white !important;
-            }
-
-            .max-w-5xl {
-                max-width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-
-            .shadow-sm {
-                box-shadow: none !important;
-                border: 1px solid #e2e8f0 !important;
-            }
-
-            .rounded-2xl {
-                border-radius: 0 !important;
-            }
-
-            .bg-white {
-                padding: 0 !important;
-            }
-        }
-    </style>
+        });
+    </script>
 @endsection
+
+<style>
+    .print-block { display: none; }
+    @media print {
+        .no-print { display: none !important; }
+        .print-block { display: block !important; }
+        body { background: white !important; font-family: 'Sarabun', sans-serif; font-size: 10px; }
+        .max-w-5xl { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+        .shadow-sm, .rounded-2xl { border: 1px solid #000 !important; box-shadow: none !important; border-radius: 0 !important; }
+        .bg-slate-50, .bg-blue-50, .bg-green-50, .bg-slate-100 { background: white !important; border: 1px solid #000 !important; }
+        .printable-content { border: 2px solid #000 !important; padding: 10px !important; }
+        h2 { font-size: 16px !important; }
+        h3 { background: #eee !important; border: 1px solid #000 !important; color: black !important; }
+        input[type="checkbox"], input[type="radio"] { appearance: auto !important; -webkit-appearance: checkbox !important; }
+        .border-dashed { border-style: solid !important; }
+    }
+</style>

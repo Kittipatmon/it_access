@@ -13,12 +13,14 @@ class AccessOption extends Model
         'has_sub_options',
         'sub_options',
         'sub_option_type',
+        'custom_fields',
         'sort_order',
         'is_active',
     ];
 
     protected $casts = [
         'sub_options' => 'array',
+        'custom_fields' => 'array',
         'has_sub_options' => 'boolean',
         'is_active' => 'boolean',
     ];

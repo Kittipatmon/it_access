@@ -28,7 +28,7 @@ class DashboardController extends Controller
         $stats = [
             'total' => $allRequests->count(),
             'pending' => $allRequests->where('status', 'pending')->count(),
-            'approved' => $allRequests->where('status', 'approved')->count(),
+            'approved' => $allRequests->whereIn('status', ['approved', 'completed'])->count(),
             'rejected' => $allRequests->where('status', 'rejected')->count(),
         ];
 
