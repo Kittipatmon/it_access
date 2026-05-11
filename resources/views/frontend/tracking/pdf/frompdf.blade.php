@@ -457,7 +457,6 @@
                             </div>
                         @endif
                     @endforeach
-                    @endforeach
                 </td>
             </tr>
         </table>
