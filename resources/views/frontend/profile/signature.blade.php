@@ -45,7 +45,8 @@
                                     class="max-h-32 w-auto">
                             </div>
                             <p class="text-[10px] text-slate-400 mt-4 italic">บันทึกเมื่อ:
-                                {{ $user->signature_updated_at ? $user->signature_updated_at->format('d/m/Y H:i') : '-' }}</p>
+                                {{ $user->signature_updated_at ? $user->signature_updated_at->format('d/m/Y H:i') : '-' }}
+                            </p>
                         </div>
                     @else
                         <div
@@ -64,8 +65,8 @@
             <!-- Update Signature Form -->
             <div class="lg:col-span-2">
                 <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
-                    <form action="{{ route('backend.profile.signature.update') }}" method="POST" enctype="multipart/form-data"
-                        id="signature-form" @submit="loading = true">
+                    <form action="{{ route('backend.profile.signature.update') }}" method="POST"
+                        enctype="multipart/form-data" id="signature-form" @submit="loading = true">
                         @csrf
 
                         <div class="space-y-6">
@@ -118,14 +119,14 @@
                                 <div class="relative group">
                                     <input type="file" name="signature_file" id="signature_file" accept="image/*"
                                         class="hidden" @change="
-                                            const file = $event.target.files[0];
-                                            if (file) {
-                                                fileName = file.name;
-                                                const reader = new FileReader();
-                                                reader.onload = (e) => previewUrl = e.target.result;
-                                                reader.readAsDataURL(file);
-                                            }
-                                        ">
+                                                const file = $event.target.files[0];
+                                                if (file) {
+                                                    fileName = file.name;
+                                                    const reader = new FileReader();
+                                                    reader.onload = (e) => previewUrl = e.target.result;
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            ">
                                     <label for="signature_file"
                                         class="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50 hover:bg-slate-100 hover:border-blue-400 transition-all cursor-pointer">
                                         <template x-if="!previewUrl">

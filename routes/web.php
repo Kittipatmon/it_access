@@ -36,18 +36,23 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tracking/{requestNo}/print', [TrackingController::class, 'print'])->name('tracking.print');
     Route::delete('/tracking/{requestNo}', [TrackingController::class, 'destroy'])->name('tracking.destroy');
 
-    // Backend (Normally would have 'role:admin' middleware)
-    Route::prefix('backend')->name('backend.')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
+    // Management Routes (Accessible by all logged in users, e.g. Managers)
+    Route::prefix('manage')->name('manage.')->group(function () {
         // Personal Signature Management
         Route::get('/profile/signature', [\App\Http\Controllers\Backend\ProfileController::class, 'signature'])->name('profile.signature');
         Route::post('/profile/signature', [\App\Http\Controllers\Backend\ProfileController::class, 'updateSignature'])->name('profile.signature.update');
 
+        // Approval routes
         Route::get('/approvals', [ApprovalController::class, 'index'])->name('approvals.index');
         Route::get('/approvals/{id}', [ApprovalController::class, 'show'])->name('approvals.show');
         Route::post('/approvals/{stepId}/approve', [ApprovalController::class, 'approve'])->name('approvals.approve');
         Route::post('/approvals/{stepId}/reject', [ApprovalController::class, 'reject'])->name('approvals.reject');
+    });
+
+    // Backend - Administrative routes (Accessible ONLY by Admin or ICT Dept)
+    Route::middleware(['admin'])->prefix('backend')->name('backend.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
         Route::post('/approvals/{id}/complete', [ApprovalController::class, 'complete'])->name('approvals.complete');
 
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');

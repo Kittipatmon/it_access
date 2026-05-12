@@ -64,7 +64,7 @@
                                     "{{ Str::limit($step->requestForm->details, 40) }}"
                                 </td>
                                 <td class="px-8 py-5 text-right space-x-2 flex justify-end items-center">
-                                    <a href="{{ route('backend.approvals.show', $step->requestForm->id) }}"
+                                    <a href="{{ route('manage.approvals.show', $step->requestForm->id) }}"
                                         class="p-1.5 text-slate-400 hover:text-blue-600 transition" title="ดูรายละเอียด">
                                         <i class="fa-solid fa-eye"></i>
                                     </a>
@@ -160,7 +160,7 @@
                                         @endif
                                     </td>
                                     <td class="px-8 py-5 text-right flex justify-end items-center space-x-3">
-                                        <a href="{{ route('backend.approvals.show', $req->id) }}"
+                                        <a href="{{ route('manage.approvals.show', $req->id) }}"
                                             class="p-1.5 text-slate-400 hover:text-blue-600 transition" title="ดูรายละเอียด">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
@@ -215,12 +215,12 @@
 
             if (type === 'approve') {
                 title.innerText = 'ยืนยันการอนุมัติคำร้อง';
-                form.action = `/backend/approvals/${stepId}/approve`;
+                form.action = `/manage/approvals/${stepId}/approve`;
                 btn.className = 'flex-1 px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-bold transition text-sm';
                 remark.required = false;
             } else {
                 title.innerText = 'ยืนยันการปฏิเสธคำร้อง';
-                form.action = `/backend/approvals/${stepId}/reject`;
+                form.action = `/manage/approvals/${stepId}/reject`;
                 btn.className = 'flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition text-sm';
                 remark.required = true;
             }

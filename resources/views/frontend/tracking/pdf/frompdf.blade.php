@@ -68,7 +68,7 @@
 
         .doc-no {
             position: absolute;
-            bottom: -20px;
+            bottom: -30px;
             right: 0;
             font-size: 16px;
         }
@@ -95,7 +95,7 @@
             position: absolute;
             left: 0;
             right: 0;
-            bottom: 5px;
+            bottom: 3px;
             border-bottom: 1px dotted #000;
         }
 
@@ -110,7 +110,7 @@
             position: absolute;
             left: 0;
             right: 0;
-            bottom: 5px;
+            bottom: 3px;
             border-bottom: 1px solid #000;
         }
 
@@ -120,9 +120,9 @@
             height: 14px;
             border: 1px solid #000;
             text-align: center;
-            line-height: 14px;
+            line-height: 12px;
             font-size: 14px;
-            vertical-align: text-bottom;
+            vertical-align: middle;
             margin-right: 3px;
             background: #fff;
         }
@@ -242,17 +242,17 @@
             <span>โทรศัพท์&nbsp;</span><span class="dot-line" style="flex: 1;">{{ $request->phone }}</span>
             <span>&nbsp;&nbsp;ภายใน&nbsp;</span><span class="dot-line" style="flex: 1;">{{ $request->phone_ext }}</span>
         </div>
-        <div class="flex-row">
+        <div class="form-row" style="margin-bottom: 25px;">
             <span>ระดับ : &nbsp;&nbsp;</span>
             <span class="checkbox">{{ $request->position_level == 'executive' ? '✔' : '' }}</span><span> ผู้บริหาร
-                &nbsp;&nbsp;&nbsp;</span>
+                &nbsp;&nbsp;&nbsp;&nbsp;</span>
             <span class="checkbox">{{ $request->position_level == 'department_head' ? '✔' : '' }}</span><span>
-                หัวหน้าแผนก &nbsp;&nbsp;&nbsp;</span>
+                หัวหน้าแผนก &nbsp;&nbsp;&nbsp;&nbsp;</span>
             <span class="checkbox">{{ $request->position_level == 'employee' ? '✔' : '' }}</span><span> พนักงานทั่วไป
-                &nbsp;&nbsp;&nbsp;</span>
+                &nbsp;&nbsp;&nbsp;&nbsp;</span>
             <span class="checkbox">{{ $request->position_level == 'other' ? '✔' : '' }}</span><span> อื่น&nbsp;</span>
             <span class="dot-line"
-                style="flex: 1;">{{ $request->position_level == 'other' ? $request->position_level_other : '' }}</span>
+                style="width: 150px;">{{ $request->position_level == 'other' ? $request->position_level_other : '' }}</span>
         </div>
         <div class="flex-row">
             <span>ตำแหน่ง :&nbsp;</span><span class="dot-line" style="flex: 1;">{{ $request->position_name }}</span>
@@ -330,41 +330,44 @@
                 $reviewerStep = $request->steps->where('step_order', 1)->first();
                 $approverStep = $request->steps->where('step_order', 2)->first();
             @endphp
-            <div class="flex-row" style="padding-left: 20px; position: relative;">
+            <div class="flex-row" style="padding-left: 20px;">
                 <span>ผู้ร้องขอ&nbsp;</span>
-                @if($request->signature_path)
-                    <img src="{{ asset('storage/' . $request->signature_path) }}"
-                        style="height: 30px; position: absolute; left: 80px; top: -10px;">
-                @endif
                 <span class="dot-line" style="flex: 2;">
-                    @if(!$request->signature_path) {{ $request->firstname }} {{ $request->lastname }} @endif
+                    @if($request->signature_path)
+                        <img src="{{ asset('storage/' . $request->signature_path) }}"
+                            style="height: 40px; position: absolute; left: 50%; bottom: 3px; transform: translateX(-50%);">
+                    @else
+                        {{ $request->firstname }} {{ $request->lastname }}
+                    @endif
                 </span>
                 <span>&nbsp;&nbsp;วันที่&nbsp;</span><span class="dot-line"
                     style="flex: 1;">{{ $request->created_at->format('d/m/Y') }}</span>
             </div>
-            <div class="flex-row" style="padding-left: 20px; position: relative;">
+            <div class="flex-row" style="padding-left: 20px;">
                 <span>ผู้ตรวจสอบ&nbsp;</span>
-                @if($reviewerStep && $reviewerStep->status == 'approved' && $reviewerStep->approver && $reviewerStep->approver->signature)
-                    <img src="{{ asset('storage/signatures/' . $reviewerStep->approver->signature) }}"
-                        style="height: 30px; position: absolute; left: 90px; top: -10px;">
-                @endif
-                <span class="dot-line" style="flex: 2;"></span>
+                <span class="dot-line" style="flex: 2;">
+                    @if($reviewerStep && $reviewerStep->status == 'approved' && $reviewerStep->approver && $reviewerStep->approver->signature)
+                        <img src="{{ asset('storage/signatures/' . $reviewerStep->approver->signature) }}"
+                            style="height: 40px; position: absolute; left: 50%; bottom: 3px; transform: translateX(-50%);">
+                    @endif
+                </span>
                 <span>&nbsp;&nbsp;วันที่&nbsp;</span><span class="dot-line"
                     style="flex: 1;">{{ $reviewerStep && $reviewerStep->status == 'approved' ? $reviewerStep->approved_at->format('d/m/Y') : '......../......../........' }}</span>
             </div>
-            <div class="flex-row" style="padding-left: 20px; position: relative;">
+            <div class="flex-row" style="padding-left: 20px;">
                 <span>ผู้อนุมัติ&nbsp;</span>
-                @if($approverStep && $approverStep->status == 'approved' && $approverStep->approver && $approverStep->approver->signature)
-                    <img src="{{ asset('storage/signatures/' . $approverStep->approver->signature) }}"
-                        style="height: 30px; position: absolute; left: 80px; top: -10px;">
-                @endif
-                <span class="dot-line" style="flex: 2;"></span>
+                <span class="dot-line" style="flex: 2;">
+                    @if($approverStep && $approverStep->status == 'approved' && $approverStep->approver && $approverStep->approver->signature)
+                        <img src="{{ asset('storage/signatures/' . $approverStep->approver->signature) }}"
+                            style="height: 40px; position: absolute; left: 50%; bottom: 3px; transform: translateX(-50%);">
+                    @endif
+                </span>
                 <span>&nbsp;&nbsp;วันที่&nbsp;</span><span class="dot-line"
                     style="flex: 1;">{{ $approverStep && $approverStep->status == 'approved' ? $approverStep->approved_at->format('d/m/Y') : '......../......../........' }}</span>
             </div>
         </div>
 
-        <div class="doc-no">
+        <div class="doc-no" style="bottom: -25px;">
             QF-IT-08: Rev: 02: 06-07-20
         </div>
     </div>
@@ -499,13 +502,14 @@
             และได้ทำการเปลี่ยนแปลงแก้ไขรหัสผ่านในครั้งแรกที่เข้าใช้งานและจะเก็บข้อมูลดังกล่าวเป็นความลับ
         </div>
 
-        <div class="flex-row" style="padding-left: 20px; position: relative;">
+        <div class="flex-row" style="padding-left: 20px;">
             <span>ผู้ใช้งาน&nbsp;</span>
-            @if($request->user_acknowledged_at && $request->user && $request->user->signature)
-                <img src="{{ asset('storage/signatures/' . $request->user->signature) }}"
-                    style="height: 30px; position: absolute; left: 80px; top: -10px;">
-            @endif
-            <span class="dot-line" style="flex: 2;"></span>
+            <span class="dot-line" style="flex: 2;">
+                @if($request->user_acknowledged_at && $request->user && $request->user->signature)
+                    <img src="{{ asset('storage/signatures/' . $request->user->signature) }}"
+                        style="height: 40px; position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);">
+                @endif
+            </span>
             <span>&nbsp;&nbsp;วันที่&nbsp;</span><span class="dot-line"
                 style="flex: 1;">{{ $request->user_acknowledged_at ? $request->user_acknowledged_at->format('d/m/Y') : '......../......../........' }}</span>
         </div>
@@ -689,28 +693,50 @@
             </tr>
         </table>
 
-        <table style="width: 100%; border: none; margin-top: 100px;">
-            <tr>
-                <td style="width: 50%;"></td>
-                <td style="width: 50%; text-align: center; line-height: 2.5; position: relative;">
-                    ลงชื่อ
+        <div style="margin-top: 100px; width: 400px; margin-left: auto; text-align: center; line-height: 1.2;">
+            <div style="white-space: nowrap;">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ลงชื่อ <span class="dot-line" style="width: 150px;">
                     @if($request->user_acknowledged_at && $request->user && $request->user->signature)
                         <img src="{{ asset('storage/signatures/' . $request->user->signature) }}"
-                            style="height: 40px; position: absolute; left: 140px; top: -10px;">
+                            style="height: 40px; position: absolute; left: 50%; bottom: 3px; transform: translateX(-50%);">
                     @endif
-                    <span class="dot-line" style="width: 180px;"></span>
-                    ผู้ใช้งานรับทราบ<br>
-                    (<span class="dot-line" style="width: 180px;">{{ $request->firstname }}
-                        {{ $request->lastname }}</span>)<br>
-                    วันที่<span class="dot-line"
-                        style="width: 100px;">{{ $request->user_acknowledged_at ? $request->user_acknowledged_at->format('d/m/Y') : '......../......../........' }}</span>
-                </td>
-            </tr>
-        </table>
-        <div class="doc-no">
-            QF-IT-08: Rev: 02: 06-07-20
+                </span> ผู้ใช้งานรับทราบ
+            </div>
+            <div style="margin-top: 10px;">
+                (&nbsp;<span class="dot-line"
+                    style="width: 150px;">{{ $request->firstname }} {{ $request->lastname }}</span>&nbsp;)
+            </div>
+            <div style="margin-top: 10px;">
+                วันที่ <span class="dot-line"
+                    style="width: 150px;">{{ $request->user_acknowledged_at ? $request->user_acknowledged_at->format('d/m/Y') : '......../......../........' }}</span>
+            </div>
         </div>
+        <div class="doc-no" style="bottom: -130px;">
+    QF-IT-08: Rev: 02: 06-07-20
+</div>
     </div>
+    <script>
+        window.onload = function() {
+            // Give a tiny delay to ensure the page is fully rendered before print dialog
+            setTimeout(function() {
+                window.print();
+            }, 500);
+
+            // Return to previous page after print dialog is closed (Save or Cancel)
+            window.onafterprint = function() {
+                window.history.back();
+            };
+
+            // Fallback for browsers that don't support onafterprint properly
+            // or if the print dialog is blocked/skipped
+            window.addEventListener('focus', function() {
+                // When user returns focus to the window, it often means the print dialog is closed
+                setTimeout(function() {
+                    window.history.back();
+                }, 500);
+            }, { once: true });
+        }
+    </script>
 </body>
 
 </html>

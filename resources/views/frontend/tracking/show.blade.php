@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="max-w-7xl mx-auto px-4 py-8 ">
-            <div class="mb-4 no-print text-center flex justify-between items-center">
+            <div class="mb-4 no-print flex flex-col sm:flex-row gap-4 justify-between items-center px-2">
                 <a href="{{ route('tracking.index') }}"
                     class="inline-flex items-center text-blue-600 hover:text-blue-700 font-bold text-sm transition-colors">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -10,8 +10,8 @@
                     </svg>
                     กลับไปที่รายการคำร้อง
                 </a>
-                <div class="flex gap-2">
-                     <a href="{{ route('tracking.print', $request->request_no) }}" target="_blank" class="px-6 py-2 bg-slate-900 text-white rounded-xl font-bold text-sm hover:scale-105 transition-all">
+                <div class="flex gap-2 w-full sm:w-auto">
+                     <a href="{{ route('tracking.print', $request->request_no) }}" class="flex-1 sm:flex-none text-center px-6 py-2 bg-slate-900 text-white rounded-xl font-bold text-sm hover:scale-105 transition-all">
                         พิมพ์ใบคำร้อง (PDF)
                      </a>
                 </div>
@@ -19,15 +19,17 @@
 
             <div class="bg-white shadow-sm rounded-2xl overflow-hidden border border-slate-200 printable-content">
                 <!-- Header -->
-                <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-white flex justify-between items-center">
+                <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div class="flex items-center gap-4">
-                        <img src="https://www.kumwell.com/wp-content/uploads/2021/04/Logo-Kumwell-PNG.png" class="h-10 w-auto" alt="Kumwell Logo">
+                        <div class="h-10 w-10 flex flex-shrink-0 items-center justify-center bg-red-50 rounded-xl border border-red-100">
+                            <span class="text-red-600 font-black text-2xl">K</span>
+                        </div>
                         <div>
-                            <h2 class="text-xl font-bold text-slate-800">แบบฟอร์มการร้องขอสิทธิใช้งานเทคโนโลยีสารสนเทศ</h2>
-                            <p class="text-[10px] text-slate-500">QF-IT-08: Rev: 02 (06-07-20)</p>
+                            <h2 class="text-lg md:text-xl font-bold text-slate-800 leading-tight">แบบฟอร์มการร้องขอสิทธิใช้งานเทคโนโลยีสารสนเทศ</h2>
+                            <p class="text-[9px] md:text-[10px] text-slate-500">QF-IT-08: Rev: 02 (06-07-20)</p>
                         </div>
                     </div>
-                    <div class="text-right flex flex-col items-end gap-2">
+                    <div class="text-left md:text-right flex flex-col items-start md:items-end gap-2 w-full md:w-auto">
                         <p class="text-xs text-slate-400">Request No: <span class="text-blue-600 font-bold">{{ $request->request_no }}</span></p>
                         @if($request->status == 'pending')
                             <span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-[10px] font-bold uppercase border border-yellow-200">รออนุมัติ</span>
@@ -406,17 +408,17 @@
 
             @if($isMyTurn)
                 <div class="mt-8 no-print animate-fade-in" x-data="{ showForm: false, actionType: '', useExisting: {{ Auth::user()->signature ? 'true' : 'false' }} }">
-                    <div x-show="!showForm" class="bg-blue-600 rounded-3xl p-8 text-center shadow-xl shadow-blue-200">
-                        <h3 class="text-xl font-bold text-white mb-2">{{ $isAdmin && $currentStep->approver_id != Auth::id() ? 'Administrator Action' : 'กรุณาดำเนินการอนุมัติ' }}</h3>
-                        <p class="text-white/70 text-sm mb-6">คำร้องนี้อยู่ในความรับผิดชอบของ: {{ $currentStep->approver->fullname ?? 'N/A' }}</p>
-                        <div class="flex items-center justify-center gap-4">
-                            <button @click="showForm = true; actionType = 'approve'" class="px-10 py-3 bg-white text-blue-600 rounded-2xl font-bold hover:bg-blue-50 transition">อนุมัติคำร้อง</button>
-                            <button @click="showForm = true; actionType = 'reject'" class="px-10 py-3 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition">ปฏิเสธ</button>
+                    <div x-show="!showForm" class="bg-blue-600 rounded-3xl p-6 md:p-8 text-center shadow-xl shadow-blue-200">
+                        <h3 class="text-lg md:text-xl font-bold text-white mb-2">{{ $isAdmin && $currentStep->approver_id != Auth::id() ? 'Administrator Action' : 'กรุณาดำเนินการอนุมัติ' }}</h3>
+                        <p class="text-white/70 text-xs md:text-sm mb-6">คำร้องนี้อยู่ในความรับผิดชอบของ: {{ $currentStep->approver->fullname ?? 'N/A' }}</p>
+                        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                            <button @click="showForm = true; actionType = 'approve'" class="w-full sm:w-auto px-10 py-3 bg-white text-blue-600 rounded-2xl font-bold hover:bg-blue-50 transition">อนุมัติคำร้อง</button>
+                            <button @click="showForm = true; actionType = 'reject'" class="w-full sm:w-auto px-10 py-3 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition">ปฏิเสธ</button>
                         </div>
                     </div>
 
                     <div x-show="showForm" class="bg-white rounded-3xl p-8 shadow-xl border border-slate-200">
-                        <form :action="actionType === 'approve' ? '{{ route('backend.approvals.approve', $currentStep->id ?? 0) }}' : '{{ route('backend.approvals.reject', $currentStep->id ?? 0) }}'" method="POST" id="approval-form">
+                        <form :action="actionType === 'approve' ? '{{ route('manage.approvals.approve', $currentStep->id ?? 0) }}' : '{{ route('manage.approvals.reject', $currentStep->id ?? 0) }}'" method="POST" id="approval-form">
                             @csrf
                             <div class="space-y-6">
                                 <h3 class="text-xl font-bold text-slate-800" x-text="actionType === 'approve' ? 'ยืนยันการอนุมัติ' : 'ยืนยันการปฏิเสธ'"></h3>

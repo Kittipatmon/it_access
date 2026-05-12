@@ -79,7 +79,10 @@ class ApprovalController extends Controller
                 $message .= ' (ส่งต่อให้ผู้ลำดับถัดไปพิจารณาเรียบร้อยแล้ว)';
             }
 
-            return redirect()->route('backend.approvals.show', $requestForm->id)->with('success', $message);
+            if (Auth::user()->role === 'admin' || Auth::user()->dept_id == 16) {
+                return redirect()->route('backend.approvals.show', $requestForm->id)->with('success', $message);
+            }
+            return redirect()->route('tracking.index')->with('success', $message);
         }
 
         return redirect()->back()->with('error', 'ไม่สามารถดำเนินการได้');
@@ -101,7 +104,10 @@ class ApprovalController extends Controller
         $success = $this->approvalService->reject($stepId, Auth::id(), $request->remark);
 
         if ($success) {
-            return redirect()->route('backend.approvals.index')->with('success', 'ปฏิเสธคำร้องเรียบร้อยแล้ว (คำร้องถูกยกเลิกแล้ว)');
+            if (Auth::user()->role === 'admin' || Auth::user()->dept_id == 16) {
+                return redirect()->route('backend.approvals.index')->with('success', 'ปฏิเสธคำร้องเรียบร้อยแล้ว (คำร้องถูกยกเลิกแล้ว)');
+            }
+            return redirect()->route('tracking.index')->with('success', 'ปฏิเสธคำร้องเรียบร้อยแล้ว (คำร้องถูกยกเลิกแล้ว)');
         }
 
         return redirect()->back()->with('error', 'ไม่สามารถดำเนินการได้');

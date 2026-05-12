@@ -4,43 +4,32 @@
 
 @section('content')
     <div class="space-y-8" x-data="{ 
-                showAddSystem: {{ $errors->hasAny(['name', 'key']) && old('category') === 'system' ? 'true' : 'false' }}, 
-                showAddProgram: {{ $errors->hasAny(['name', 'key']) && old('category') === 'program' ? 'true' : 'false' }},
-                editId: null,
-                editName: '',
-                editKey: '',
-                editHasSub: false,
-                editSubList: '',
-                editSubType: 'radio',
-                editCustomFields: '',
-                editSort: 0,
-                openEdit(opt) {
-                    this.editId = opt.id;
-                    this.editName = opt.name;
-                    this.editKey = opt.key;
-                    this.editHasSub = !!opt.has_sub_options;
-                    this.editSubList = opt.sub_options ? opt.sub_options.join(', ') : '';
-                    this.editSubType = opt.sub_option_type || 'radio';
-                    this.editCustomFields = opt.custom_fields ? opt.custom_fields.join(', ') : '';
-                    this.editSort = opt.sort_order;
-                }
-            }">
+                                                showAddSystem: {{ $errors->hasAny(['name', 'key']) && old('category') === 'system' ? 'true' : 'false' }}, 
+                                                showAddProgram: {{ $errors->hasAny(['name', 'key']) && old('category') === 'program' ? 'true' : 'false' }},
+                                                editId: null,
+                                                editName: '',
+                                                editKey: '',
+                                                editHasSub: false,
+                                                editSubList: '',
+                                                editSubType: 'radio',
+                                                editCustomFields: '',
+                                                editSort: 0,
+                                                openEdit(opt) {
+                                                    this.editId = opt.id;
+                                                    this.editName = opt.name;
+                                                    this.editKey = opt.key;
+                                                    this.editHasSub = !!opt.has_sub_options;
+                                                    this.editSubList = opt.sub_options ? opt.sub_options.join(', ') : '';
+                                                    this.editSubType = opt.sub_option_type || 'radio';
+                                                    this.editCustomFields = opt.custom_fields ? opt.custom_fields.join(', ') : '';
+                                                    this.editSort = opt.sort_order;
+                                                }
+                                            }">
         <div
             class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-6 border-b border-slate-200">
             <div>
                 <h2 class="text-2xl font-bold text-slate-800 tracking-tight">จัดการรายการเข้าถึง (Access Options)</h2>
                 <p class="text-sm text-slate-500 mt-1">กำหนดรายการระบบและโปรแกรมที่อนุญาตให้ขอสิทธิเข้าถึงในแบบฟอร์ม</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <div class="flex -space-x-2">
-                    <div
-                        class="w-8 h-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-400">
-                        ICT</div>
-                    <div
-                        class="w-8 h-8 rounded-full border-2 border-white bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white">
-                        ADM</div>
-                </div>
-                <span class="text-xs font-medium text-slate-400 italic">Corporate Admin System</span>
             </div>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -72,19 +61,22 @@
                             <div>
                                 <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">ชื่อรายการ</label>
                                 <input type="text" name="name" required
-                                    class="w-full border-slate-200 rounded-lg text-sm px-4 py-2 focus:ring-1 focus:ring-blue-500">
+                                    class="w-full border-slate-300 rounded-lg text-sm px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700 placeholder:text-slate-400"
+                                    placeholder="ระบุชื่อรายการ...">
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Key (ID)</label>
                                 <input type="text" name="key" required
-                                    class="w-full border-slate-200 rounded-lg text-sm font-mono px-4 py-2 focus:ring-1 focus:ring-blue-500">
+                                    class="w-full border-slate-300 rounded-lg text-sm font-mono px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700 placeholder:text-slate-400"
+                                    placeholder="KEY_NAME">
                             </div>
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">ช่องกรอกข้อมูลเพิ่มเติม
-                                (คั่นด้วย ,)</label>
+                                (คั่นด้วย ,) เช่น Username, Password</label>
                             <input type="text" name="custom_fields_list"
-                                class="w-full border-slate-200 rounded-lg text-sm px-4 py-2 focus:ring-1 focus:ring-blue-500">
+                                class="w-full border-slate-300 rounded-lg text-sm px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700 placeholder:text-slate-400"
+                                placeholder="เช่น USERNAME, PASSWORD">
                         </div>
 
                         <div x-data="{ hasSub: false }" class="bg-slate-100/50 p-4 rounded-lg border border-slate-200">
@@ -101,13 +93,14 @@
                                     <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">รายการย่อย
                                         (เช่น Read, Write, Full)</label>
                                     <input type="text" name="sub_options_list"
-                                        class="w-full border-slate-200 rounded-lg text-sm px-4 py-2 focus:ring-1 focus:ring-blue-500">
+                                        class="w-full border-slate-300 rounded-lg text-sm px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700 placeholder:text-slate-400"
+                                        placeholder="เช่น READ, WRITE, FULL">
                                 </div>
                                 <div>
                                     <label
                                         class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">ประเภทการเลือก</label>
                                     <select name="sub_option_type"
-                                        class="w-full border-slate-200 rounded-lg text-sm px-4 py-2 focus:ring-1 focus:ring-blue-500">
+                                        class="w-full border-slate-300 rounded-lg text-sm px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700">
                                         <option value="radio">เลือกได้ 1 อย่าง (Radio)</option>
                                         <option value="checkbox">เลือกได้หลายอย่าง (Checkbox)</option>
                                     </select>
@@ -210,19 +203,22 @@
                             <div>
                                 <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">ชื่อรายการ</label>
                                 <input type="text" name="name" required
-                                    class="w-full border-slate-200 rounded-lg text-sm px-4 py-2 focus:ring-1 focus:ring-blue-500">
+                                    class="w-full border-slate-300 rounded-lg text-sm px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700 placeholder:text-slate-400"
+                                    placeholder="ระบุชื่อโปรแกรม...">
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Key (ID)</label>
                                 <input type="text" name="key" required
-                                    class="w-full border-slate-200 rounded-lg text-sm font-mono px-4 py-2 focus:ring-1 focus:ring-blue-500">
+                                    class="w-full border-slate-300 rounded-lg text-sm font-mono px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700 placeholder:text-slate-400"
+                                    placeholder="PROGRAM_KEY">
                             </div>
                         </div>
                         <div>
                             <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">ช่องกรอกข้อมูลเพิ่มเติม
-                                (คั่นด้วย ,)</label>
+                                (คั่นด้วย ,) เช่น Username, Password</label>
                             <input type="text" name="custom_fields_list"
-                                class="w-full border-slate-200 rounded-lg text-sm px-4 py-2 focus:ring-1 focus:ring-blue-500">
+                                class="w-full border-slate-300 rounded-lg text-sm px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700 placeholder:text-slate-400"
+                                placeholder="เช่น USERNAME, PASSWORD">
                         </div>
 
                         <div x-data="{ hasSub: false }" class="bg-slate-100/50 p-4 rounded-lg border border-slate-200">
@@ -239,13 +235,14 @@
                                     <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">รายการย่อย
                                         (เช่น Read, Write, Full)</label>
                                     <input type="text" name="sub_options_list"
-                                        class="w-full border-slate-200 rounded-lg text-sm px-4 py-2 focus:ring-1 focus:ring-blue-500">
+                                        class="w-full border-slate-300 rounded-lg text-sm px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700 placeholder:text-slate-400"
+                                        placeholder="เช่น READ, WRITE, FULL">
                                 </div>
                                 <div>
                                     <label
                                         class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">ประเภทการเลือก</label>
                                     <select name="sub_option_type"
-                                        class="w-full border-slate-200 rounded-lg text-sm px-4 py-2 focus:ring-1 focus:ring-blue-500">
+                                        class="w-full border-slate-300 rounded-lg text-sm px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700">
                                         <option value="radio">เลือกได้ 1 อย่าง (Radio)</option>
                                         <option value="checkbox">เลือกได้หลายอย่าง (Checkbox)</option>
                                     </select>
@@ -344,25 +341,26 @@
                                     <label
                                         class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">ชื่อรายการ</label>
                                     <input type="text" name="name" x-model="editName" required
-                                        class="w-full border-slate-200 rounded-lg text-sm px-4 py-2">
+                                        class="w-full border-slate-300 rounded-lg text-sm px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700">
                                 </div>
                                 <div>
                                     <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Key
                                         (ID)</label>
                                     <input type="text" name="key" x-model="editKey" required
-                                        class="w-full border-slate-200 rounded-lg text-sm font-mono px-4 py-2 bg-slate-50">
+                                        class="w-full border-slate-300 rounded-lg text-sm font-mono px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700">
                                 </div>
                             </div>
                             <div>
                                 <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">ลำดับ</label>
                                 <input type="number" name="sort_order" x-model="editSort"
-                                    class="w-24 border-slate-200 rounded-lg text-sm px-4 py-2">
+                                    class="w-24 border-slate-300 rounded-lg text-sm px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700">
                             </div>
                             <div>
                                 <label
-                                    class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">ช่องกรอกข้อมูลเพิ่มเติม</label>
+                                    class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">ช่องกรอกข้อมูลเพิ่มเติม
+                                    (คั่นด้วย ,) เช่น Username, Password</label>
                                 <input type="text" name="custom_fields_list" x-model="editCustomFields"
-                                    class="w-full border-slate-200 rounded-lg text-sm px-4 py-2">
+                                    class="w-full border-slate-300 rounded-lg text-sm px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700">
                             </div>
 
                             <div class="pt-4 border-t border-slate-100">
@@ -375,9 +373,9 @@
                                 <div x-show="editHasSub" x-transition class="space-y-4">
                                     <input type="text" name="sub_options_list" x-model="editSubList"
                                         placeholder="รายการตัวเลือก..."
-                                        class="w-full border-slate-200 rounded-lg text-sm px-4 py-2">
+                                        class="w-full border-slate-300 rounded-lg text-sm px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700">
                                     <select name="sub_option_type" x-model="editSubType"
-                                        class="w-full border-slate-200 rounded-lg text-sm px-4 py-2">
+                                        class="w-full border-slate-300 rounded-lg text-sm px-4 py-2 bg-slate-100/50 focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all duration-200 text-slate-700">
                                         <option value="radio">Radio</option>
                                         <option value="checkbox">Checkbox</option>
                                     </select>

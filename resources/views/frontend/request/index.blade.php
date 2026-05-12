@@ -5,13 +5,18 @@
         <div class="bg-white shadow-sm rounded-2xl overflow-hidden border border-slate-200">
             <!-- Header -->
             <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-white">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h2 class="text-xl font-bold text-slate-800">แบบฟอร์มการร้องขอสิทธิใช้งานเทคโนโลยีสารสนเทศ</h2>
-                        <p class="text-sm text-slate-500 mt-1">QF-IT-08: Rev: 02</p>
+                <div class="flex flex-col sm:flex-row justify-between items-start gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="h-10 w-10 flex flex-shrink-0 items-center justify-center bg-red-50 rounded-xl border border-red-100">
+                            <span class="text-red-600 font-black text-2xl">K</span>
+                        </div>
+                        <div>
+                            <h2 class="text-lg md:text-xl font-bold text-slate-800">แบบฟอร์มการร้องขอสิทธิใช้งานเทคโนโลยีสารสนเทศ</h2>
+                            <p class="text-[10px] md:text-sm text-slate-500 mt-1">QF-IT-08: Rev: 02</p>
+                        </div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-xs text-slate-400">Req.No. จะถูกสร้างอัตโนมัติ</p>
+                    <div class="text-left sm:text-right">
+                        <p class="text-[10px] md:text-xs text-slate-400">Req.No. จะถูกสร้างอัตโนมัติ</p>
                     </div>
                 </div>
             </div>
@@ -273,6 +278,14 @@
                         <h3 class="text-sm font-bold text-blue-600 uppercase tracking-widest border-l-4 border-blue-500 pl-3">ลายมือชื่อผู้ร้องขอ</h3>
                         
                         <div class="inline-flex p-1 bg-slate-100 rounded-2xl border border-slate-200">
+                            <button type="button" @click="signature_method = 'none'" 
+                                :class="signature_method === 'none' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+                                class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center space-x-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                <span>ไม่ระบุ</span>
+                            </button>
                             @if(Auth::user()->signature)
                             <button type="button" @click="signature_method = 'existing'" 
                                 :class="signature_method === 'existing' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
@@ -285,7 +298,7 @@
                             @endif
                             <button type="button" @click="signature_method = 'draw'; $nextTick(() => { window.resizeCanvas(); })" 
                                 :class="signature_method === 'draw' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'"
-                                class="px-4 py-2 rounded-xl text-[10px] font-bold transition-all duration-200 flex items-center space-x-2">
+                                class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center space-x-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                 </svg>
@@ -294,12 +307,17 @@
                             <button type="button" @click="signature_method = 'upload'" 
                                 :class="signature_method === 'upload' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
                                 class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center space-x-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/xl" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                 </svg>
                                 <span>อัปโหลดรูป</span>
                             </button>
                         </div>
+                    </div>
+
+                    <!-- Method: None -->
+                    <div x-show="signature_method === 'none'" x-transition class="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-center italic text-slate-400 text-sm">
+                        ไม่มีการระบุลายมือชื่อ (สามารถส่งคำร้องได้)
                     </div>
 
                     <!-- Method: Draw -->
@@ -398,7 +416,7 @@
                 request_type: '{{ old('request_type', '') }}',
                 position_level: '{{ old('position_level', '') }}',
                 use_existing_signature: {{ Auth::user()->signature ? 'true' : 'false' }},
-                signature_method: '{{ Auth::user()->signature ? 'existing' : 'draw' }}',
+                signature_method: '{{ old('signature_method', (Auth::user()->signature ? 'existing' : 'none')) }}',
 
                 init() {
                     const canvas = document.getElementById('signature-pad');

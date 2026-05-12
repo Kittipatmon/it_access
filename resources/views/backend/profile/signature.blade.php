@@ -59,7 +59,7 @@
             <!-- Update Signature Form -->
             <div class="lg:col-span-2">
                 <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
-                    <form action="{{ $user->id === Auth::id() ? route('backend.profile.signature.update') : route('backend.users.signature.update', $user->id) }}" method="POST"
+                    <form action="{{ $user->id === Auth::id() ? route('manage.profile.signature.update') : route('backend.users.signature.update', $user->id) }}" method="POST"
                         enctype="multipart/form-data" id="signature-form" @submit="loading = true">
                         @csrf
 

@@ -36,7 +36,7 @@ class StoreRequestFormRequest extends FormRequest
             'system_access' => 'nullable|array',
             'program_access' => 'nullable|array',
             'details' => 'nullable|string',
-            'signature' => 'required_without_all:existing_signature,signature_file|nullable|string',
+            'signature' => 'nullable|string',
             'existing_signature' => 'nullable|string',
             'signature_file' => 'nullable|image|max:2048',
         ];
@@ -54,7 +54,6 @@ class StoreRequestFormRequest extends FormRequest
             'position_level.required' => 'กรุณาเลือกระดับตำแหน่ง',
             'position_name.required' => 'กรุณาระบุชื่อตำแหน่ง',
             'department_name.required' => 'กรุณาระบุแผนก',
-            'signature.required_without_all' => 'กรุณาลงลายมือชื่อผู้ร้องขอ',
             'signature_file.image' => 'ไฟล์ที่อัปโหลดต้องเป็นรูปภาพเท่านั้น',
             'signature_file.max' => 'ขนาดไฟล์รูปภาพห้ามเกิน 2MB',
         ];

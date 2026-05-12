@@ -18,8 +18,34 @@ class TrackingController extends Controller
 
     public function index()
     {
-        $requests = $this->requestRepo->getInvolvedRequests(Auth::id());
-        return view('frontend.tracking.index', compact('requests'));
+        $userId = Auth::id();
+        $allRequests = $this->requestRepo->getInvolvedRequests($userId);
+
+        // Separate requests that the current user needs to approve
+        $toApprove = $allRequests->filter(function ($request) use ($userId) {
+            if ($request->status !== 'pending') return false;
+            
+            $currentStep = $request->steps
+                ->where('step_order', $request->current_step)
+                ->where('status', 'pending')
+                ->first();
+
+            return $currentStep && $currentStep->approver_id == $userId;
+        });
+
+        // Requests that the current user needs to acknowledge (IT completed but user hasn't signed off)
+        $toAcknowledge = $allRequests->filter(function ($request) use ($userId) {
+            return $request->user_id == $userId && 
+                   $request->status == 'approved' && 
+                   $request->it_status == 'completed' && 
+                   !$request->user_acknowledged_at;
+        });
+
+        return view('frontend.tracking.index', [
+            'requests' => $allRequests,
+            'toApprove' => $toApprove,
+            'toAcknowledge' => $toAcknowledge
+        ]);
     }
 
     public function show($requestNo)

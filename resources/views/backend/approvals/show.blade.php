@@ -5,7 +5,7 @@
 @section('content')
     <div class="max-w-7xl mx-auto px-4 py-4">
         <div class="mb-4 no-print flex justify-between items-center">
-            <a href="{{ route('backend.approvals.index') }}"
+            <a href="{{ route('manage.approvals.index') }}"
                 class="inline-flex items-center text-blue-600 hover:text-blue-700 font-bold text-xs uppercase tracking-widest transition-colors">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -13,17 +13,19 @@
                 กลับไปที่รายการคำร้อง
             </a>
             <div class="flex gap-2">
-                 <button onclick="window.print()" class="px-6 py-2 bg-slate-900 text-white rounded-xl font-bold text-xs hover:scale-105 transition-all">
+                 <a href="{{ route('tracking.print', $request->request_no) }}" class="px-6 py-2 bg-slate-900 text-white rounded-xl font-bold text-xs hover:scale-105 transition-all">
                     พิมพ์ใบคำร้อง (PDF)
-                 </button>
+                 </a>
             </div>
         </div>
 
         <div class="bg-white shadow-sm rounded-3xl overflow-hidden border border-slate-200 printable-content">
             <!-- Header -->
             <div class="p-8 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-white flex justify-between items-center">
-                <div class="flex items-center gap-6">
-                    <img src="https://www.kumwell.com/wp-content/uploads/2021/04/Logo-Kumwell-PNG.png" class="h-12 w-auto" alt="Kumwell Logo">
+                <div class="flex items-center gap-4">
+                    <div class="h-12 w-12 flex items-center justify-center bg-red-50 rounded-xl border border-red-100">
+                        <span class="text-red-600 font-black text-3xl">K</span>
+                    </div>
                     <div>
                         <h2 class="text-xl font-black text-slate-800 tracking-tight">แบบฟอร์มการร้องขอสิทธิใช้งานเทคโนโลยีสารสนเทศ</h2>
                         <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">QF-IT-08: Rev: 02 (06-07-20)</p>
@@ -51,7 +53,7 @@
             <div class="p-8 space-y-12">
                 {{-- ส่วนที่ 1: ผู้ร้องขอ --}}
                 <div class="space-y-6">
-                    <h3 class="text-sm font-black text-blue-600 uppercase tracking-widest border-l-4 border-blue-500 pl-4">ส่วนที่ 1 ผู้ร้องขอ</h3>
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest bg-slate-100 py-2 px-4 rounded-lg">ส่วนที่ 1 ผู้ร้องขอ</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 bg-slate-50/50 p-8 rounded-3xl border border-slate-100">
                         <div class="md:col-span-3">
                              <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">ประเภทคำร้อง</label>
@@ -77,7 +79,7 @@
 
                 {{-- ส่วนที่ 2: การเข้าถึง --}}
                 <div class="space-y-6">
-                    <h3 class="text-sm font-black text-blue-600 uppercase tracking-widest border-l-4 border-blue-500 pl-4">ส่วนที่ 2 การเข้าถึง (ตามความประสงค์)</h3>
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest bg-slate-100 py-2 px-4 rounded-lg">ส่วนที่ 2 การเข้าถึง (ตามความประสงค์)</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="border-2 border-slate-100 rounded-2xl p-6 bg-white">
                             <h4 class="text-xs font-black text-slate-400 mb-4 uppercase tracking-widest border-b pb-2">ระบบที่ต้องการ</h4>
@@ -380,7 +382,7 @@
 
                 {{-- ส่วนที่ 4: สำหรับผู้ใช้งาน --}}
                 <div class="space-y-8 pt-12 border-t-2 border-slate-200">
-                     <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest bg-slate-100 py-3 px-6 rounded-2xl">ส่วนที่ 4 สำหรับผู้ใช้งาน</h3>
+                     <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest bg-slate-100 py-2 px-4 rounded-lg">ส่วนที่ 4 สำหรับผู้ใช้งาน</h3>
                      <p class="text-xs text-slate-600 leading-relaxed font-medium">
                         ข้าพเจ้าได้รับข้อมูลผู้ใช้งานและรหัสผ่านเป็นที่เรียบร้อยแล้ว และได้ทำการเปลี่ยนแปลงแก้ไขรหัสผ่านในครั้งแรกที่เข้าใช้งานและจะเก็บข้อมูลดังกล่าวเป็นความลับ
                      </p>
@@ -421,7 +423,7 @@
                 </div>
 
                 <div x-show="showForm" class="bg-white rounded-[2.5rem] p-12 shadow-2xl border-2 border-slate-100">
-                    <form :action="actionType === 'approve' ? '{{ route('backend.approvals.approve', $currentStep->id ?? 0) }}' : '{{ route('backend.approvals.reject', $currentStep->id ?? 0) }}'" method="POST" id="approval-form">
+                    <form :action="actionType === 'approve' ? '{{ route('manage.approvals.approve', $currentStep->id ?? 0) }}' : '{{ route('manage.approvals.reject', $currentStep->id ?? 0) }}'" method="POST" id="approval-form">
                         @csrf
                         <div class="space-y-8">
                             <h3 class="text-2xl font-black text-slate-800 uppercase tracking-tight" x-text="actionType === 'approve' ? 'ยืนยันการอนุมัติ' : 'ยืนยันการปฏิเสธ'"></h3>
