@@ -37,7 +37,6 @@ class User extends Authenticatable
         'last_name_en',
         'nickname_en',
         'phone',
-        'department',
         'dept_id',
         'position',
         'status',
@@ -45,6 +44,13 @@ class User extends Authenticatable
         'profile_pic',
         'signature',
     ];
+
+    protected $appends = ['fullname', 'department_name'];
+
+    public function getDepartmentNameAttribute(): string
+    {
+        return $this->department_rel ? $this->department_rel->name : 'N/A';
+    }
 
 
     public function getUsertypeAttribute()

@@ -16,10 +16,32 @@ class TrackingController extends Controller
         $this->requestRepo = $requestRepo;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $userId = Auth::id();
-        $allRequests = $this->requestRepo->getInvolvedRequests($userId);
+        
+        $query = \App\Models\RequestForm::where(function($q) use ($userId) {
+                $q->where('user_id', $userId)
+                  ->orWhereHas('steps', function ($query) use ($userId) {
+                      $query->where('approver_id', $userId);
+                  })
+                  ->orWhereHas('confidentialityAgreement', function ($query) use ($userId) {
+                      $query->where('witness1_user_id', $userId)
+                            ->orWhere('witness2_user_id', $userId);
+                  });
+            })
+            ->with(['user', 'steps.approver', 'confidentialityAgreement'])
+            ->latest();
+
+        // Apply Filters
+        if ($request->filled('year')) {
+            $query->whereYear('created_at', $request->year);
+        }
+        if ($request->filled('month')) {
+            $query->whereMonth('created_at', $request->month);
+        }
+
+        $allRequests = $query->get();
 
         // Separate requests that the current user needs to approve
         $toApprove = $allRequests->filter(function ($request) use ($userId) {
@@ -41,10 +63,22 @@ class TrackingController extends Controller
                    !$request->user_acknowledged_at;
         });
 
+        // Requests that the current user needs to verify as a witness
+        $toVerifyNDA = $allRequests->filter(function ($request) use ($userId) {
+            $nda = $request->confidentialityAgreement;
+            if (!$nda) return false;
+
+            $isW1Pending = $nda->witness1_user_id == $userId && !$nda->witness1_agreed_at;
+            $isW2Pending = $nda->witness2_user_id == $userId && !$nda->witness2_agreed_at;
+
+            return $isW1Pending || $isW2Pending;
+        });
+
         return view('frontend.tracking.index', [
             'requests' => $allRequests,
             'toApprove' => $toApprove,
-            'toAcknowledge' => $toAcknowledge
+            'toAcknowledge' => $toAcknowledge,
+            'toVerifyNDA' => $toVerifyNDA
         ]);
     }
 
@@ -119,6 +153,7 @@ class TrackingController extends Controller
         $requestForm->status = 'completed'; // Mark the whole request as completed
         $requestForm->save();
 
-        return redirect()->back()->with('success', 'ยืนยันการรับทราบและยอมรับระเบียบเรียบร้อยแล้ว');
+        return redirect()->route('request.nda', $requestNo)
+            ->with('success', 'ยืนยันการรับทราบและยอมรับระเบียบเรียบร้อยแล้ว กรุณาดำเนินการต่อในส่วนของข้อตกลงรักษาความลับ');
     }
 }

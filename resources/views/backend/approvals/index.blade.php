@@ -3,27 +3,148 @@
 @section('breadcrumb', 'จัดการคำร้องขอสิทธิ')
 
 @section('content')
-    <div class="space-y-6" x-data="{ tab: 'pending' }">
-        <div class="flex justify-between items-end">
+    <div class="space-y-6" x-data="{ tab: 'all' }">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <div>
                 <h2 class="text-2xl font-bold text-slate-800">IT Access Approvals</h2>
                 <p class="text-sm text-slate-400">จัดการรายการคำร้องขอสิทธิเข้าถึงข้อมูล</p>
             </div>
+
+            @if($isAdmin)
+            <div class="flex flex-wrap gap-3">
+                @if($newRequestsCount > 0)
+                    <div class="flex items-center gap-3 bg-amber-50 border border-amber-200 px-4 py-2 rounded-xl shadow-sm animate-pulse">
+                        <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-white">
+                            <i class="fa-solid fa-file-circle-plus"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-amber-600 uppercase tracking-tight">คำร้องใหม่</p>
+                            <p class="text-sm font-bold text-amber-900">{{ $newRequestsCount }} รายการค้างพิจารณา</p>
+                        </div>
+                    </div>
+                @endif
+
+                @if($itActionCount > 0)
+                    <div class="flex items-center gap-3 bg-blue-50 border border-blue-200 px-4 py-2 rounded-xl shadow-sm">
+                        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                            <i class="fa-solid fa-gears"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-blue-600 uppercase tracking-tight">รอ IT ดำเนินการ</p>
+                            <p class="text-sm font-bold text-blue-900">{{ $itActionCount }} รายการที่ต้องจัดการ</p>
+                        </div>
+                    </div>
+                @endif
+            </div>
+            @endif
         </div>
 
         @if($isAdmin)
             <!-- Tabs -->
             <div class="flex space-x-1 bg-slate-100 p-1 rounded-xl w-fit">
-                <button @click="tab = 'pending'"
-                    :class="tab === 'pending' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'"
-                    class="px-6 py-2 rounded-lg text-sm font-bold transition-all">
-                    งานของฉัน ({{ $pendingApprovals->count() }})
-                </button>
                 <button @click="tab = 'all'"
                     :class="tab === 'all' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'"
-                    class="px-6 py-2 rounded-lg text-sm font-bold transition-all">
-                    รายการทั้งหมด ({{ $allRequests->count() }})
+                    class="px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2">
+                    <span>รายการทั้งหมด</span>
+                    <span :class="tab === 'all' ? 'bg-blue-100 text-blue-600' : 'bg-slate-200 text-slate-500'" 
+                        class="px-2 py-0.5 rounded-md text-[10px] font-black transition-colors">
+                        {{ $allRequests->count() }}
+                    </span>
                 </button>
+                <button @click="tab = 'pending'"
+                    :class="tab === 'pending' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'"
+                    class="px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2">
+                    <span>งานของฉัน</span>
+                    <span :class="tab === 'pending' ? 'bg-blue-600 text-white shadow-sm shadow-blue-200' : 'bg-slate-200 text-slate-500'" 
+                        class="px-2 py-0.5 rounded-md text-[10px] font-black transition-colors">
+                        {{ $pendingApprovals->count() }}
+                    </span>
+                </button>
+            </div>
+        @endif
+
+        @if($isAdmin)
+            <!-- All Requests Table -->
+            <div x-show="tab === 'all'" x-transition
+                class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                <div class="px-8 py-4 border-b border-slate-100 bg-slate-50/30">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">รายการคำร้องทั้งหมดในระบบ</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead
+                            class="bg-slate-50 border-b border-slate-100 text-slate-400 text-[10px] uppercase tracking-widest">
+                            <tr>
+                                <th class="px-8 py-4 font-bold">Request No</th>
+                                <th class="px-8 py-4 font-bold">Requester</th>
+                                <th class="px-8 py-4 font-bold">Status</th>
+                                <th class="px-8 py-4 font-bold">Current Step</th>
+                                <th class="px-8 py-4 font-bold text-right">Date / Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse($allRequests as $req)
+                                <tr class="hover:bg-slate-50/50 transition">
+                                    <td class="px-8 py-5 text-sm font-bold text-slate-700">{{ $req->request_no }}</td>
+                                    <td class="px-8 py-5">
+                                        <div class="text-sm font-medium text-slate-700">{{ $req->firstname }} {{ $req->lastname }}
+                                        </div>
+                                        <div class="text-[10px] text-slate-400 uppercase font-bold">{{ $req->department_name }}
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-5">
+                                        @if($req->status === 'completed')
+                                            <span class="px-2 py-0.5 rounded-full bg-green-600 text-white text-[10px] font-bold uppercase shadow-sm">เสร็จสมบูรณ์</span>
+                                        @elseif($req->status === 'approved' && $req->it_status == 'completed')
+                                            <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-bold uppercase border border-blue-200">รอผู้ใช้งานยืนยัน</span>
+                                        @elseif($req->status === 'approved')
+                                            <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-bold uppercase">อนุมัติแล้ว</span>
+                                        @elseif($req->status === 'rejected')
+                                            <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-[10px] font-bold uppercase">ปฏิเสธ</span>
+                                        @else
+                                            <span class="px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600 text-[10px] font-bold uppercase">รอดำเนินการ</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-8 py-5 text-sm text-slate-500">
+                                        @if($req->status === 'completed')
+                                            <span class="inline-flex items-center gap-1 text-green-600 font-bold text-xs">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                                เสร็จสมบูรณ์
+                                            </span>
+                                        @elseif($req->status === 'approved' && $req->it_status == 'completed')
+                                            <span class="inline-flex items-center gap-1 text-orange-500 font-bold text-xs animate-pulse">
+                                                รอผู้ใช้งานยืนยัน
+                                            </span>
+                                        @elseif($req->status === 'approved')
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 font-bold text-[11px] animate-pulse border border-blue-200 shadow-sm">
+                                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                                เจ้าหน้าที่ IT ดำเนินการ
+                                            </span>
+                                        @elseif($req->status === 'rejected')
+                                            <span class="text-red-400 text-xs font-medium">ถูกยกเลิก</span>
+                                        @else
+                                            {{ $req->steps->where('status', 'pending')->first()->step_name ?? '-' }}
+                                        @endif
+                                    </td>
+                                    <td class="px-8 py-5 text-right flex justify-end items-center space-x-3">
+                                        <a href="{{ route('manage.approvals.show', $req->id) }}"
+                                            class="p-1.5 text-slate-400 hover:text-blue-600 transition" title="ดูรายละเอียด">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </a>
+                                        <span
+                                            class="text-xs text-slate-400 font-medium whitespace-nowrap">{{ $req->created_at->format('d/m/Y H:i') }}</span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="px-8 py-20 text-center text-slate-400">
+                                        <p>ไม่มีรายการคำร้องในระบบ</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         @endif
 
@@ -96,90 +217,6 @@
                 </table>
             </div>
         </div>
-
-        @if($isAdmin)
-            <!-- All Requests Table -->
-            <div x-show="tab === 'all'" x-transition
-                class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-                <div class="px-8 py-4 border-b border-slate-100 bg-slate-50/30">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">รายการคำร้องทั้งหมดในระบบ</h3>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead
-                            class="bg-slate-50 border-b border-slate-100 text-slate-400 text-[10px] uppercase tracking-widest">
-                            <tr>
-                                <th class="px-8 py-4 font-bold">Request No</th>
-                                <th class="px-8 py-4 font-bold">Requester</th>
-                                <th class="px-8 py-4 font-bold">Status</th>
-                                <th class="px-8 py-4 font-bold">Current Step</th>
-                                <th class="px-8 py-4 font-bold text-right">Date / Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            @forelse($allRequests as $req)
-                                <tr class="hover:bg-slate-50/50 transition">
-                                    <td class="px-8 py-5 text-sm font-bold text-slate-700">{{ $req->request_no }}</td>
-                                    <td class="px-8 py-5">
-                                        <div class="text-sm font-medium text-slate-700">{{ $req->firstname }} {{ $req->lastname }}
-                                        </div>
-                                        <div class="text-[10px] text-slate-400 uppercase font-bold">{{ $req->department_name }}
-                                        </div>
-                                    </td>
-                                    <td class="px-8 py-5">
-                                        @if($req->status === 'completed')
-                                            <span class="px-2 py-0.5 rounded-full bg-green-600 text-white text-[10px] font-bold uppercase shadow-sm">เสร็จสมบูรณ์</span>
-                                        @elseif($req->status === 'approved' && $req->it_status == 'completed')
-                                            <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-bold uppercase border border-blue-200">รอผู้ใช้งานยืนยัน</span>
-                                        @elseif($req->status === 'approved')
-                                            <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-bold uppercase">อนุมัติแล้ว</span>
-                                        @elseif($req->status === 'rejected')
-                                            <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-[10px] font-bold uppercase">ปฏิเสธ</span>
-                                        @else
-                                            <span class="px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600 text-[10px] font-bold uppercase">รอดำเนินการ</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-8 py-5 text-sm text-slate-500">
-                                        @if($req->status === 'completed')
-                                            <span class="inline-flex items-center gap-1 text-green-600 font-bold text-xs">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                                                เสร็จสมบูรณ์
-                                            </span>
-                                        @elseif($req->status === 'approved' && $req->it_status == 'completed')
-                                            <span class="inline-flex items-center gap-1 text-orange-500 font-bold text-xs animate-pulse">
-                                                รอผู้ใช้งานยืนยัน
-                                            </span>
-                                        @elseif($req->status === 'approved')
-                                            <span class="inline-flex items-center gap-1 text-blue-600 font-bold text-xs">
-                                                เจ้าหน้าที่ IT ดำเนินการ
-                                            </span>
-                                        @elseif($req->status === 'rejected')
-                                            <span class="text-red-400 text-xs font-medium">ถูกยกเลิก</span>
-                                        @else
-                                            {{ $req->steps->where('status', 'pending')->first()->step_name ?? '-' }}
-                                        @endif
-                                    </td>
-                                    <td class="px-8 py-5 text-right flex justify-end items-center space-x-3">
-                                        <a href="{{ route('manage.approvals.show', $req->id) }}"
-                                            class="p-1.5 text-slate-400 hover:text-blue-600 transition" title="ดูรายละเอียด">
-                                            <i class="fa-solid fa-eye"></i>
-                                        </a>
-                                        <span
-                                            class="text-xs text-slate-400 font-medium whitespace-nowrap">{{ $req->created_at->format('d/m/Y H:i') }}</span>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-8 py-20 text-center text-slate-400">
-                                        <p>ไม่มีรายการคำร้องในระบบ</p>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        @endif
     </div>
 
     <!-- Approve/Reject Modal -->

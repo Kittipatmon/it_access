@@ -4,78 +4,142 @@
 
 @section('content')
 <div class="space-y-8">
-    <div>
-        <h2 class="text-2xl font-bold text-slate-800">IT Access Overview</h2>
-        <p class="text-sm text-slate-400">สรุปสถานะการร้องขอสิทธิในระบบทั้งหมด</p>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-800">IT Access Overview</h2>
+            <p class="text-sm text-slate-400">สรุปสถานะการร้องขอสิทธิในระบบ (ข้อมูลเดือน {{ $months[$selectedMonth] ?? 'ทั้งหมด' }} {{ $selectedYear }})</p>
+        </div>
+
+        <form action="{{ route('backend.dashboard') }}" method="GET" class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
+            <select name="month" onchange="this.form.submit()" class="bg-transparent border-none text-xs font-bold text-slate-600 focus:ring-0 cursor-pointer">
+                <option value="all" {{ $selectedMonth == 'all' ? 'selected' : '' }}>ทุกเดือน</option>
+                @foreach($months as $val => $name)
+                    <option value="{{ $val }}" {{ $selectedMonth == $val ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
+            </select>
+            <div class="w-px h-4 bg-slate-200"></div>
+            <select name="year" onchange="this.form.submit()" class="bg-transparent border-none text-xs font-bold text-slate-600 focus:ring-0 cursor-pointer">
+                @foreach($years as $year)
+                    <option value="{{ $year }}" {{ $selectedYear == $year ? 'selected' : '' }}>{{ $year }}</option>
+                @endforeach
+            </select>
+            <button type="submit" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition">
+                <i class="fa-solid fa-rotate"></i>
+            </button>
+        </form>
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition hover:shadow-md">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm transition hover:shadow-md">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Pending</p>
-                    <h3 class="text-3xl font-bold text-slate-800 mt-1">{{ $stats['pending'] }}</h3>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pending</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1">{{ $stats['pending'] }}</h3>
                 </div>
-                <div class="w-12 h-12 bg-orange-50 text-orange-500 rounded-xl flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                <div class="w-10 h-10 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-clock"></i>
                 </div>
             </div>
-            <p class="text-[10px] text-orange-600 font-bold mt-4">ต้องการการพิจารณา</p>
+            <p class="text-[9px] text-amber-600 font-bold mt-3">รอพิจารณา</p>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition hover:shadow-md">
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm transition hover:shadow-md">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Approved</p>
-                    <h3 class="text-3xl font-bold text-slate-800 mt-1">{{ $stats['approved'] }}</h3>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">IT Action</p>
+                    <h3 class="text-2xl font-bold text-blue-600 mt-1">{{ $stats['it_pending'] }}</h3>
                 </div>
-                <div class="w-12 h-12 bg-green-50 text-green-500 rounded-xl flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
+                <div class="w-10 h-10 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-gears text-lg"></i>
                 </div>
             </div>
-            <p class="text-[10px] text-green-600 font-bold mt-4">ดำเนินการเสร็จสิ้น</p>
+            <p class="text-[9px] text-blue-600 font-bold mt-3">รอ IT ดำเนินการ</p>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition hover:shadow-md">
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm transition hover:shadow-md">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Rejected</p>
-                    <h3 class="text-3xl font-bold text-slate-800 mt-1">{{ $stats['rejected'] }}</h3>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Completed</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1">{{ $stats['completed'] }}</h3>
                 </div>
-                <div class="w-12 h-12 bg-red-50 text-red-500 rounded-xl flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                <div class="w-10 h-10 bg-green-50 text-green-500 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-check-double text-lg"></i>
                 </div>
             </div>
-            <p class="text-[10px] text-red-600 font-bold mt-4">คำร้องที่ไม่ผ่าน</p>
+            <p class="text-[9px] text-green-600 font-bold mt-3">เสร็จสมบูรณ์</p>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition hover:shadow-md">
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm transition hover:shadow-md">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Users</p>
-                    <h3 class="text-3xl font-bold text-slate-800 mt-1">{{ \App\Models\User::count() }}</h3>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rejected</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1">{{ $stats['rejected'] }}</h3>
                 </div>
-                <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
+                <div class="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-ban text-lg"></i>
                 </div>
             </div>
-            <p class="text-[10px] text-blue-600 font-bold mt-4">พนักงานในระบบ</p>
+            <p class="text-[9px] text-red-600 font-bold mt-3">ปฏิเสธแล้ว</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm transition hover:shadow-md">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Staff</p>
+                    <h3 class="text-2xl font-bold text-slate-800 mt-1">{{ \App\Models\User::count() }}</h3>
+                </div>
+                <div class="w-10 h-10 bg-slate-50 text-slate-500 rounded-xl flex items-center justify-center">
+                    <i class="fa-solid fa-users text-lg"></i>
+                </div>
+            </div>
+            <p class="text-[9px] text-slate-600 font-bold mt-3">พนักงานทั้งหมด</p>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Status Distribution Chart -->
+        <div class="lg:col-span-1 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+            <div class="mb-4">
+                <h3 class="font-bold text-slate-800">Status Distribution</h3>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest">สัดส่วนสถานะคำร้อง</p>
+            </div>
+            <div class="h-64">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Monthly Trends Chart -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+            <div class="mb-4">
+                <h3 class="font-bold text-slate-800">Request Trends</h3>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest">แนวโน้มคำร้องรายเดือน</p>
+            </div>
+            <div class="h-64">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Department Load Chart -->
+        <div class="lg:col-span-3 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+            <div class="mb-4">
+                <h3 class="font-bold text-slate-800">Top Departments</h3>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest">แผนกที่มีคำร้องสูงสุด 5 อันดับ</p>
+            </div>
+            <div class="h-64">
+                <canvas id="deptChart"></canvas>
+            </div>
         </div>
     </div>
 
     <!-- Table Card -->
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-            <h3 class="font-bold text-slate-800 tracking-tight">Recent Requests</h3>
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+            <h3 class="font-bold text-slate-800 tracking-tight flex items-center gap-2">
+                <i class="fa-solid fa-list-ul text-blue-600"></i>
+                Recent Requests
+            </h3>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left">
@@ -84,12 +148,12 @@
                         <th class="px-8 py-4 font-bold">Request No</th>
                         <th class="px-8 py-4 font-bold">Requester</th>
                         <th class="px-8 py-4 font-bold">Status</th>
-                        <th class="px-8 py-4 font-bold">Step</th>
+                        <th class="px-8 py-4 font-bold">Current Step</th>
                         <th class="px-8 py-4 font-bold text-right">Date</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
-                    @foreach($allRequests as $request)
+                    @foreach($allRequests->take(10) as $request)
                     <tr class="hover:bg-slate-50/50 transition">
                         <td class="px-8 py-5 text-sm font-bold text-blue-600">{{ $request->request_no }}</td>
                         <td class="px-8 py-5">
@@ -120,7 +184,8 @@
                                     รอผู้ใช้งานยืนยัน
                                 </span>
                             @elseif($request->status === 'approved')
-                                <span class="inline-flex items-center gap-1 text-blue-600 font-bold text-xs">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 font-bold text-[11px] animate-pulse border border-blue-200 shadow-sm">
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
                                     เจ้าหน้าที่ IT ดำเนินการ
                                 </span>
                             @elseif($request->status === 'rejected')
@@ -137,4 +202,85 @@
         </div>
     </div>
 </div>
+
+@endsection
+
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Status Chart
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'IT Action', 'Completed', 'Rejected'],
+            datasets: [{
+                data: {!! json_encode($chartData['status']) !!},
+                backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#ef4444'],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 6, font: { size: 10 } } }
+            },
+            cutout: '70%'
+        }
+    });
+
+    // 2. Trend Chart
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($chartData['monthly']->keys()) !!},
+            datasets: [{
+                label: 'Requests',
+                data: {!! json_encode($chartData['monthly']->values()) !!},
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#3b82f6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { display: false }, border: { display: false } },
+                x: { grid: { display: false }, border: { display: false } }
+            }
+        }
+    });
+
+    // 3. Department Chart
+    new Chart(document.getElementById('deptChart'), {
+        type: 'bar',
+        data: {
+            labels: {!! json_encode($chartData['depts']->keys()) !!},
+            datasets: [{
+                data: {!! json_encode($chartData['depts']->values()) !!},
+                backgroundColor: '#94a3b8',
+                borderRadius: 8,
+                barThickness: 20
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, border: { display: false } },
+                y: { grid: { display: false }, border: { display: false } }
+            }
+        }
+    });
+});
+</script>
 @endsection

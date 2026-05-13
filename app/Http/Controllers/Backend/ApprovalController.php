@@ -33,7 +33,19 @@ class ApprovalController extends Controller
         $pendingApprovals = $this->approvalRepo->getPendingStepsByApprover($user->id);
         $allRequests = $isAdmin ? $this->requestRepo->getAll() : collect();
 
-        return view('backend.approvals.index', compact('pendingApprovals', 'allRequests', 'isAdmin'));
+        // Calculate counts for notifications
+        $newRequestsCount = $allRequests->where('status', 'pending')->count();
+        $itActionCount = $allRequests->where('status', 'approved')
+                                     ->where('it_status', '!=', 'completed')
+                                     ->count();
+
+        return view('backend.approvals.index', compact(
+            'pendingApprovals', 
+            'allRequests', 
+            'isAdmin', 
+            'newRequestsCount', 
+            'itActionCount'
+        ));
     }
 
     public function show($id)

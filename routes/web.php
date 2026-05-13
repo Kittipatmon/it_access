@@ -35,6 +35,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tracking/{requestNo}', [TrackingController::class, 'show'])->name('tracking.show');
     Route::get('/tracking/{requestNo}/print', [TrackingController::class, 'print'])->name('tracking.print');
     Route::delete('/tracking/{requestNo}', [TrackingController::class, 'destroy'])->name('tracking.destroy');
+    Route::post('/tracking/{requestNo}/acknowledge', [TrackingController::class, 'acknowledge'])->name('tracking.acknowledge');
+
+    // NDA Routes
+    Route::get('/request/{requestNo}/nda', [\App\Http\Controllers\Frontend\ConfidentialityAgreementController::class, 'show'])->name('request.nda');
+    Route::post('/request/{requestNo}/nda', [\App\Http\Controllers\Frontend\ConfidentialityAgreementController::class, 'store'])->name('request.nda.store');
+    Route::post('/request/{requestNo}/nda/witness/{witnessNo}/agree', [\App\Http\Controllers\Frontend\ConfidentialityAgreementController::class, 'agreeWitness'])->name('request.nda.witness.agree');
 
     // Management Routes (Accessible by all logged in users, e.g. Managers)
     Route::prefix('manage')->name('manage.')->group(function () {

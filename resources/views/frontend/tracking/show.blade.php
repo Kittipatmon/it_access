@@ -274,6 +274,8 @@
                          </div>
                     </div>
 
+
+
                     {{-- ประกาศ ระเบียบการใช้งานระบบเครือข่ายและคอมพิวเตอร์ --}}
                     <div class="space-y-6 pt-10 border-t-2 border-slate-200">
                         <div class="flex items-center justify-center">
@@ -451,6 +453,71 @@
                         </form>
                     </div>
                 </div>
+            @endif
+
+
+            {{-- ส่วนที่ 5: ข้อตกลงรักษาความลับ (NDA) --}}
+            @if($request->status == 'completed')
+            <div class="mt-8 space-y-6 no-print">
+                 <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest bg-slate-100 py-2 px-4 rounded-lg flex items-center gap-2">
+                    <i class="fa-solid fa-file-contract text-blue-600"></i>
+                    ข้อตกลงรักษาความลับ (NDA)
+                 </h3>
+                 
+                 @php
+                    $nda = \App\Models\ConfidentialityAgreement::where('request_form_id', $request->id)->first();
+                    $isRequester = Auth::id() == $request->user_id;
+                 @endphp
+
+                 <div class="bg-white p-8 rounded-3xl border-2 border-slate-100 shadow-sm transition hover:shadow-md">
+                    @if($nda)
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-500">
+                                    <i class="fa-solid fa-circle-check text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800">บันทึกข้อตกลงรักษาความลับแล้ว</h4>
+                                    <p class="text-xs text-slate-400">บันทึกเมื่อ {{ $nda->agreement_date ? $nda->agreement_date->format('d/m/Y H:i') : '-' }}</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <a href="{{ route('request.nda', $request->request_no) }}" 
+                                    class="px-8 py-3 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 transition shadow-lg shadow-slate-200">
+                                    ดูรายละเอียด NDA
+                                </a>
+                            </div>
+                        </div>
+                    @else
+                        @if($isRequester)
+                            <div class="text-center space-y-6 py-6">
+                                <div class="w-20 h-20 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fa-solid fa-pen-nib text-3xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-xl font-black text-slate-800">กรุณาบันทึกข้อตกลงรักษาความลับ</h4>
+                                    <p class="text-sm text-slate-500 max-w-md mx-auto mt-2">กรุณาดำเนินการบันทึกข้อตกลงรักษาความลับ (NDA) เพื่อให้กระบวนการร้องขอสิทธิใช้งานสารสนเทศสมบูรณ์ตามระเบียบของบริษัท</p>
+                                </div>
+                                <a href="{{ route('request.nda', $request->request_no) }}" 
+                                    class="inline-flex items-center gap-3 px-12 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-blue-200 hover:bg-blue-700 transition transform hover:-translate-y-1">
+                                    เริ่มบันทึกข้อตกลงรักษาความลับ
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        @else
+                            <div class="flex items-center gap-4 py-4">
+                                <div class="w-12 h-12 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center">
+                                    <i class="fa-solid fa-clock"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-600 italic">อยู่ระหว่างรอผู้ใช้งานบันทึกข้อตกลงรักษาความลับ</h4>
+                                    <p class="text-[10px] text-slate-400">ผู้ขอรับสิทธิจะต้องดำเนินการในส่วนนี้เพื่อให้การร้องขอสมบูรณ์</p>
+                                </div>
+                            </div>
+                        @endif
+                    @endif
+                 </div>
+            </div>
             @endif
         </div>
 @endsection

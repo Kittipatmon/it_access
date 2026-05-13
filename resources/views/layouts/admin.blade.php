@@ -95,12 +95,25 @@
                 <a href="{{ route('manage.approvals.index') }}"
                     class="flex items-center {{ request()->routeIs('manage.approvals.*') ? 'sidebar-item-active' : 'text-slate-500 hover:bg-slate-50' }}"
                     :class="sidebarOpen ? 'px-6 py-3' : 'px-0 py-4 justify-center'">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="sidebarOpen ? 'mr-3' : 'mr-0'"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span x-show="sidebarOpen">จัดการคำร้อง</span>
+                    <div class="relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="sidebarOpen ? 'mr-3' : 'mr-0'"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        @if(isset($adminTotalNotify) && $adminTotalNotify > 0)
+                            <span class="absolute -top-2 -right-1 flex h-4 w-4 lg:hidden">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-[10px] text-white items-center justify-center font-bold">{{ $adminTotalNotify }}</span>
+                            </span>
+                        @endif
+                    </div>
+                    <span x-show="sidebarOpen" class="flex-1">จัดการคำร้อง</span>
+                    @if(isset($adminTotalNotify) && $adminTotalNotify > 0)
+                        <span x-show="sidebarOpen" class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full animate-pulse">
+                            {{ $adminTotalNotify }}
+                        </span>
+                    @endif
                 </a>
                 <a href="{{ route('backend.users.index') }}"
                     class="flex items-center {{ request()->routeIs('backend.users.*') ? 'sidebar-item-active' : 'text-slate-500 hover:bg-slate-50' }}"

@@ -41,5 +41,22 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('navPendingCount', $toApproveCount + $toAcknowledgeCount);
             }
         });
+
+        view()->composer('layouts.admin', function ($view) {
+            if (auth()->check()) {
+                $user = auth()->user();
+                if ($user->role === 'admin' || $user->dept_id == 16) {
+                    $newCount = \App\Models\RequestForm::where('status', 'pending')->count();
+                    $itCount = \App\Models\RequestForm::where('status', 'approved')
+                        ->where(function($q) {
+                            $q->whereNull('it_status')->orWhere('it_status', '!=', 'completed');
+                        })->count();
+                        
+                    $view->with('adminNewCount', $newCount);
+                    $view->with('adminItCount', $itCount);
+                    $view->with('adminTotalNotify', $newCount + $itCount);
+                }
+            }
+        });
     }
 }
