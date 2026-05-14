@@ -32,11 +32,16 @@ class RequestFormController extends Controller
     public function index()
     {
         $user = Auth::user()->load('department_rel');
+        $groupedOptions = AccessOption::active()->ordered()->get()->groupBy('category');
         
         return view('frontend.request.index', [
             'user' => $user,
-            'systemOptions' => AccessOption::system()->active()->ordered()->get(),
-            'programOptions' => AccessOption::program()->active()->ordered()->get(),
+            'groupedOptions' => $groupedOptions,
+            'categoryLabels' => [
+                'system' => 'สิทธิการเข้าถึงระบบ (Systems Access)',
+                'program' => 'สิทธิการใช้งานโปรแกรม (Programs Access)',
+                'equipment' => 'อุปกรณ์การใช้งาน (Equipment Access)',
+            ]
         ]);
     }
 
@@ -47,7 +52,7 @@ class RequestFormController extends Controller
     {
         $validated = $request->validated();
         
-        // Prepare approval steps from configuration
+        // 1. Prepare approval steps from configuration
         $defaultSteps = \App\Models\ApprovalStepConfig::where('is_active', true)
             ->orderBy('step_order')
             ->get();
@@ -63,15 +68,53 @@ class RequestFormController extends Controller
             ];
         })->toArray();
 
-        // Handle "Other" position level if applicable
-        if ($validated['position_level'] === 'other') {
-            $validated['position_level'] = $validated['position_level_other'];
+        // 2. Process Dynamic Access Selections
+        $standardCategories = ['system', 'program', 'equipment'];
+        $additionalAccess = [];
+        
+        // Get all keys from request that end with _access
+        $accessInputs = collect($request->all())->filter(function($value, $key) {
+            return str_ends_with($key, '_access');
+        });
+
+        foreach ($accessInputs as $inputKey => $values) {
+            $categoryKey = str_replace('_access', '', $inputKey);
+            
+            // Collect Sub-options and Custom Fields for this category
+            $processedData = collect($values)->map(function($itemKey) use ($request) {
+                return [
+                    'key' => $itemKey,
+                    'sub_options' => $request->input("sub_options.{$itemKey}"),
+                    'custom_fields' => $request->input("custom_fields.{$itemKey}"),
+                ];
+            })->toArray();
+
+            // Check if there is an "Other" text input for this category
+            $otherText = $request->input("{$categoryKey}_access_other");
+            if ($otherText) {
+                $processedData[] = [
+                    'key' => 'other',
+                    'value' => $otherText
+                ];
+            }
+
+            if (in_array($categoryKey, $standardCategories)) {
+                $validated["{$categoryKey}_access"] = $processedData;
+            } else {
+                $additionalAccess[$categoryKey] = $processedData;
+            }
         }
 
-        // Add user_id to the payload
+        // 3. Handle "Other" position level if applicable
+        if ($validated['position_level'] === 'other') {
+            $validated['position_level'] = $validated['position_level_other'] ?? 'Other';
+        }
+
+        // 4. Finalize Data Payload
         $formData = array_merge($validated, [
             'user_id' => Auth::id(),
-            'emp_code' => Auth::user()->emp_code, // Ensure emp_code is snapshotted from the current auth user
+            'emp_code' => Auth::user()->emp_code,
+            'additional_access' => !empty($additionalAccess) ? $additionalAccess : null,
         ]);
 
         $form = $this->workflowService->initiateRequest($formData, $steps);

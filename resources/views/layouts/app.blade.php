@@ -5,13 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ config('app.name', 'IT Access Request') }}</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=sarabun:300,400,500,600,700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Outfit:wght@100..900&family=Sarabun:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
+        rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7.3.0/dist/turbo.es2017-umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
         body {
             font-family: 'Sarabun', sans-serif;
         }
@@ -262,72 +270,42 @@
 
     <main class="py-10">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            @if(session('success'))
-                <script>
-                    window.addEventListener('DOMContentLoaded', () => {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'สำเร็จ!',
-                            text: "{{ session('success') }}",
-                            confirmButtonColor: '#3b82f6',
-                            confirmButtonText: 'ตกลง'
-                        });
-                    });
-                </script>
-            @endif
-
-            @if(session('error'))
-                <script>
-                    window.addEventListener('DOMContentLoaded', () => {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'ผิดพลาด!',
-                            text: "{{ session('error') }}",
-                            confirmButtonColor: '#ef4444',
-                            confirmButtonText: 'ตกลง'
-                        });
-                    });
-                </script>
-            @endif
-
-            @if($errors->any())
-                <script>
-                    window.addEventListener('DOMContentLoaded', () => {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'ข้อมูลไม่ครบถ้วน!',
-                            text: 'กรุณาตรวจสอบและแก้ไขข้อมูลในช่องที่มีสีแดง',
-                            confirmButtonColor: '#f59e0b',
-                            confirmButtonText: 'ตกลง'
-                        });
-                    });
-                </script>
-            @endif
-
             @yield('content')
         </div>
     </main>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            @if(session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'สำเร็จ',
-                    text: "{{ session('success') }}",
-                    timer: 3000,
-                    showConfirmButton: false
-                });
-            @endif
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'สำเร็จ!',
+                text: "{{ session('success') }}",
+                confirmButtonColor: '#3b82f6',
+                confirmButtonText: 'ตกลง',
+                timer: 3000,
+            });
+        @endif
 
-            @if(session('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'เกิดข้อผิดพลาด',
-                    text: "{{ session('error') }}"
-                });
-            @endif
-        });
+        @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'ผิดพลาด!',
+                text: "{{ session('error') }}",
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'ตกลง'
+            });
+        @endif
+
+        @if($errors->any())
+            Swal.fire({
+                icon: 'warning',
+                title: 'ข้อมูลไม่ครบถ้วน!',
+                text: 'กรุณาตรวจสอบและแก้ไขข้อมูลในช่องที่มีสีแดง',
+                confirmButtonColor: '#f59e0b',
+                confirmButtonText: 'ตกลง'
+            });
+        @endif
     </script>
     @yield('scripts')
 </body>

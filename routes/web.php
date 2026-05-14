@@ -71,7 +71,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/access-options', [AccessOptionController::class, 'store'])->name('access-options.store');
         Route::put('/access-options/{option}', [AccessOptionController::class, 'update'])->name('access-options.update');
         Route::delete('/access-options/{option}', [AccessOptionController::class, 'destroy'])->name('access-options.destroy');
+        Route::delete('/access-options/category/{category}', [AccessOptionController::class, 'destroyCategory'])->name('access-options.destroy-category');
         Route::post('/access-options/{option}/toggle', [AccessOptionController::class, 'toggleStatus'])->name('access-options.toggle');
+
+        // NDA Configuration
+        Route::get('/nda-config', [\App\Http\Controllers\Backend\NdaConfigController::class, 'index'])->name('nda-config.index');
+        Route::post('/nda-config', [\App\Http\Controllers\Backend\NdaConfigController::class, 'update'])->name('nda-config.update');
 
         // Approval Step Configurations
         Route::get('/approval-configs', [\App\Http\Controllers\Backend\ApprovalStepConfigController::class, 'index'])->name('approval-configs.index');

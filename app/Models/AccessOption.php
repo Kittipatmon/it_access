@@ -40,6 +40,11 @@ class AccessOption extends Model
         return $query->where('category', 'program');
     }
 
+    public function scopeEquipment($query)
+    {
+        return $query->where('category', 'equipment');
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

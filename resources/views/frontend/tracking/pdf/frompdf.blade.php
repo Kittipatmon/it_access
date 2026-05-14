@@ -183,8 +183,10 @@
     @php
         $sysAccess = $request->system_access ?? [];
         $progAccess = $request->program_access ?? [];
+        $equipAccess = $request->equipment_access ?? [];
         $itSys = $request->it_system_config ?? [];
         $itProg = $request->it_program_config ?? [];
+        $itEquip = $request->it_equipment_config ?? [];
 
         function isChecked($arr, $key)
         {
@@ -269,57 +271,46 @@
 
         <table class="box-table" style="height: 250px;">
             <tr>
-                <td class="box-cell">
-                    <div class="font-bold" style="margin-bottom: 25px;">การเข้าถึงระบบ</div>
-
-                    <div style="margin-bottom: 30px;">[ {!! isChecked($sysAccess, 'login_computer') !!} ]
-                        Username&amp;Passsword Login Computer</div>
-                    <div style="margin-bottom: 30px;">[ {!! isChecked($sysAccess, 'email_address') !!} ] Email Address
-                    </div>
-
-                    <div style="margin-bottom: 30px;">
-                        File Server Access<br><br>
-                        &nbsp;&nbsp;&nbsp;[
-                        {!! isChecked($sysAccess, 'file_server_access_sub') == '✔' && in_array('super_user', $sysAccess['file_server_access_sub'] ?? []) ? '✔' : '&nbsp;&nbsp;' !!}
-                        ] Super User &nbsp;&nbsp;
-                        [
-                        {!! isChecked($sysAccess, 'file_server_access_sub') == '✔' && in_array('admin', $sysAccess['file_server_access_sub'] ?? []) ? '✔' : '&nbsp;&nbsp;' !!}
-                        ] Admin &nbsp;
-                        [
+                <td class="box-cell" style="width: 32%;">
+                    <div class="font-bold" style="margin-bottom: 20px;">การเข้าถึงระบบ</div>
+                    <div style="margin-bottom: 15px;">[ {!! isChecked($sysAccess, 'login_computer') !!} ] Login Computer</div>
+                    <div style="margin-bottom: 15px;">[ {!! isChecked($sysAccess, 'email_address') !!} ] Email Address</div>
+                    <div style="margin-bottom: 15px;">
+                        File Server Access: [
                         {!! isChecked($sysAccess, 'file_server_access_sub') == '✔' && in_array('user', $sysAccess['file_server_access_sub'] ?? []) ? '✔' : '&nbsp;&nbsp;' !!}
-                        ] User
+                        ] User [
+                        {!! isChecked($sysAccess, 'file_server_access_sub') == '✔' && in_array('admin', $sysAccess['file_server_access_sub'] ?? []) ? '✔' : '&nbsp;&nbsp;' !!}
+                        ] Admin
                     </div>
-
-                    <div>[ {!! isChecked($sysAccess, 'other_check') !!} ] Other &nbsp; <span class="dot-line"
-                            style="width: 140px;">{{ $sysAccess['other_text'] ?? '' }}</span></div>
+                    <div>[ {!! isChecked($sysAccess, 'other_check') !!} ] Other: <span class="dot-line" style="width: 100px;">{{ $sysAccess['other_text'] ?? '' }}</span></div>
                 </td>
-                <td class="box-gap"></td>
-                <td class="box-cell">
-                    <div class="font-bold" style="margin-bottom: 25px;">การเข้าถึงโปรแกรม</div>
-
-                    <div style="margin-bottom: 30px;">[ {!! isChecked($progAccess, 'sap_b1') !!} ] SAP B1 Username
-                        &amp;Password</div>
-                    <div style="margin-bottom: 30px;">
-                        [ {!! isChecked($progAccess, 'sap_b1') !!} ] SAP B1: level &nbsp;&nbsp;&nbsp;
-                        <span
-                            class="checkbox">{!! isChecked($progAccess, 'sap_b1_sub') == '✔' && in_array('pro', $progAccess['sap_b1_sub'] ?? []) ? '✔' : '' !!}</span>
-                        Pro &nbsp;&nbsp;
-                        <span
-                            class="checkbox">{!! isChecked($progAccess, 'sap_b1_sub') == '✔' && in_array('crm', $progAccess['sap_b1_sub'] ?? []) ? '✔' : '' !!}</span>
-                        CRM
+                <td style="width: 2%;"></td>
+                <td class="box-cell" style="width: 32%;">
+                    <div class="font-bold" style="margin-bottom: 20px;">การเข้าถึงโปรแกรม</div>
+                    <div style="margin-bottom: 15px;">[ {!! isChecked($progAccess, 'sap_b1') !!} ] SAP B1</div>
+                    <div style="margin-bottom: 15px;">
+                        Level: 
+                        <span class="checkbox">{!! isChecked($progAccess, 'sap_b1_sub') == '✔' && in_array('pro', $progAccess['sap_b1_sub'] ?? []) ? '✔' : '' !!}</span> Pro
+                        <span class="checkbox">{!! isChecked($progAccess, 'sap_b1_sub') == '✔' && in_array('crm', $progAccess['sap_b1_sub'] ?? []) ? '✔' : '' !!}</span> CRM
                     </div>
-                    <div style="margin-bottom: 30px;">
-                        &nbsp;&nbsp;&nbsp;<span
-                            class="checkbox">{!! isChecked($progAccess, 'sap_b1_sub') == '✔' && in_array('logistics', $progAccess['sap_b1_sub'] ?? []) ? '✔' : '' !!}</span>
-                        Logistics &nbsp;&nbsp;
-                        <span
-                            class="checkbox">{!! isChecked($progAccess, 'sap_b1_sub') == '✔' && in_array('financials', $progAccess['sap_b1_sub'] ?? []) ? '✔' : '' !!}</span>
-                        Financials
-                    </div>
-                    <div style="margin-bottom: 30px;">[ {!! isChecked($progAccess, 'rapid_payroll') !!} ] Rapid payroll
-                    </div>
-                    <div>[ {!! isChecked($progAccess, 'other_check') !!} ] Other <span class="dot-line"
-                            style="width: 140px;">{{ $progAccess['other_text'] ?? '' }}</span></div>
+                    <div style="margin-bottom: 15px;">[ {!! isChecked($progAccess, 'rapid_payroll') !!} ] Rapid payroll</div>
+                    <div>[ {!! isChecked($progAccess, 'other_check') !!} ] Other: <span class="dot-line" style="width: 100px;">{{ $progAccess['other_text'] ?? '' }}</span></div>
+                </td>
+                <td style="width: 2%;"></td>
+                <td class="box-cell" style="width: 32%;">
+                    <div class="font-bold" style="margin-bottom: 20px;">อุปกรณ์คอมพิวเตอร์</div>
+                    @php $hasEquip = false; @endphp
+                    @foreach($equipAccess as $key => $val)
+                        @if($val && !Str::endsWith($key, '_sub') && $key !== 'other_check' && $key !== 'other_text')
+                            <div style="margin-bottom: 10px;">[ ✔ ] {{ ucwords(str_replace('_', ' ', $key)) }}</div>
+                            @php $hasEquip = true; @endphp
+                        @endif
+                    @endforeach
+                    @if(isset($equipAccess['other_check']) && $equipAccess['other_check'])
+                        <div style="margin-bottom: 10px;">[ ✔ ] Other: {{ $equipAccess['other_text'] ?? '' }}</div>
+                        @php $hasEquip = true; @endphp
+                    @endif
+                    @if(!$hasEquip) <div style="color: #ccc; italic;">-</div> @endif
                 </td>
             </tr>
         </table>
@@ -388,74 +379,66 @@
 
         <table class="box-table">
             <tr>
-                <td class="box-cell" style="padding: 10px 15px;">
+                <td class="box-cell" style="width: 32%; padding: 10px 15px;">
                     <div class="font-bold" style="margin-bottom: 15px;">การเข้าถึงระบบ</div>
-
-                    @php 
-                        $itSys = $request->it_system_config ?? []; 
-                        $displayedKeys = [];
-                    @endphp
-
+                    @php $itSys = $request->it_system_config ?? []; @endphp
                     @foreach($itSys as $configKey => $configVal)
                         @if(Str::endsWith($configKey, '_check'))
                             @php 
                                 $itemKey = str_replace('_check', '', $configKey);
                                 $opt = $accessOptions->where('key', $itemKey)->first();
-                                $displayedKeys[] = $itemKey;
                             @endphp
-                            <div style="margin-bottom: 15px;">
-                                [ ✔ ] {{ $opt ? $opt->name : ucwords(str_replace('_', ' ', $itemKey)) }}
-                            </div>
-                            <div style="margin-bottom: 15px; padding-left: 20px;">
+                            <div style="margin-bottom: 10px;">[ ✔ ] {{ $opt ? $opt->name : ucwords(str_replace('_', ' ', $itemKey)) }}</div>
+                            <div style="margin-bottom: 10px; padding-left: 15px; font-size: 16px;">
                                 @if($opt && $opt->custom_fields)
                                     @foreach($opt->custom_fields as $field)
                                         @php $val = $itSys[$itemKey . '_' . Str::snake($field)] ?? ''; @endphp
-                                        <div style="margin-bottom: 8px;">
-                                            {{ $field }}: <span class="solid-line" style="width: 180px; display: inline-block;">{{ $val }}</span>
-                                        </div>
+                                        {{ $field }}: <span class="solid-line" style="width: 100px;">{{ $val }}</span><br>
                                     @endforeach
-                                @elseif(in_array($itemKey, ['login_computer', 'email']))
-                                    <div style="margin-bottom: 8px;">User Name: <span class="solid-line" style="width: 180px; display: inline-block;">{{ $itSys[$itemKey.'_user'] ?? '' }}</span></div>
-                                    <div style="margin-bottom: 8px;">Password: <span class="solid-line" style="width: 180px; display: inline-block;">{{ $itSys[$itemKey.'_pass'] ?? '' }}</span></div>
-                                @elseif($itemKey === 'file_server')
-                                    <span class="solid-line" style="width: 250px;">อนุญาตแล้ว</span>
-                                @else
-                                    <span class="solid-line" style="width: 250px;">{{ is_string($configVal) ? $configVal : '' }}</span>
                                 @endif
                             </div>
                         @endif
                     @endforeach
                 </td>
-                <td class="box-gap"></td>
-                <td class="box-cell" style="padding: 10px 15px;">
+                <td style="width: 2%;"></td>
+                <td class="box-cell" style="width: 32%; padding: 10px 15px;">
                     <div class="font-bold" style="margin-bottom: 15px;">การเข้าถึงโปรแกรม</div>
-
                     @php $itProg = $request->it_program_config ?? []; @endphp
-
                     @foreach($itProg as $configKey => $configVal)
                         @if(Str::endsWith($configKey, '_check'))
                             @php 
                                 $itemKey = str_replace('_check', '', $configKey);
                                 $opt = $accessOptions->where('key', $itemKey)->first();
                             @endphp
-                            <div style="margin-bottom: 15px;">
-                                [ ✔ ] {{ $opt ? $opt->name : ucwords(str_replace('_', ' ', $itemKey)) }}
-                            </div>
-                            <div style="margin-bottom: 15px; padding-left: 20px;">
+                            <div style="margin-bottom: 10px;">[ ✔ ] {{ $opt ? $opt->name : ucwords(str_replace('_', ' ', $itemKey)) }}</div>
+                            <div style="margin-bottom: 10px; padding-left: 15px; font-size: 16px;">
                                 @if($opt && $opt->custom_fields)
                                     @foreach($opt->custom_fields as $field)
                                         @php $val = $itProg[$itemKey . '_' . Str::snake($field)] ?? ''; @endphp
-                                        <div style="margin-bottom: 8px;">
-                                            {{ $field }}: <span class="solid-line" style="width: 180px; display: inline-block;">{{ $val }}</span>
-                                        </div>
+                                        {{ $field }}: <span class="solid-line" style="width: 100px;">{{ $val }}</span><br>
                                     @endforeach
-                                @elseif(in_array($itemKey, ['sap_b1', 'rapid_payroll']))
-                                    <div style="margin-bottom: 8px;">User Name: <span class="solid-line" style="width: 180px; display: inline-block;">{{ $itProg[$itemKey.'_user'] ?? '' }}</span></div>
-                                    @if($itemKey === 'sap_b1' && isset($itProg['sap_b1_level']))
-                                        <div style="margin-bottom: 8px;">Level: <span class="solid-line" style="width: 180px; display: inline-block;">{{ $itProg['sap_b1_level'] }}</span></div>
-                                    @endif
-                                @else
-                                    <span class="solid-line" style="width: 250px;">{{ is_string($configVal) ? $configVal : '' }}</span>
+                                @endif
+                            </div>
+                        @endif
+                    @endforeach
+                </td>
+                <td style="width: 2%;"></td>
+                <td class="box-cell" style="width: 32%; padding: 10px 15px;">
+                    <div class="font-bold" style="margin-bottom: 15px;">อุปกรณ์คอมพิวเตอร์</div>
+                    @php $itEquip = $request->it_equipment_config ?? []; @endphp
+                    @foreach($itEquip as $configKey => $configVal)
+                        @if(Str::endsWith($configKey, '_check'))
+                            @php 
+                                $itemKey = str_replace('_check', '', $configKey);
+                                $opt = $accessOptions->where('key', $itemKey)->first();
+                            @endphp
+                            <div style="margin-bottom: 10px;">[ ✔ ] {{ $opt ? $opt->name : ucwords(str_replace('_', ' ', $itemKey)) }}</div>
+                            <div style="margin-bottom: 10px; padding-left: 15px; font-size: 16px;">
+                                @if($opt && $opt->custom_fields)
+                                    @foreach($opt->custom_fields as $field)
+                                        @php $val = $itEquip[$itemKey . '_' . Str::snake($field)] ?? ''; @endphp
+                                        {{ $field }}: <span class="solid-line" style="width: 100px;">{{ $val }}</span><br>
+                                    @endforeach
                                 @endif
                             </div>
                         @endif
@@ -466,30 +449,32 @@
 
         <table class="status-table">
             <tr>
-                <td class="status-cell text-center" style="padding: 15px;">
-                    <div class="font-bold" style="margin-bottom: 10px;">สถานะ : [
-                        {!! ($itSys['status'] ?? '') == 'completed' ? '✔' : '&nbsp;&nbsp;' !!} ] Complete
-                        &nbsp;&nbsp;&nbsp;
+                <td class="status-cell text-center" style="width: 32%; padding: 10px;">
+                    <div class="font-bold" style="font-size: 16px;">
+                        สถานะ: [ {!! ($itSys['status'] ?? '') == 'completed' ? '✔' : '&nbsp;&nbsp;' !!} ] Complete
                         [ {!! ($itSys['status'] ?? '') != 'completed' ? '✔' : '&nbsp;&nbsp;' !!} ] Pending
                     </div>
-                    <div style="margin-bottom: 10px;">ดำเนินการโดย : <span class="dot-line"
-                            style="width: 180px;">{{ $request->itStaff->fullname ?? '' }}</span></div>
-                    <div>วันที่<span class="dot-line"
-                            style="width: 150px;">{{ $request->it_configured_at ? $request->it_configured_at->format('d/m/Y') : '......../......../........' }}</span>
+                </td>
+                <td style="width: 2%;"></td>
+                <td class="status-cell text-center" style="width: 32%; padding: 10px;">
+                    <div class="font-bold" style="font-size: 16px;">
+                        สถานะ: [ {!! ($itProg['status'] ?? '') == 'completed' ? '✔' : '&nbsp;&nbsp;' !!} ] Complete
+                        [ {!! ($itProg['status'] ?? '') != 'completed' ? '✔' : '&nbsp;&nbsp;' !!} ] Pending
                     </div>
                 </td>
-                <td class="status-gap"></td>
-                <td class="status-cell text-center" style="padding: 15px;">
-                    <div class="font-bold" style="margin-bottom: 10px;">สถานะ : [
-                        {!! ($itProg['status'] ?? '') == 'completed' ? '✔' : '&nbsp;&nbsp;' !!} ] Complete
-                        &nbsp;&nbsp;&nbsp; [ {!! ($itProg['status'] ?? '') != 'completed' ? '✔' : '&nbsp;&nbsp;' !!} ]
-                        Pending
+                <td style="width: 2%;"></td>
+                <td class="status-cell text-center" style="width: 32%; padding: 10px;">
+                    <div class="font-bold" style="font-size: 16px;">
+                        สถานะ: [ {!! ($itEquip['status'] ?? '') == 'completed' ? '✔' : '&nbsp;&nbsp;' !!} ] Complete
+                        [ {!! ($itEquip['status'] ?? '') != 'completed' ? '✔' : '&nbsp;&nbsp;' !!} ] Pending
                     </div>
-                    <div style="margin-bottom: 10px;">ดำเนินการโดย : <span class="dot-line"
-                            style="width: 180px;">{{ $request->itStaff->fullname ?? '' }}</span></div>
-                    <div>วันที่<span class="dot-line"
-                            style="width: 150px;">{{ $request->it_configured_at ? $request->it_configured_at->format('d/m/Y') : '......../......../........' }}</span>
-                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5" class="text-center" style="padding-top: 15px;">
+                    ดำเนินการโดย : <span class="dot-line" style="width: 250px;">{{ $request->itStaff->fullname ?? '' }}</span>
+                    &nbsp;&nbsp;&nbsp;
+                    วันที่: <span class="dot-line" style="width: 150px;">{{ $request->it_configured_at ? $request->it_configured_at->format('d/m/Y') : '......../......../........' }}</span>
                 </td>
             </tr>
         </table>

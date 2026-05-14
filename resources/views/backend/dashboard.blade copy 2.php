@@ -162,17 +162,7 @@
                         </td>
                         <td class="px-8 py-5">
                             @if($request->status === 'completed')
-                                @php
-                                    $nda = $request->confidentialityAgreement;
-                                    $isWaitingWitness = $nda && (!$nda->witness1_agreed_at || ($nda->witness2_user_id && !$nda->witness2_agreed_at));
-                                @endphp
-                                @if(!$nda)
-                                    <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-[10px] font-bold uppercase border border-red-200 shadow-sm">รอการบันทึก NDA</span>
-                                @elseif($isWaitingWitness)
-                                    <span class="px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 text-[10px] font-bold uppercase border border-orange-200 shadow-sm">กำลังรอพยาน</span>
-                                @else
-                                    <span class="px-2 py-0.5 rounded-full bg-green-600 text-white text-[10px] font-bold uppercase shadow-sm">เสร็จสมบูรณ์</span>
-                                @endif
+                                <span class="px-2 py-0.5 rounded-full bg-green-600 text-white text-[10px] font-bold uppercase shadow-sm">เสร็จสมบูรณ์</span>
                             @elseif($request->status === 'approved' && $request->it_status == 'completed')
                                 <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-bold uppercase border border-blue-200">รอผู้ใช้งานยืนยัน</span>
                             @elseif($request->status === 'approved')
@@ -185,26 +175,10 @@
                         </td>
                         <td class="px-8 py-5 text-sm text-slate-500">
                             @if($request->status === 'completed')
-                                @php
-                                    $nda = $request->confidentialityAgreement;
-                                    $isWaitingWitness = $nda && (!$nda->witness1_agreed_at || ($nda->witness2_user_id && !$nda->witness2_agreed_at));
-                                @endphp
-                                @if(!$nda)
-                                    <span class="inline-flex items-center gap-1 text-red-500 font-bold text-xs">
-                                        <i class="fa-solid fa-file-signature"></i>
-                                        รอการบันทึก NDA
-                                    </span>
-                                @elseif($isWaitingWitness)
-                                    <span class="inline-flex items-center gap-1 text-orange-500 font-bold text-xs">
-                                        <i class="fa-solid fa-users-viewfinder"></i>
-                                        กำลังรอพยาน
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1 text-green-600 font-bold text-xs">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                                        เสร็จสมบูรณ์
-                                    </span>
-                                @endif
+                                <span class="inline-flex items-center gap-1 text-green-600 font-bold text-xs">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                    เสร็จสมบูรณ์
+                                </span>
                             @elseif($request->status === 'approved' && $request->it_status == 'completed')
                                 <span class="inline-flex items-center gap-1 text-orange-500 font-bold text-xs animate-pulse">
                                     รอผู้ใช้งานยืนยัน
@@ -217,7 +191,7 @@
                             @elseif($request->status === 'rejected')
                                 <span class="text-red-400 text-xs font-medium">ถูกยกเลิก</span>
                             @else
-                                {{ optional($request->steps->where('status', 'pending')->first())->step_name ?? '-' }}
+                                {{ $request->steps->where('status', 'pending')->first()->step_name ?? '-' }}
                             @endif
                         </td>
                         <td class="px-8 py-5 text-sm text-slate-400 text-right">{{ $request->created_at->format('d/m/Y') }}</td>

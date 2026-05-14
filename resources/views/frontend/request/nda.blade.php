@@ -4,6 +4,24 @@
 <style>
     [x-cloak] { display: none !important; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
+<script>
+    document.addEventListener('turbo:load', () => {
+        document.querySelectorAll('.tom-select').forEach(el => {
+            if (el.tomselect) el.tomselect.destroy();
+            new TomSelect(el, {
+                create: false,
+                sortField: { field: "text", direction: "asc" },
+                placeholder: el.getAttribute('placeholder') || 'ค้นหาชื่อ...',
+                allowEmptyOption: true,
+            });
+        });
+    });
+</script>
+
 <div class="max-w-4xl mx-auto px-4 py-12" x-data="ndaForm()">
     @php
         $isOwner = $requestForm->user_id === auth()->id();
@@ -30,7 +48,7 @@
                     </li>
                 </ol>
             </nav>
-            <h1 class="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <h1 class="text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
                 <span class="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-slate-200">
                     <i class="fa-solid fa-file-contract text-xl"></i>
                 </span>
@@ -39,11 +57,11 @@
         </div>
         <div class="bg-white px-6 py-3 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
             <div class="text-right border-r border-slate-100 pr-4">
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">เลขที่คำร้อง</p>
-                <p class="text-sm font-black text-blue-600 mt-1 leading-none">{{ $requestForm->request_no }}</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">เลขที่คำร้อง</p>
+                <p class="text-sm font-bold text-blue-600 mt-1 leading-none">{{ $requestForm->request_no }}</p>
             </div>
             <div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">วันที่สร้าง</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">วันที่สร้าง</p>
                 <p class="text-sm font-bold text-slate-700 mt-1 leading-none">{{ now()->format('d/m/Y') }}</p>
             </div>
         </div>
@@ -57,8 +75,8 @@
             <div class="p-8 md:p-16 space-y-12">
                 <!-- Page 1 Content -->
                 <div class="text-center space-y-4 mb-12">
-                    <img src="{{ asset('images/logo.png') }}" alt="Kumwell Logo" class="h-12 mx-auto mb-6">
-                    <h2 class="text-2xl font-black text-slate-900 uppercase tracking-widest border-b-2 border-slate-900 inline-block pb-2">ข้อตกลงรักษาความลับ</h2>
+                    <div class="text-5xl font-bold text-[#E10023] mx-auto mb-16 tracking-tighter select-none" style="font-family: 'Outfit', 'Inter', sans-serif;">Kumwell</div>
+                    <h2 class="text-2xl font-semibold text-slate-900 uppercase tracking-widest border-b-2 border-slate-900 inline-block pb-2 ">ข้อตกลงรักษาความลับ</h2>
                 </div>
 
                 <div class="prose prose-slate max-w-none text-slate-800 leading-relaxed space-y-6 text-sm md:text-base">
@@ -68,7 +86,7 @@
                     </p>
 
                     <p class="indent-12">
-                        <strong>บริษัท คัมเวล คอร์ปอเรชั่น จำกัด (มหาชน)</strong> โดยคุณเกรียงศักดิ์ อำนวยโชค ตำแหน่ง ผู้จัดการแผนกเทคโนโลยีสารสนเทศและการสื่อสาร ตัวแทนผู้มีอำนาจลงนาม เลขที่ 358 ถนน เลี่ยงเมืองนนทบุรี ตำบลบางกระสอ อำเภอเมืองนนทบุรี จังหวัดนนทบุรี 11000 ซึ่งต่อไปนี้ในข้อตกลงจะเรียกว่า <strong>"บริษัท"</strong> ฝ่ายหนึ่ง กับ
+                        <strong>บริษัท คัมเวล คอร์ปอเรชั่น จำกัด (มหาชน)</strong> โดยคุณ{{ $manager->fullname ?? 'เกรียงศักดิ์ อำนวยโชค' }} ตำแหน่ง {{ $manager->department_name ?? 'ผู้จัดการแผนกเทคโนโลยีสารสนเทศและการสื่อสาร' }} ตัวแทนผู้มีอำนาจลงนาม เลขที่ 358 ถนน เลี่ยงเมืองนนทบุรี ตำบลบางกระสอ อำเภอเมืองนนทบุรี จังหวัดนนทบุรี 11000 ซึ่งต่อไปนี้ในข้อตกลงจะเรียกว่า <strong>"บริษัท"</strong> ฝ่ายหนึ่ง กับ
                     </p>
 
                     <!-- Employee Info Grid (Editable) -->
@@ -77,7 +95,7 @@
                             <div class="md:col-span-2">
                                 <div class="flex flex-col sm:flex-row gap-5">
                                     <div class="space-y-3">
-                                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">คำนำหน้าชื่อ</label>
+                                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">คำนำหน้าชื่อ</label>
                                         <div class="flex items-center gap-4 py-2">
                                             @foreach(['นาย', 'นาง', 'นางสาว'] as $prefix)
                                                 <label class="relative flex items-center gap-2 cursor-pointer group">
@@ -94,7 +112,7 @@
                                         </template>
                                     </div>
                                     <div class="flex-grow space-y-2">
-                                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest">ชื่อ-นามสกุล</label>
+                                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">ชื่อ-นามสกุล</label>
                                         <input type="text" name="full_name" x-model="formData.full_name"
                                             class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition shadow-sm" 
                                             :class="{'border-red-500 bg-red-50/30': showErrors && !formData.full_name}"
@@ -106,7 +124,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">อายุ (ปี)</label>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">อายุ (ปี)</label>
                                 <input type="number" name="age" x-model="formData.age"
                                     class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition" 
                                     :class="{'border-red-500 bg-red-50/30': showErrors && !formData.age}"
@@ -119,7 +137,7 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">เลขประจำตัวประชาชน</label>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">เลขประจำตัวประชาชน</label>
                                 <input type="text" name="id_card_no" x-model="formData.id_card_no"
                                     placeholder="x-xxxx-xxxxx-xx-x"
                                     class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition" 
@@ -130,7 +148,7 @@
                                 </template>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">หมายเลขติดต่อ</label>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">หมายเลขติดต่อ</label>
                                 <input type="text" name="contact_no" x-model="formData.contact_no"
                                     class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition" 
                                     :class="{'border-red-500 bg-red-50/30': showErrors && !formData.contact_no}"
@@ -143,7 +161,7 @@
 
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                             <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">บ้านเลขที่</label>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">บ้านเลขที่</label>
                                 <input type="text" name="address_no" x-model="formData.address_no"
                                     class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition" 
                                     :class="{'border-red-500 bg-red-50/30': showErrors && !formData.address_no}"
@@ -153,18 +171,19 @@
                                 </template>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">ซอย</label>
-                                <input type="text" name="soi" value="{{ old('soi', $existing->soi ?? '') }}"
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">ซอย</label>
+                                <input type="text" name="soi" x-model="formData.soi"
                                     class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition" {{ $existing ? 'readonly' : '' }}>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">ถนน</label>
-                                <input type="text" name="road" value="{{ old('road', $existing->road ?? '') }}"
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">ถนน</label>
+                                <input type="text" name="road" x-model="formData.road"
                                     class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition" {{ $existing ? 'readonly' : '' }}>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">ตำบล/แขวง</label>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">ตำบล/แขวง</label>
                                 <input type="text" name="tambon" x-model="formData.tambon" list="tambon-list"
+                                    @change="onTambonChange"
                                     class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition" 
                                     :class="{'border-red-500 bg-red-50/30': showErrors && !formData.tambon}"
                                     {{ $existing ? 'readonly' : '' }}>
@@ -181,8 +200,9 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">อำเภอ/เขต</label>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">อำเภอ/เขต</label>
                                 <input type="text" name="amphoe" x-model="formData.amphoe" list="amphoe-list"
+                                    @change="onAmphureChange"
                                     class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition" 
                                     :class="{'border-red-500 bg-red-50/30': showErrors && !formData.amphoe}"
                                     {{ $existing ? 'readonly' : '' }}>
@@ -196,8 +216,9 @@
                                 </template>
                             </div>
                             <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">จังหวัด</label>
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">จังหวัด</label>
                                 <input type="text" name="province" x-model="formData.province" list="province-list"
+                                    @change="onProvinceChange"
                                     class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition" 
                                     :class="{'border-red-500 bg-red-50/30': showErrors && !formData.province}"
                                     {{ $existing ? 'readonly' : '' }}>
@@ -269,12 +290,18 @@
                         <!-- Company Signature -->
                         <div class="space-y-6 text-center">
                             <div class="h-32 flex items-center justify-center border-b border-slate-200 border-dashed relative">
-                                <img src="{{ asset('images/ceo-sign.png') }}" class="h-20 opacity-80" alt="Company Authorized Signature">
+                                @if($manager && $manager->signature)
+                                    <img src="{{ asset('storage/signatures/' . $manager->signature) }}" class="h-full object-contain mix-blend-multiply" alt="Signature">
+                                @else
+                                    <div class="text-4xl font-bold text-slate-800 select-none opacity-20" style="font-family: 'Charm', cursive;">
+                                        {{ $manager ? $manager->fullname : 'Kriangsak A.' }}
+                                    </div>
+                                @endif
                             </div>
                             <div class="space-y-1">
-                                <p class="text-sm font-black text-slate-900">ลงชื่อ...................................................... บริษัท</p>
-                                <p class="text-xs font-bold text-slate-500">(คุณเกรียงศักดิ์ อำนวยโชค)</p>
-                                <p class="text-[10px] text-slate-400 leading-tight">ผู้จัดการแผนกเทคโนโลยีสารสนเทศและการสื่อสาร<br>บริษัท คัมเวล คอร์ปอเรชั่น จำกัด (มหาชน)</p>
+                                <p class="text-sm font-bold text-slate-900">ลงชื่อ...................................................... บริษัท</p>
+                                <p class="text-xs font-bold text-slate-500">(คุณ{{ $manager->fullname ?? 'เกรียงศักดิ์ อำนวยโชค' }})</p>
+                                <p class="text-[10px] text-slate-400 leading-tight">{{ $manager->department_name ?? 'ผู้จัดการแผนกเทคโนโลยีสารสนเทศและการสื่อสาร' }}<br>บริษัท คัมเวล คอร์ปอเรชั่น จำกัด (มหาชน)</p>
                             </div>
                         </div>
 
@@ -290,7 +317,7 @@
                                         <img src="{{ $existing->employee_signature }}" class="h-full mx-auto">
                                     @else
                                         <canvas id="signature-employee" class="w-full h-full cursor-crosshair @if(!$canSignEmployee) pointer-events-none opacity-20 @endif"></canvas>
-                                        <input type="hidden" name="employee_signature" id="employee_signature">
+                                        <input type="hidden" name="employee_signature" id="employee_signature" value="{{ old('employee_signature') }}">
                                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 group-hover:opacity-10" x-show="!activePad">
                                             <i class="fa-solid fa-pen-nib text-4xl"></i>
                                         </div>
@@ -314,12 +341,12 @@
                             </div>
                             <div class="space-y-3">
                                 <div class="space-y-1">
-                                    <p class="text-sm font-black text-slate-900">ลงชื่อ...................................................... พนักงาน</p>
+                                    <p class="text-sm font-bold text-slate-900">ลงชื่อ...................................................... พนักงาน</p>
                                     <p class="text-xs font-bold text-slate-500">({{ $requestForm->firstname . ' ' . $requestForm->lastname }})</p>
                                 </div>
                                 @if($canSignEmployee)
                                 <button type="button" @click="useNameAsSignature('employee', '{{ $requestForm->firstname . ' ' . $requestForm->lastname }}')" 
-                                    class="text-[10px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-widest flex items-center gap-2 mx-auto transition hover:scale-105 active:scale-95">
+                                    class="text-[10px] font-bold text-blue-600 hover:text-blue-700 uppercase tracking-widest flex items-center gap-2 mx-auto transition hover:scale-105 active:scale-95">
                                     <i class="fa-solid fa-keyboard"></i>
                                     พิมพ์ชื่อแทนลายมือชื่อ
                                 </button>
@@ -336,7 +363,7 @@
                                         <img src="{{ $existing->witness1_signature }}" class="h-full mx-auto">
                                     @else
                                         <canvas id="signature-witness1" class="w-full h-full cursor-crosshair @if(!$canSignWitness1) pointer-events-none opacity-20 @endif"></canvas>
-                                        <input type="hidden" name="witness1_signature" id="witness1_signature">
+                                        <input type="hidden" name="witness1_signature" id="witness1_signature" value="{{ old('witness1_signature') }}">
                                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 group-hover:opacity-10" x-show="!activePad">
                                             <i class="fa-solid fa-pen-nib text-4xl"></i>
                                         </div>
@@ -357,16 +384,12 @@
                             </div>
                             <div class="space-y-4">
                                 <div class="space-y-1">
-                                    <p class="text-sm font-black text-slate-900">ลงชื่อ...................................................... พยาน</p>
+                                    <p class="text-sm font-bold text-slate-900">ลงชื่อ...................................................... พยาน</p>
                                     @if($existing)
                                         <p class="text-xs font-bold text-slate-500">({{ $existing->witness1_name }})</p>
-                                        @if($existing->witness1_user_id === auth()->id() && !$existing->witness1_agreed_at)
-                                            <button type="button" @click="agreeWitness(1)" class="mt-2 w-full py-2 bg-blue-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-100 hover:bg-blue-700 transition">
-                                                รับรองการเป็นพยาน
-                                            </button>
-                                        @elseif($existing->witness1_agreed_at)
+                                        @if($existing->witness1_agreed_at)
                                             <p class="text-[10px] text-green-500 font-bold uppercase tracking-widest mt-1">รับรองแล้วเมื่อ {{ $existing->witness1_agreed_at->format('d/m/Y H:i') }}</p>
-                                        @else
+                                        @elseif($existing->witness1_user_id !== auth()->id())
                                             <p class="text-[10px] text-slate-400 italic mt-1">รอการรับรองจากพยาน</p>
                                         @endif
                                     @else
@@ -393,11 +416,17 @@
                                 @if($canSignWitness1)
                                 <div class="mt-3">
                                     <button type="button" @click="useNameAsSignature('witness1', '{{ $existing->witness1_name ?? '' }}')" 
-                                        class="text-[10px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-widest flex items-center gap-2 mx-auto transition hover:scale-105 active:scale-95">
+                                        class="text-[10px] font-bold text-blue-600 hover:text-blue-700 uppercase tracking-widest flex items-center gap-2 mx-auto transition hover:scale-105 active:scale-95">
                                         <i class="fa-solid fa-keyboard"></i>
                                         พิมพ์ชื่อแทนลายมือชื่อ
                                     </button>
                                 </div>
+                                @endif
+
+                                @if($existing && $existing->witness1_user_id === auth()->id() && !$existing->witness1_agreed_at)
+                                    <button type="button" @click="agreeWitness(1)" class="mt-4 w-full py-2 bg-blue-600 text-white rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-blue-100 hover:bg-blue-700 transition transform hover:-translate-y-0.5 active:scale-95">
+                                        รับรองการเป็นพยาน
+                                    </button>
                                 @endif
                             </div>
                         </div>
@@ -411,7 +440,7 @@
                                         <img src="{{ $existing->witness2_signature }}" class="h-full mx-auto">
                                     @else
                                         <canvas id="signature-witness2" class="w-full h-full cursor-crosshair @if(!$canSignWitness2) pointer-events-none opacity-20 @endif"></canvas>
-                                        <input type="hidden" name="witness2_signature" id="witness2_signature">
+                                        <input type="hidden" name="witness2_signature" id="witness2_signature" value="{{ old('witness2_signature') }}">
                                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 group-hover:opacity-10" x-show="!activePad">
                                             <i class="fa-solid fa-pen-nib text-4xl"></i>
                                         </div>
@@ -432,35 +461,31 @@
                             </div>
                             <div class="space-y-4">
                                 <div class="space-y-1">
-                                    <p class="text-sm font-black text-slate-900">ลงชื่อ...................................................... พยาน</p>
+                                    <p class="text-sm font-bold text-slate-900">ลงชื่อ...................................................... พยาน</p>
                                     @if($existing)
-                                        <p class="text-xs font-bold text-slate-500">({{ $existing->witness2_name }})</p>
-                                        @if($existing->witness2_user_id === auth()->id() && !$existing->witness2_agreed_at)
-                                            <button type="button" @click="agreeWitness(2)" class="mt-2 w-full py-2 bg-blue-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-100 hover:bg-blue-700 transition">
-                                                รับรองการเป็นพยาน
-                                            </button>
-                                        @elseif($existing->witness2_agreed_at)
-                                            <p class="text-[10px] text-green-500 font-bold uppercase tracking-widest mt-1">รับรองแล้วเมื่อ {{ $existing->witness2_agreed_at->format('d/m/Y H:i') }}</p>
+                                        @if($existing->witness2_user_id)
+                                            <p class="text-xs font-bold text-slate-500">({{ $existing->witness2_name }})</p>
+                                            @if($existing->witness2_agreed_at)
+                                                <p class="text-[10px] text-green-500 font-bold uppercase tracking-widest mt-1">รับรองแล้วเมื่อ {{ $existing->witness2_agreed_at->format('d/m/Y H:i') }}</p>
+                                            @elseif($existing->witness2_user_id !== auth()->id())
+                                                <p class="text-[10px] text-slate-400 italic mt-1">รอการรับรองจากพยาน</p>
+                                            @endif
                                         @else
-                                            <p class="text-[10px] text-slate-400 italic mt-1">รอการรับรองจากพยาน</p>
+                                            <p class="text-xs font-bold text-slate-300 italic">(ไม่มีพยานคนที่ 2)</p>
                                         @endif
                                     @else
                                         <div class="relative">
                                             <button type="button" @click="openWitnessModal(2)" 
                                                 class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold focus:ring-2 focus:ring-blue-500 transition flex items-center justify-between hover:bg-slate-100 shadow-sm"
                                                 :class="{
-                                                    'border-blue-500 ring-2 ring-blue-100': witness2_data.id,
-                                                    'border-red-500 bg-red-50/30': showErrors && !witness2_data.id
+                                                    'border-blue-500 ring-2 ring-blue-100': witness2_data.id
                                                 }">
-                                                <span x-text="witness2_data.fullname || 'เลือกพยาน 2'" :class="{'text-blue-600': witness2_data.id}"></span>
+                                                <span x-text="witness2_data.fullname || 'เลือกพยาน 2 (ไม่บังคับ)'" :class="{'text-blue-600': witness2_data.id}"></span>
                                                 <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
                                             </button>
-                                            <input type="hidden" name="witness2_user_id" :value="witness2_data.id" required>
+                                            <input type="hidden" name="witness2_user_id" :value="witness2_data.id">
                                             <template x-if="witness2_data.department_name">
                                                 <p class="text-[10px] text-slate-400 mt-1" x-text="witness2_data.department_name"></p>
-                                            </template>
-                                            <template x-if="showErrors && !witness2_data.id">
-                                                <p class="text-[10px] text-red-500 font-bold mt-2 text-left"><i class="fa-solid fa-circle-exclamation mr-1"></i> กรุณาเลือกพยานคนที่ 2</p>
                                             </template>
                                         </div>
                                     @endif
@@ -468,11 +493,17 @@
                                 @if($canSignWitness2)
                                 <div class="mt-3">
                                     <button type="button" @click="useNameAsSignature('witness2', '{{ $existing->witness2_name ?? '' }}')" 
-                                        class="text-[10px] font-black text-blue-600 hover:text-blue-700 uppercase tracking-widest flex items-center gap-2 mx-auto transition hover:scale-105 active:scale-95">
+                                        class="text-[10px] font-bold text-blue-600 hover:text-blue-700 uppercase tracking-widest flex items-center gap-2 mx-auto transition hover:scale-105 active:scale-95">
                                         <i class="fa-solid fa-keyboard"></i>
                                         พิมพ์ชื่อแทนลายมือชื่อ
                                     </button>
                                 </div>
+                                @endif
+
+                                @if($existing && $existing->witness2_user_id === auth()->id() && !$existing->witness2_agreed_at)
+                                    <button type="button" @click="agreeWitness(2)" class="mt-4 w-full py-2 bg-blue-600 text-white rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-blue-100 hover:bg-blue-700 transition transform hover:-translate-y-0.5 active:scale-95">
+                                        รับรองการเป็นพยาน
+                                    </button>
                                 @endif
                             </div>
                         </div>
@@ -481,7 +512,7 @@
                 </div>
 
                 <!-- Agreement Footer -->
-                <div class="flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest pt-8">
+                <div class="flex justify-between items-center text-[10px] font-bold text-slate-300 uppercase tracking-widest pt-8">
                     <div>Kumwell Corporation Public Company Limited</div>
                     <div>หน้าที่ 1-4</div>
                 </div>
@@ -496,14 +527,24 @@
                 
                 @if(!$existing)
                 <button type="button" @click="submitForm" 
-                    class="w-full md:w-auto px-12 py-5 bg-blue-600 text-white rounded-[2rem] font-black uppercase tracking-widest shadow-2xl shadow-blue-500/40 hover:bg-blue-500 transition transform hover:-translate-y-1 active:scale-95">
+                    class="w-full md:w-auto px-12 py-5 bg-blue-600 text-white rounded-[2rem] font-bold uppercase tracking-widest shadow-2xl shadow-blue-500/40 hover:bg-blue-500 transition transform hover:-translate-y-1 active:scale-95">
                     ยืนยันบันทึกข้อตกลงรักษาความลับ
                 </button>
                 @else
-                <div class="px-8 py-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center gap-3 text-green-400">
-                    <i class="fa-solid fa-circle-check"></i>
-                    <span class="text-sm font-bold uppercase tracking-widest">บันทึกข้อมูลเรียบร้อยแล้ว</span>
-                </div>
+                    @if($existing->witness1_agreed_at && $existing->witness2_agreed_at)
+                        <div class="px-8 py-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center gap-3 text-green-600">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span class="text-sm font-bold uppercase tracking-widest">บันทึกข้อตกลงเสร็จสมบูรณ์แล้ว</span>
+                        </div>
+                    @else
+                        <div class="px-8 py-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex flex-col gap-1 text-amber-600">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-clock"></i>
+                                <span class="text-sm font-bold uppercase tracking-widest">อยู่ระหว่างรอพยานรับรอง</span>
+                            </div>
+                            <p class="text-[10px] opacity-70 italic font-medium ml-7">NDA จะเสร็จสมบูรณ์เมื่อพยานที่ระบุลงนามรับรองแล้ว</p>
+                        </div>
+                    @endif
                 @endif
             </div>
         </form>
@@ -537,7 +578,7 @@
             
             <div class="px-8 py-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
                 <div>
-                    <h3 class="text-lg font-black text-slate-800 uppercase tracking-tight">เลือกพยาน <span x-text="selectedWitnessType"></span></h3>
+                    <h3 class="text-lg font-bold text-slate-800 uppercase tracking-tight">เลือกพยาน <span x-text="selectedWitnessType"></span></h3>
                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">ค้นหาพยานด้วยแผนกหรือชื่อ-นามสกุล</p>
                 </div>
                 <button @click="modalOpen = false" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-200 transition text-slate-400 hover:text-slate-600">
@@ -548,7 +589,7 @@
             <div class="p-8 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">กรองตามแผนก</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">กรองตามแผนก</label>
                         <select x-model="selectedDept" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition">
                             <option value="">ทุกแผนก</option>
                             @foreach($departments as $dept)
@@ -557,7 +598,7 @@
                         </select>
                     </div>
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">ค้นหาชื่อ-นามสกุล</label>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ค้นหาชื่อ-นามสกุล</label>
                         <div class="relative">
                             <input type="text" x-model="witnessSearch" placeholder="ระบุชื่อเพื่อค้นหา..." 
                                 class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-sm font-bold focus:ring-2 focus:ring-blue-500 transition">
@@ -568,7 +609,7 @@
 
                 <div class="space-y-3">
                     <div class="flex items-center justify-between px-2">
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">รายชื่อพนักงาน (<span x-text="filteredUsers.length"></span>)</span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">รายชื่อพนักงาน (<span x-text="filteredUsers.length"></span>)</span>
                     </div>
                     
                     <div class="max-h-[350px] overflow-y-auto pr-2 custom-scrollbar space-y-2">
@@ -604,27 +645,10 @@
     .indent-12 { text-indent: 3rem; }
     canvas { touch-action: none; }
 </style>
-@endsection
-
-@section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.5/dist/signature_pad.umd.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        document.querySelectorAll('.tom-select').forEach(el => {
-            new TomSelect(el, {
-                create: false,
-                sortField: {
-                    field: "text",
-                    direction: "asc"
-                },
-                placeholder: el.getAttribute('placeholder') || 'ค้นหาชื่อ...',
-                allowEmptyOption: true,
-            });
-        });
-    });
+
+
 
 function ndaForm() {
     return {
@@ -637,8 +661,14 @@ function ndaForm() {
         witness1_data: { id: '', fullname: '', department_name: '' },
         witness2_data: { id: '', fullname: '', department_name: '' },
         allUsers: @json($users),
+        
+        // Address Logic
+        addressData: { provinces: [] },
+        filteredAmphures: [],
+        filteredTambons: [],
+        
         isSigned: { employee: false, witness1: false, witness2: false },
-        showErrors: false,
+        showErrors: {{ $errors->any() ? 'true' : 'false' }},
         formData: {
             prefix: '{{ old('prefix', $existing->prefix ?? '') }}',
             full_name: '{{ old('full_name', $existing->full_name ?? ($requestForm->firstname . ' ' . $requestForm->lastname)) }}',
@@ -646,6 +676,8 @@ function ndaForm() {
             id_card_no: '{{ old('id_card_no', $existing->id_card_no ?? '') }}',
             contact_no: '{{ old('contact_no', $existing->contact_no ?? $requestForm->tel) }}',
             address_no: '{{ old('address_no', $existing->address_no ?? '') }}',
+            soi: '{{ old('soi', $existing->soi ?? '') }}',
+            road: '{{ old('road', $existing->road ?? '') }}',
             tambon: '{{ old('tambon', $existing->tambon ?? '') }}',
             amphoe: '{{ old('amphoe', $existing->amphoe ?? '') }}',
             province: '{{ old('province', $existing->province ?? '') }}'
@@ -669,19 +701,116 @@ function ndaForm() {
 
         selectWitness(user) {
             if (this.selectedWitnessType === 1) {
+                if (this.witness2_data.id === user.id) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'พยานซ้ำ',
+                        text: 'พยานคนที่ 1 และคนที่ 2 ต้องไม่เป็นบุคคลเดียวกัน',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                    return;
+                }
                 this.witness1_data = { id: user.id, fullname: user.fullname, department_name: user.department_name };
             } else {
+                if (this.witness1_data.id === user.id) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'พยานซ้ำ',
+                        text: 'พยานคนที่ 1 และคนที่ 2 ต้องไม่เป็นบุคคลเดียวกัน',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                    return;
+                }
                 this.witness2_data = { id: user.id, fullname: user.fullname, department_name: user.department_name };
             }
             this.modalOpen = false;
         },
         
-        init() {
-            this.$nextTick(() => {
+        async init() {
+            this.$nextTick(async () => {
                 this.initPad('employee', 'signature-employee');
                 this.initPad('witness1', 'signature-witness1');
                 this.initPad('witness2', 'signature-witness2');
+
+                window.addEventListener('resize', () => {
+                    this.initPad('employee', 'signature-employee');
+                    this.initPad('witness1', 'signature-witness1');
+                    this.initPad('witness2', 'signature-witness2');
+                });
+
+                // Restore Witness Selection from old()
+                const oldW1 = '{{ old('witness1_user_id') }}';
+                const oldW2 = '{{ old('witness2_user_id') }}';
+                if (oldW1) {
+                    const user = this.allUsers.find(u => u.id == oldW1);
+                    if (user) this.witness1_data = { id: user.id, fullname: user.fullname, department_name: user.department_name };
+                }
+                if (oldW2) {
+                    const user = this.allUsers.find(u => u.id == oldW2);
+                    if (user) this.witness2_data = { id: user.id, fullname: user.fullname, department_name: user.department_name };
+                }
+
+                // Restore signatures from old() or auto-load system signature
+                ['employee', 'witness1', 'witness2'].forEach(name => {
+                    const input = document.getElementById(name + '_signature');
+                    if (input && input.value) {
+                        this.pads[name].fromDataURL(input.value);
+                        this.isSigned[name] = true;
+                    } else if (! @json($existing) && name === 'employee') {
+                        // Auto-load employee system signature for new NDA
+                        this.useSystemSignature('employee');
+                    } else {
+                        // Check if it's a witness turn and they have a system signature
+                        const canSignWitness1 = {{ $canSignWitness1 ? 'true' : 'false' }};
+                        const canSignWitness2 = {{ $canSignWitness2 ? 'true' : 'false' }};
+                        if (name === 'witness1' && canSignWitness1) this.useSystemSignature('witness1');
+                        if (name === 'witness2' && canSignWitness2) this.useSystemSignature('witness2');
+                    }
+                });
+
+                // Fetch Address Data
+                try {
+                    const response = await fetch('https://raw.githubusercontent.com/kongvut/thai-province-data/master/api_province_with_amphure_tambon.json');
+                    this.addressData.provinces = await response.json();
+                    
+                    // If existing data, trigger filters
+                    if (this.formData.province) {
+                        const province = this.addressData.provinces.find(p => p.name_th === this.formData.province);
+                        if (province) {
+                            this.filteredAmphures = province.amphure;
+                            if (this.formData.amphoe) {
+                                const amphure = this.filteredAmphures.find(a => a.name_th === this.formData.amphoe);
+                                if (amphure) {
+                                    this.filteredTambons = amphure.tambon;
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading address data:', error);
+                }
             });
+        },
+
+        onProvinceChange() {
+            const province = this.addressData.provinces.find(p => p.name_th === this.formData.province);
+            this.filteredAmphures = province ? province.amphure : [];
+            this.filteredTambons = [];
+            this.formData.amphoe = '';
+            this.formData.tambon = '';
+        },
+
+        onAmphureChange() {
+            const amphure = this.filteredAmphures.find(a => a.name_th === this.formData.amphoe);
+            this.filteredTambons = amphure ? amphure.tambon : [];
+            this.formData.tambon = '';
+        },
+
+        onTambonChange() {
+            const tambon = this.filteredTambons.find(t => t.name_th === this.formData.tambon);
+            if (tambon && tambon.zip_code) {
+                // If there's a zip code field, you could populate it here
+            }
         },
         
         initPad(name, id) {
@@ -689,17 +818,35 @@ function ndaForm() {
             if (!canvas) return;
             
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
+            const offsetWidth = canvas.offsetWidth;
+            const offsetHeight = canvas.offsetHeight;
+
+            if (offsetWidth === 0 || offsetHeight === 0) {
+                // If not visible yet, try again shortly
+                setTimeout(() => this.initPad(name, id), 100);
+                return;
+            }
+
+            canvas.width = offsetWidth * ratio;
+            canvas.height = offsetHeight * ratio;
+            canvas.getContext("2d").setTransform(1, 0, 0, 1, 0, 0); // Reset transform before scaling
             canvas.getContext("2d").scale(ratio, ratio);
             
-            this.pads[name] = new SignaturePad(canvas, {
-                backgroundColor: 'rgba(255, 255, 255, 0)',
-                penColor: 'rgb(15, 23, 42)'
-            });
-            
-            canvas.addEventListener('mousedown', () => { this.activePad = name; this.isSigned[name] = true; });
-            canvas.addEventListener('touchstart', () => { this.activePad = name; this.isSigned[name] = true; });
+            if (this.pads[name]) {
+                const data = this.pads[name].toData();
+                this.pads[name].clear();
+                this.pads[name].fromData(data);
+            } else {
+                this.pads[name] = new SignaturePad(canvas, {
+                    backgroundColor: 'rgba(255, 255, 255, 0)',
+                    penColor: 'rgb(15, 23, 42)'
+                });
+                
+                this.pads[name].addEventListener('beginStroke', () => { 
+                    this.activePad = name; 
+                    this.isSigned[name] = true; 
+                });
+            }
         },
         
         clearPad(name) {
@@ -740,7 +887,7 @@ function ndaForm() {
 
         useNameAsSignature(name, fullname) {
             const pad = this.pads[name];
-            if (!pad) return;
+            if (!pad || !fullname) return;
             
             const canvas = pad.canvas;
             const ctx = canvas.getContext('2d');
@@ -748,14 +895,20 @@ function ndaForm() {
             
             pad.clear();
             
+            // Reset transform to draw at physical pixel coordinates
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            
             // Set styles
-            ctx.font = `italic bold ${24 * ratio}px 'Sarabun', sans-serif`;
+            ctx.font = `italic 700 ${28 * ratio}px 'Charm', cursive`;
             ctx.fillStyle = "rgb(15, 23, 42)";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             
-            // Draw text
+            // Draw text at the exact physical center
             ctx.fillText(fullname, canvas.width / 2, canvas.height / 2);
+            
+            // Restore scale for future SignaturePad operations
+            ctx.scale(ratio, ratio);
             
             this.isSigned[name] = true;
             this.activePad = name;
@@ -828,7 +981,7 @@ function ndaForm() {
 
             const hasEmployeeSign = this.isSigned.employee;
             const hasWitness1 = isWitnessMode ? !!this.witness1_data.id : true;
-            const hasWitness2 = isWitnessMode ? !!this.witness2_data.id : true;
+            const hasWitness2 = true; // Witness 2 is now optional
 
             if (!isPersonalValid || !hasEmployeeSign || !hasWitness1 || !hasWitness2) {
                 this.showErrors = true;

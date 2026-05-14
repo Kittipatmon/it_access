@@ -14,9 +14,15 @@ class AccessOptionController extends Controller
      */
     public function index()
     {
+        $options = AccessOption::ordered()->get()->groupBy('category');
+        
         return view('backend.access-options.index', [
-            'systemOptions' => AccessOption::system()->ordered()->get(),
-            'programOptions' => AccessOption::program()->ordered()->get(),
+            'groupedOptions' => $options,
+            'categoryLabels' => [
+                'system' => 'รายการเข้าถึงระบบ (Systems)',
+                'program' => 'รายการเข้าถึงโปรแกรม (Programs)',
+                'equipment' => 'รายการอุปกรณ์ (Equipment)',
+            ]
         ]);
     }
 
@@ -26,7 +32,8 @@ class AccessOptionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'category' => 'required|in:system,program',
+            'category' => 'required|string|max:255',
+            'category_new' => 'nullable|string|max:255',
             'name' => 'required|string|max:255',
             'key' => 'required|string|max:255|unique:access_options,key',
             'has_sub_options' => 'boolean',
@@ -35,10 +42,15 @@ class AccessOptionController extends Controller
             'custom_fields_list' => 'nullable|string',
         ]);
 
-        $maxSort = AccessOption::where('category', $validated['category'])->max('sort_order') ?? 0;
+        $category = $validated['category'];
+        if ($category === 'new' && !empty($validated['category_new'])) {
+            $category = Str::snake($validated['category_new']);
+        }
+
+        $maxSort = AccessOption::where('category', $category)->max('sort_order') ?? 0;
 
         $option = AccessOption::create([
-            'category' => $validated['category'],
+            'category' => $category,
             'name' => $validated['name'],
             'key' => Str::snake($validated['key']),
             'has_sub_options' => $request->has('has_sub_options'),
@@ -84,13 +96,16 @@ class AccessOptionController extends Controller
     /**
      * Remove the specified access option from storage.
      */
-    public function destroy(AccessOption $option)
+    public function destroy(AccessOption $accessOption)
     {
-        $name = $option->name;
-        $option->delete();
+        $accessOption->delete();
+        return redirect()->back()->with('success', 'ลบรายการเรียบร้อยแล้ว');
+    }
 
-        return redirect()->route('backend.access-options.index')
-            ->with('success', "ลบรายการ \"{$name}\" เรียบร้อยแล้ว");
+    public function destroyCategory($category)
+    {
+        AccessOption::where('category', $category)->delete();
+        return redirect()->back()->with('success', 'ลบหมวดหมู่และรายการทั้งหมดเรียบร้อยแล้ว');
     }
 
     /**

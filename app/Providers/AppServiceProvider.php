@@ -38,7 +38,16 @@ class AppServiceProvider extends ServiceProvider
                     ->whereNull('user_acknowledged_at')
                     ->count();
 
-                $view->with('navPendingCount', $toApproveCount + $toAcknowledgeCount);
+                // Count requests where user needs to verify as a witness
+                $toVerifyNDACount = \App\Models\RequestForm::whereHas('confidentialityAgreement', function($q) use ($userId) {
+                    $q->where(function($sq) use ($userId) {
+                        $sq->where('witness1_user_id', $userId)->whereNull('witness1_agreed_at');
+                    })->orWhere(function($sq) use ($userId) {
+                        $sq->where('witness2_user_id', $userId)->whereNull('witness2_agreed_at');
+                    });
+                })->count();
+
+                $view->with('navPendingCount', $toApproveCount + $toAcknowledgeCount + $toVerifyNDACount);
             }
         });
 

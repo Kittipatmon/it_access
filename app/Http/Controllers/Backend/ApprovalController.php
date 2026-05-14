@@ -143,6 +143,7 @@ class ApprovalController extends Controller
             'it_status' => 'completed',
             'it_system_config' => $request->it_system_config,
             'it_program_config' => $request->it_program_config,
+            'it_equipment_config' => $request->it_equipment_config,
         ]);
 
         return redirect()->back()->with('success', 'ดำเนินการขั้นตอนที่ 3 เสร็จสมบูรณ์แล้ว (ข้อมูลถูกบันทึกเข้าระบบเรียบร้อย)');

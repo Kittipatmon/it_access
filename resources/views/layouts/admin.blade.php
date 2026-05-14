@@ -10,7 +10,11 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7.3.0/dist/turbo.es2017-umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        [x-cloak] { display: none !important; }
+        
         body {
             font-family: 'Sarabun', sans-serif;
         }
@@ -19,6 +23,11 @@
             background-color: #fff1f0;
             border-right: 4px solid #ff4d4f;
             color: #ff4d4f;
+        }
+
+        /* Prevent layout shift during Turbo navigation */
+        .turbo-progress-bar {
+            background-color: #3b82f6;
         }
     </style>
 </head>
@@ -37,7 +46,7 @@
             @click="sidebarOpen = false; localStorage.setItem('sidebarOpen', 'false')"></div>
 
         <!-- Sidebar -->
-        <div class="fixed inset-y-0 left-0 z-50 lg:static bg-white border-r border-slate-200 flex-shrink-0 flex flex-col h-full shadow-2xl lg:shadow-none overflow-hidden"
+        <div id="main-sidebar" class="fixed inset-y-0 left-0 z-50 lg:static bg-white border-r border-slate-200 flex-shrink-0 flex flex-col h-full shadow-2xl lg:shadow-none transition-all duration-300 ease-in-out overflow-hidden"
             :class="sidebarOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full lg:w-20 lg:translate-x-0'">
             <div
                 class="h-16 flex items-center justify-between px-6 border-b border-slate-100 overflow-hidden flex-shrink-0">
@@ -69,7 +78,7 @@
                 <div class="px-6 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest"
                     x-show="sidebarOpen">Academics</div>
                 <a href="{{ route('backend.dashboard') }}"
-                    class="flex items-center {{ request()->routeIs('backend.dashboard') ? 'sidebar-item-active' : 'text-slate-500 hover:bg-slate-50' }}"
+                    class="flex items-center {{ request()->routeIs('backend.dashboard*') ? 'sidebar-item-active' : 'text-slate-500 hover:bg-slate-50' }}"
                     :class="sidebarOpen ? 'px-6 py-3' : 'px-0 py-4 justify-center'">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="sidebarOpen ? 'mr-3' : 'mr-0'"
                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,12 +110,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        @if(isset($adminTotalNotify) && $adminTotalNotify > 0)
-                            <span class="absolute -top-2 -right-1 flex h-4 w-4 lg:hidden">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-[10px] text-white items-center justify-center font-bold">{{ $adminTotalNotify }}</span>
-                            </span>
-                        @endif
                     </div>
                     <span x-show="sidebarOpen" class="flex-1">จัดการคำร้อง</span>
                     @if(isset($adminTotalNotify) && $adminTotalNotify > 0)
@@ -144,6 +147,16 @@
                             d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
                     </svg>
                     <span x-show="sidebarOpen">กำหนดขั้นตอนการอนุมัติ</span>
+                </a>
+                <a href="{{ route('backend.nda-config.index') }}"
+                    class="flex items-center {{ request()->routeIs('backend.nda-config*') ? 'sidebar-item-active' : 'text-slate-500 hover:bg-slate-50' }}"
+                    :class="sidebarOpen ? 'px-6 py-3' : 'px-0 py-4 justify-center'">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" :class="sidebarOpen ? 'mr-3' : 'mr-0'"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    <span x-show="sidebarOpen">ตั้งค่าผู้เซ็น NDA (บริษัท)</span>
                 </a>
             </nav>
 
@@ -224,35 +237,33 @@
 
                 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                 <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        @if(session('success'))
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'สำเร็จ',
-                                text: "{{ session('success') }}",
-                                timer: 3000,
-                                showConfirmButton: false
-                            });
-                        @endif
+                    @if(session('success'))
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สำเร็จ',
+                            text: "{{ session('success') }}",
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    @endif
 
-                        @if(session('error'))
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'เกิดข้อผิดพลาด',
-                                text: "{{ session('error') }}"
-                            });
-                        @endif
+                    @if(session('error'))
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'เกิดข้อผิดพลาด',
+                            text: "{{ session('error') }}"
+                        });
+                    @endif
 
-                        @if($errors->any())
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'ข้อมูลไม่ถูกต้อง',
-                                html: `{!! implode('<br>', $errors->all()) !!}`,
-                                confirmButtonColor: '#3b82f6',
-                                confirmButtonText: 'ตกลง'
-                            });
-                        @endif
-                    });
+                    @if($errors->any())
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'ข้อมูลไม่ถูกต้อง',
+                            html: `{!! implode('<br>', $errors->all()) !!}`,
+                            confirmButtonColor: '#3b82f6',
+                            confirmButtonText: 'ตกลง'
+                        });
+                    @endif
                 </script>
                 @yield('scripts')
             </main>

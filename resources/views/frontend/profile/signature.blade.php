@@ -207,7 +207,7 @@
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('turbo:load', function () {
             const canvas = document.getElementById('signature-pad');
             if (!canvas) return;
 

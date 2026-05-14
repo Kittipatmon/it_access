@@ -227,7 +227,7 @@
         ]; 
     }));
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('turbo:load', function() {
         // Initialize Dept Filter with Tom Select
         deptSelect = new TomSelect('#filter_dept_id', {
             create: false,

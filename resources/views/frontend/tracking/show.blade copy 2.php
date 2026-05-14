@@ -1,13 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-    @php
-        $isRequester = $request->user_id === Auth::id();
-        $isApprover = $request->steps()->where('approver_id', Auth::id())->exists();
-        $nda = $request->confidentialityAgreement;
-        $isWitness = $nda && ($nda->witness1_user_id == Auth::id() || $nda->witness2_user_id == Auth::id());
-        $isAdmin = Auth::user()->role === 'admin' || Auth::user()->dept_id == 16;
-    @endphp
     <div class="max-w-7xl mx-auto px-4 py-8 ">
             <div class="mb-4 no-print flex flex-col sm:flex-row gap-4 justify-between items-center px-2">
                 <a href="{{ route('tracking.index') }}"
@@ -48,17 +41,7 @@
                         @if($request->status == 'pending')
                             <span class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-[10px] font-bold uppercase border border-yellow-200">รออนุมัติ</span>
                         @elseif($request->status == 'completed')
-                            @php
-                                $nda = $request->confidentialityAgreement;
-                                $isWaitingWitness = $nda && (!$nda->witness1_agreed_at || ($nda->witness2_user_id && !$nda->witness2_agreed_at));
-                            @endphp
-                            @if(!$nda)
-                                <span class="px-3 py-1 rounded-full bg-red-100 text-red-800 text-[10px] font-bold uppercase border border-red-200 shadow-sm">รอการบันทึก NDA</span>
-                            @elseif($isWaitingWitness)
-                                <span class="px-3 py-1 rounded-full bg-orange-100 text-orange-800 text-[10px] font-bold uppercase border border-orange-200 shadow-sm">กำลังรอพยาน</span>
-                            @else
-                                <span class="px-3 py-1 rounded-full bg-green-600 text-white text-[10px] font-bold uppercase border border-green-600 shadow-sm">เสร็จสมบูรณ์</span>
-                            @endif
+                            <span class="px-3 py-1 rounded-full bg-green-600 text-white text-[10px] font-bold uppercase border border-green-600 shadow-sm">เสร็จสมบูรณ์</span>
                         @elseif($request->status == 'approved' && $request->it_status == 'completed')
                             <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-[10px] font-bold uppercase border border-blue-200">รอคุณยืนยัน</span>
                         @elseif($request->status == 'approved')
@@ -345,7 +328,7 @@
                             </h3>
                         </div>
 
-                        <div class="bg-white rounded-2xl border border-slate-200 max-w-6xl mx-auto px-12 md:px-16 py-6 text-[11px] text-slate-700 leading-8 space-y-4 max-h-[500px] overflow-y-auto pr-6 no-print-scroll">
+                        <div class="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 text-[11px] text-slate-700 leading-relaxed space-y-4 max-h-[500px] overflow-y-auto no-print-scroll">
                             <p class="text-center text-sm font-bold text-slate-800 mb-2">ประกาศ</p>
                             <p class="text-center text-xs font-bold text-slate-700 mb-4">ระเบียบการใช้งานระบบเครือข่ายและคอมพิวเตอร์</p>
 
@@ -398,8 +381,8 @@
                         </div>
 
                         {{-- Consolidated Acceptance Section --}}
-                        <div class="bg-blue-50/50 rounded-6xl border-2 border-blue-100 p-8 space-y-6 no-print">
-                            <div class="space-y-6">
+                        <div class="bg-blue-50/50 rounded-2xl border-2 border-blue-100 p-8 space-y-6 no-print">
+                            <div class="space-y-4">
                                 <div class="flex items-start gap-4">
                                     <div class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">1</div>
                                     <p class="text-xs text-slate-700 font-bold leading-relaxed">
@@ -530,7 +513,7 @@
                     $isRequester = Auth::id() == $request->user_id;
                  @endphp
 
-                 <div class="bg-white p-8 rounded-3xl border-2 border-slate-100 shadow-sm transition hover:shadow-md flex flex-col items-center justify-center gap-6">
+                 <div class="bg-white p-8 rounded-3xl border-2 border-slate-100 shadow-sm transition hover:shadow-md">
                     @if($nda)
                             @if($nda->witness1_agreed_at && $nda->witness2_agreed_at)
                                 <div class="flex items-center gap-4">
@@ -553,11 +536,10 @@
                                     </div>
                                 </div>
                             @endif
-                            <div class="flex flex-col items-center gap-4 w-full">
-                                <div class="w-full h-px bg-slate-100 mb-2"></div>
+                            <div class="flex gap-2">
                                 <a href="{{ route('request.nda', $request->request_no) }}" 
-                                    class="w-full sm:w-auto px-12 py-3 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 transition shadow-lg shadow-slate-200 text-center">
-                                    <i class="fa-solid fa-file-invoice mr-2"></i> ดูรายละเอียดข้อตกลงรักษาความลับ (NDA)
+                                    class="px-8 py-3 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 transition shadow-lg shadow-slate-200">
+                                    ดูรายละเอียด NDA
                                 </a>
                             </div>
                         </div>
@@ -611,29 +593,13 @@
                     signaturePad.clear();
                 }
                 window.onresize = resize; resize();
-                const approvalForm = document.getElementById('approval-form');
-                if (approvalForm) {
-                    approvalForm.addEventListener('submit', (e) => {
-                        const alpineEl = approvalForm.closest('[x-data]');
-                        if (!alpineEl) return;
-                        
-                        // Support both Alpine 2 and 3
-                        const alpine = alpineEl.__x ? alpineEl.__x.$data : (window.Alpine ? Alpine.$data(alpineEl) : null);
-                        if (!alpine) return;
-
-                        if (alpine.actionType === 'approve' && !alpine.useExisting) {
-                            if (signaturePad.isEmpty()) { 
-                                e.preventDefault(); 
-                                alert('กรุณาลงนามลายมือชื่อ'); 
-                                return; 
-                            }
-                            const sigInput = document.getElementById('approval-signature-input');
-                            if (sigInput) {
-                                sigInput.value = signaturePad.toDataURL();
-                            }
-                        }
-                    });
-                }
+                document.getElementById('approval-form').addEventListener('submit', (e) => {
+                    const alpine = document.querySelector('[x-data]').__x.$data;
+                    if (alpine.actionType === 'approve' && !alpine.useExisting) {
+                        if (signaturePad.isEmpty()) { e.preventDefault(); alert('กรุณาลงนามลายมือชื่อ'); return; }
+                        document.getElementById('approval-signature-input').value = signaturePad.toDataURL();
+                    }
+                });
             }
         });
     </script>

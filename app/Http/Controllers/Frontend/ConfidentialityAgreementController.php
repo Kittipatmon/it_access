@@ -42,7 +42,10 @@ class ConfidentialityAgreementController extends Controller
             
         $departments = \App\Models\Department::orderBy('name')->pluck('name');
 
-        return view('frontend.request.nda', compact('requestForm', 'existing', 'months', 'users', 'departments'));
+        $repId = \App\Models\SystemSetting::where('key', 'nda_company_representative_id')->value('value');
+        $manager = User::find($repId) ?? User::where('firstname', 'เกรียงศักดิ์')->where('lastname', 'อำนวยโชค')->first();
+
+        return view('frontend.request.nda', compact('requestForm', 'existing', 'months', 'users', 'departments', 'manager'));
     }
 
     public function store(Request $request, $requestNo)
@@ -63,7 +66,7 @@ class ConfidentialityAgreementController extends Controller
             'contact_no' => 'required|string',
             'employee_signature' => 'required|string',
             'witness1_user_id' => 'required|exists:userkmlnew.employees,id',
-            'witness2_user_id' => 'required|exists:userkmlnew.employees,id',
+            'witness2_user_id' => 'nullable|exists:userkmlnew.employees,id',
         ]);
 
         $witness1 = User::find($validated['witness1_user_id']);
@@ -75,7 +78,7 @@ class ConfidentialityAgreementController extends Controller
                 'user_id' => Auth::id(),
                 'agreement_date' => now(),
                 'witness1_name' => $witness1->fullname,
-                'witness2_name' => $witness2->fullname,
+                'witness2_name' => $witness2 ? $witness2->fullname : null,
             ])
         );
 
@@ -88,18 +91,35 @@ class ConfidentialityAgreementController extends Controller
         $requestForm = RequestForm::where('request_no', $requestNo)->firstOrFail();
         $nda = ConfidentialityAgreement::where('request_form_id', $requestForm->id)->firstOrFail();
 
-        if ($witnessNo == 1 && $nda->witness1_user_id === Auth::id()) {
+        $updated = false;
+        
+        // If user is Witness 1 and hasn't signed, sign it
+        if ($nda->witness1_user_id === Auth::id() && !$nda->witness1_agreed_at) {
             $nda->update([
                 'witness1_agreed_at' => now(),
                 'witness1_signature' => $request->signature,
             ]);
-        } elseif ($witnessNo == 2 && $nda->witness2_user_id === Auth::id()) {
+            $updated = true;
+        }
+
+        // If user is Witness 2 and hasn't signed, sign it
+        if ($nda->witness2_user_id === Auth::id() && !$nda->witness2_agreed_at) {
             $nda->update([
                 'witness2_agreed_at' => now(),
                 'witness2_signature' => $request->signature,
             ]);
-        } else {
+            $updated = true;
+        }
+
+        if (!$updated) {
             abort(403);
+        }
+
+        // Check if both witnesses have signed
+        $nda->refresh();
+        if ($nda->witness1_agreed_at && $nda->witness2_agreed_at) {
+            // Optional: Update request form status if needed
+            // $requestForm->update(['status' => 'fully_completed']);
         }
 
         return response()->json(['success' => true]);

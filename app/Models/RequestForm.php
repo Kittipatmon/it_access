@@ -39,8 +39,11 @@ class RequestForm extends Model
         'it_status',
         'it_system_config',
         'it_program_config',
+        'equipment_access',
+        'it_equipment_config',
         'user_signature_path',
         'user_acknowledged_at',
+        'additional_access',
     ];
 
     protected $casts = [
@@ -48,6 +51,9 @@ class RequestForm extends Model
         'program_access' => 'array',
         'it_system_config' => 'array',
         'it_program_config' => 'array',
+        'equipment_access' => 'array',
+        'it_equipment_config' => 'array',
+        'additional_access' => 'array',
         'approved_at' => 'datetime',
         'it_configured_at' => 'datetime',
         'user_acknowledged_at' => 'datetime',
@@ -71,5 +77,10 @@ class RequestForm extends Model
     public function histories()
     {
         return $this->hasMany(ApprovalHistory::class)->latest();
+    }
+
+    public function confidentialityAgreement()
+    {
+        return $this->hasOne(ConfidentialityAgreement::class);
     }
 }

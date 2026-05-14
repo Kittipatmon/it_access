@@ -6,7 +6,7 @@
             <!-- Header Section -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
                 <div>
-                    <h1 class="text-3xl font-black text-slate-800 tracking-tight flex items-center gap-3">
+                    <h1 class="text-3xl font-bold text-slate-800 tracking-tight flex items-center gap-3">
                         <span class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
                             <i class="fa-solid fa-list-check text-xl"></i>
                         </span>
@@ -16,7 +16,7 @@
                 </div>
                 
                 <a href="{{ route('request.index') }}"
-                    class="inline-flex items-center px-8 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-xl shadow-blue-200 hover:shadow-blue-300 transform hover:-translate-y-1 active:scale-95 group">
+                    class="inline-flex items-center px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold uppercase tracking-widest hover:bg-blue-500 transition-all shadow-xl shadow-blue-200 hover:shadow-blue-300 transform hover:-translate-y-1 active:scale-95 group">
                     <i class="fa-solid fa-plus mr-3 transition-transform group-hover:rotate-90"></i>
                     สร้างคำร้องใหม่
                 </a>
@@ -26,7 +26,7 @@
             @if($toApprove->count() > 0 || $toAcknowledge->count() > 0 || $toVerifyNDA->count() > 0)
                 <div class="mb-12">
                     <div class="flex items-center gap-4 mb-6">
-                        <h3 class="text-xs font-black text-blue-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                        <h3 class="text-xs font-bold text-blue-600 uppercase tracking-[0.2em] flex items-center gap-2">
                             <span class="relative flex h-3 w-3">
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                                 <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-600"></span>
@@ -44,14 +44,14 @@
                                 
                                 <div class="relative">
                                     <div class="flex justify-between items-start mb-4">
-                                        <span class="px-3 py-1 bg-orange-50 text-orange-600 text-[10px] font-black rounded-lg uppercase border border-orange-100">Waiting Approval</span>
+                                        <span class="px-3 py-1 bg-orange-50 text-orange-600 text-[10px] font-bold rounded-lg uppercase border border-orange-100">อนุมัติคำขอ</span>
                                         <span class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{{ $req->created_at->diffForHumans() }}</span>
                                     </div>
-                                    <div class="text-lg font-black text-slate-800 group-hover:text-blue-600 transition-colors">{{ $req->request_no }}</div>
+                                    <div class="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{{ $req->request_no }}</div>
                                     <div class="text-xs text-slate-500 mt-1 font-medium">{{ $req->firstname }} {{ $req->lastname }}</div>
                                     
                                     <div class="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
-                                        <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest">คลิกเพื่ออนุมัติ</span>
+                                        <span class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">คลิกเพื่ออนุมัติ</span>
                                         <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center transition-transform group-hover:translate-x-1">
                                             <i class="fa-solid fa-arrow-right text-xs"></i>
                                         </div>
@@ -67,14 +67,14 @@
                                 
                                 <div class="relative">
                                     <div class="flex justify-between items-start mb-4">
-                                        <span class="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-black rounded-lg uppercase border border-blue-100 text-center">Waiting Acknowledge</span>
+                                        <span class="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-lg uppercase border border-blue-100 text-center">รอการยืนยัน</span>
                                         <span class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{{ $req->created_at->diffForHumans() }}</span>
                                     </div>
-                                    <div class="text-lg font-black text-slate-800 group-hover:text-blue-600 transition-colors">{{ $req->request_no }}</div>
+                                    <div class="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{{ $req->request_no }}</div>
                                     <div class="text-xs text-slate-500 mt-1 font-medium">{{ $req->firstname }} {{ $req->lastname }}</div>
                                     
                                     <div class="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
-                                        <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest">คลิกเพื่อรับทราบ</span>
+                                        <span class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">คลิกเพื่อรับทราบ</span>
                                         <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center transition-transform group-hover:translate-x-1">
                                             <i class="fa-solid fa-arrow-right text-xs"></i>
                                         </div>
@@ -90,14 +90,14 @@
                                 
                                 <div class="relative">
                                     <div class="flex justify-between items-start mb-4">
-                                        <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black rounded-lg uppercase border border-indigo-100 text-center">NDA Witness</span>
-                                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Pending NDA</span>
+                                        <span class="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg uppercase border border-indigo-100 text-center">รอพยานยืนยัน</span>
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Waiting NDA</span>
                                     </div>
-                                    <div class="text-lg font-black text-slate-800 group-hover:text-indigo-600 transition-colors">{{ $req->request_no }}</div>
+                                    <div class="text-lg font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">{{ $req->request_no }}</div>
                                     <div class="text-xs text-slate-500 mt-1 font-medium">{{ $req->firstname }} {{ $req->lastname }}</div>
                                     
                                     <div class="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
-                                        <span class="text-[10px] font-black text-indigo-500 uppercase tracking-widest">คลิกเพื่อรับรองพยาน</span>
+                                        <span class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">คลิกเพื่อรับรองพยาน</span>
                                         <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center transition-transform group-hover:translate-x-1">
                                             <i class="fa-solid fa-file-contract text-xs"></i>
                                         </div>
@@ -112,7 +112,7 @@
             <!-- Main List -->
             <div class="space-y-6">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">รายการคำร้องทั้งหมด (History)</h3>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">รายการคำร้องทั้งหมด (History)</h3>
                 </div>
 
                 <div class="bg-white rounded-[2.5rem] border border-blue-100 overflow-hidden shadow-2xl shadow-blue-100/50">
@@ -121,23 +121,23 @@
                         <table class="w-full text-left">
                             <thead>
                                 <tr class="bg-blue-100 border-b border-blue-50">
-                                    <th class="px-10 py-6 text-[10px] font-black text-black-100 uppercase tracking-widest">เลขที่คำร้อง</th>
-                                    <th class="px-8 py-6 text-[10px] font-black text-black-100 uppercase tracking-widest">ผู้ส่งคำร้อง</th>
-                                    <th class="px-8 py-6 text-[10px] font-black text-black-400 uppercase tracking-widest">สถานะ</th>
-                                    <th class="px-8 py-6 text-[10px] font-black text-black-400 uppercase tracking-widest">ขั้นตอนถัดไป</th>
-                                    <th class="px-8 py-6 text-[10px] font-black text-black-400 uppercase tracking-widest">วันที่ส่ง</th>
-                                    <th class="px-10 py-6 text-right text-[10px] font-black text-black-400 uppercase tracking-widest">การจัดการ</th>
+                                    <th class="px-10 py-6 text-[10px] font-bold text-black-100 uppercase tracking-widest">เลขที่คำร้อง</th>
+                                    <th class="px-8 py-6 text-[10px] font-bold text-black-100 uppercase tracking-widest">ผู้ส่งคำร้อง</th>
+                                    <th class="px-8 py-6 text-[10px] font-bold text-black-400 uppercase tracking-widest">สถานะ</th>
+                                    <th class="px-8 py-6 text-[10px] font-bold text-black-400 uppercase tracking-widest">ขั้นตอนถัดไป</th>
+                                    <th class="px-8 py-6 text-[10px] font-bold text-black-400 uppercase tracking-widest">วันที่ส่ง</th>
+                                    <th class="px-10 py-6 text-right text-[10px] font-bold text-black-400 uppercase tracking-widest">การจัดการ</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-blue-50">
                                 @forelse($requests as $request)
                                     <tr class="hover:bg-blue-50/20 transition-all duration-300 group">
                                         <td class="px-10 py-6">
-                                            <span class="text-sm font-black text-blue-600 group-hover:underline underline-offset-4 decoration-2">{{ $request->request_no }}</span>
+                                            <span class="text-sm font-bold text-blue-600 group-hover:underline underline-offset-4 decoration-2">{{ $request->request_no }}</span>
                                         </td>
                                         <td class="px-8 py-6">
                                             <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center font-black text-xs uppercase tracking-tighter shadow-inner">
+                                                <div class="w-10 h-10 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center font-bold text-xs uppercase tracking-tighter shadow-inner">
                                                     {{ substr($request->firstname, 0, 1) }}{{ substr($request->lastname, 0, 1) }}
                                                 </div>
                                                 <div>
@@ -148,15 +148,25 @@
                                         </td>
                                         <td class="px-8 py-6">
                                             @if($request->status == 'pending')
-                                                <span class="px-3 py-1 inline-flex text-[10px] font-black leading-5 rounded-lg bg-yellow-50 text-yellow-600 border border-yellow-100 uppercase">Pending</span>
+                                                <span class="px-3 py-1 inline-flex text-[10px] font-bold leading-5 rounded-lg bg-yellow-50 text-yellow-600 border border-yellow-100 uppercase">รออนุมัติ</span>
                                             @elseif($request->status == 'completed')
-                                                <span class="px-3 py-1 inline-flex text-[10px] font-black leading-5 rounded-lg bg-green-500 text-white shadow-lg shadow-green-100 uppercase">Completed</span>
+                                                @php
+                                                    $nda = $request->confidentialityAgreement;
+                                                    $isWaitingWitness = $nda && (!$nda->witness1_agreed_at || ($nda->witness2_user_id && !$nda->witness2_agreed_at));
+                                                @endphp
+                                                @if(!$nda)
+                                                    <span class="px-3 py-1 inline-flex text-[10px] font-bold leading-5 rounded-lg bg-red-100 text-red-600 border border-red-200 uppercase">รอการบันทึก NDA</span>
+                                                @elseif($isWaitingWitness)
+                                                    <span class="px-3 py-1 inline-flex text-[10px] font-bold leading-5 rounded-lg bg-orange-100 text-orange-600 border border-orange-200 uppercase">กำลังรอพยาน</span>
+                                                @else
+                                                    <span class="px-3 py-1 inline-flex text-[10px] font-bold leading-5 rounded-lg bg-green-500 text-white shadow-lg shadow-green-100 uppercase">เสร็จสมบูรณ์</span>
+                                                @endif
                                             @elseif($request->status == 'approved' && $request->it_status == 'completed')
-                                                <span class="px-3 py-1 inline-flex text-[10px] font-black leading-5 rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-100 uppercase">Acknowledge</span>
+                                                <span class="px-3 py-1 inline-flex text-[10px] font-bold leading-5 rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-100 uppercase">รอผู้ใช้งานยืนยัน</span>
                                             @elseif($request->status == 'approved')
-                                                <span class="px-3 py-1 inline-flex text-[10px] font-black leading-5 rounded-lg bg-blue-100 text-blue-600 border border-blue-200 uppercase">Approved</span>
+                                                <span class="px-3 py-1 inline-flex text-[10px] font-bold leading-5 rounded-lg bg-blue-100 text-blue-600 border border-blue-200 uppercase">อนุมัติแล้ว</span>
                                             @else
-                                                <span class="px-3 py-1 inline-flex text-[10px] font-black leading-5 rounded-lg bg-red-50 text-red-600 border border-red-100 uppercase">Rejected</span>
+                                                <span class="px-3 py-1 inline-flex text-[10px] font-bold leading-5 rounded-lg bg-red-50 text-red-600 border border-red-100 uppercase">ถูกปฏิเสธ</span>
                                             @endif
                                         </td>
                                         <td class="px-8 py-6">
@@ -195,13 +205,24 @@
                                                 
                                                 @if($isRequester && $request->status == 'completed' && !$hasNda)
                                                     <a href="{{ route('request.nda', $request->request_no) }}"
-                                                        class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg shadow-blue-100 whitespace-nowrap text-center min-w-[110px]">
+                                                        class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-blue-500 transition-all shadow-lg shadow-blue-100 whitespace-nowrap text-center min-w-[110px]">
                                                         บันทึก NDA
                                                     </a>
                                                 @endif
 
+                                                @if($isRequester && $request->status == 'pending')
+                                                    <form action="{{ route('tracking.destroy', $request->request_no) }}" method="POST" onsubmit="return confirm('คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำร้องนี้?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit"
+                                                            class="inline-flex items-center justify-center px-4 py-2 bg-red-50 text-red-600 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-red-600 hover:text-white transition-all border border-red-100 shadow-sm whitespace-nowrap text-center min-w-[110px]">
+                                                            ยกเลิกคำร้อง
+                                                        </button>
+                                                    </form>
+                                                @endif
+
                                                 <a href="{{ route('tracking.show', $request->request_no) }}"
-                                                    class="inline-flex items-center justify-center px-4 py-2 bg-sky-50 text-sky-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all border border-sky-100 shadow-sm whitespace-nowrap text-center min-w-[110px]">
+                                                    class="inline-flex items-center justify-center px-4 py-2 bg-sky-50 text-sky-600 rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all border border-sky-100 shadow-sm whitespace-nowrap text-center min-w-[110px]">
                                                     ดูรายละเอียด
                                                 </a>
                                             </div>
@@ -230,30 +251,40 @@
                             <div class="p-8 space-y-6">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <div class="text-[10px] font-black text-blue-600 mb-2 uppercase tracking-[0.2em]">
+                                        <div class="text-[10px] font-bold text-blue-600 mb-2 uppercase tracking-[0.2em]">
                                             {{ $request->request_no }}</div>
-                                        <div class="text-lg font-black text-slate-800 leading-tight">{{ $request->firstname }}<br>{{ $request->lastname }}
+                                        <div class="text-lg font-bold text-slate-800 leading-tight">{{ $request->firstname }}<br>{{ $request->lastname }}
                                         </div>
                                         <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter mt-1">{{ $request->department_name }}</div>
                                     </div>
                                     <div>
                                         @if($request->status == 'pending')
-                                            <span class="px-3 py-1 inline-flex text-[9px] font-black rounded-lg bg-yellow-50 text-yellow-600 border border-yellow-100 uppercase">Pending</span>
+                                            <span class="px-3 py-1 inline-flex text-[9px] font-bold rounded-lg bg-yellow-50 text-yellow-600 border border-yellow-100 uppercase">รออนุมัติ</span>
                                         @elseif($request->status == 'completed')
-                                            <span class="px-3 py-1 inline-flex text-[9px] font-black rounded-lg bg-green-500 text-white shadow-lg shadow-green-100 uppercase">Completed</span>
+                                            @php
+                                                $nda = $request->confidentialityAgreement;
+                                                $isWaitingWitness = $nda && (!$nda->witness1_agreed_at || ($nda->witness2_user_id && !$nda->witness2_agreed_at));
+                                            @endphp
+                                            @if(!$nda)
+                                                <span class="px-3 py-1 inline-flex text-[9px] font-bold rounded-lg bg-red-100 text-red-600 border border-red-200 uppercase">รอการบันทึก NDA</span>
+                                            @elseif($isWaitingWitness)
+                                                <span class="px-3 py-1 inline-flex text-[9px] font-bold rounded-lg bg-orange-100 text-orange-600 border border-orange-200 uppercase">กำลังรอพยาน</span>
+                                            @else
+                                                <span class="px-3 py-1 inline-flex text-[9px] font-bold rounded-lg bg-green-500 text-white shadow-lg shadow-green-100 uppercase">เสร็จสมบูรณ์</span>
+                                            @endif
                                         @elseif($request->status == 'approved' && $request->it_status == 'completed')
-                                            <span class="px-3 py-1 inline-flex text-[9px] font-black rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-100 uppercase">Acknowledge</span>
+                                            <span class="px-3 py-1 inline-flex text-[9px] font-bold rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-100 uppercase">รอผู้ใช้งานยืนยัน</span>
                                         @elseif($request->status == 'approved')
-                                            <span class="px-3 py-1 inline-flex text-[9px] font-black rounded-lg bg-blue-50 text-blue-600 border border-blue-100 uppercase">Approved</span>
+                                            <span class="px-3 py-1 inline-flex text-[9px] font-bold rounded-lg bg-blue-50 text-blue-600 border border-blue-100 uppercase">อนุมัติ</span>
                                         @else
-                                            <span class="px-3 py-1 inline-flex text-[9px] font-black rounded-lg bg-red-50 text-red-600 border border-red-100 uppercase">Rejected</span>
+                                            <span class="px-3 py-1 inline-flex text-[9px] font-bold rounded-lg bg-red-50 text-red-600 border border-red-100 uppercase">ปฏิเสธ</span>
                                         @endif
                                     </div>
                                 </div>
 
                                 <div class="bg-blue-50/50 rounded-3xl p-5 space-y-4 border border-blue-100/50 shadow-inner">
                                     <div class="flex justify-between items-center">
-                                        <span class="text-[10px] font-black text-blue-300 uppercase tracking-widest">สถานะปัจจุบัน</span>
+                                        <span class="text-[10px] font-bold text-blue-300 uppercase tracking-widest">สถานะปัจจุบัน</span>
                                         @if($request->status == 'pending')
                                             @php
                                                 $currentStep = $request->steps->where('step_order', $request->current_step)->where('status', 'pending')->first();
@@ -271,7 +302,7 @@
                                         @endif
                                     </div>
                                     <div class="flex justify-between items-center">
-                                        <span class="text-[10px] font-black text-blue-300 uppercase tracking-widest">วันที่ส่ง</span>
+                                        <span class="text-[10px] font-bold text-blue-300 uppercase tracking-widest">วันที่ส่ง</span>
                                         <span class="text-xs text-slate-600 font-bold">{{ $request->created_at->format('d/m/Y H:i') }}</span>
                                     </div>
                                 </div>
@@ -279,19 +310,30 @@
                                 <div class="flex flex-col gap-3">
                                     @if($isRequester && $request->status == 'completed' && !$hasNda)
                                         <a href="{{ route('request.nda', $request->request_no) }}"
-                                            class="block w-full text-center py-4 bg-blue-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-blue-100 active:scale-[0.98] transition-all">
+                                            class="block w-full text-center py-4 bg-blue-600 text-white rounded-2xl text-xs font-bold uppercase tracking-widest shadow-xl shadow-blue-100 active:scale-[0.98] transition-all">
                                             บันทึก NDA
                                         </a>
                                     @endif
+
+                                    @if($isRequester && $request->status == 'pending')
+                                        <form action="{{ route('tracking.destroy', $request->request_no) }}" method="POST" onsubmit="return confirm('คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำร้องนี้?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="block w-full text-center py-4 bg-red-50 text-red-600 rounded-2xl text-xs font-bold uppercase tracking-widest border border-red-100 active:scale-[0.98] transition-all">
+                                                ยกเลิกคำร้อง
+                                            </button>
+                                        </form>
+                                    @endif
                                     <a href="{{ route('tracking.show', $request->request_no) }}"
-                                        class="block w-full text-center py-4 bg-white border border-blue-100 rounded-2xl text-xs font-black uppercase tracking-widest text-blue-600 shadow-xl shadow-blue-100 hover:bg-blue-600 hover:text-white transition-all active:scale-[0.98]">
+                                        class="block w-full text-center py-4 bg-white border border-blue-100 rounded-2xl text-xs font-bold uppercase tracking-widest text-blue-600 shadow-xl shadow-blue-100 hover:bg-blue-600 hover:text-white transition-all active:scale-[0.98]">
                                         ดูรายละเอียดข้อมูล
                                     </a>
                                 </div>
                             </div>
                         @empty
                             <div class="p-12 text-center">
-                                <p class="text-slate-300 font-black uppercase tracking-widest text-xs">ไม่พบรายการคำร้อง</p>
+                                <p class="text-slate-300 font-bold uppercase tracking-widest text-xs">ไม่พบรายการคำร้อง</p>
                             </div>
                         @endforelse
                     </div>

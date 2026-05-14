@@ -26,8 +26,11 @@ class TrackingController extends Controller
                       $query->where('approver_id', $userId);
                   })
                   ->orWhereHas('confidentialityAgreement', function ($query) use ($userId) {
-                      $query->where('witness1_user_id', $userId)
-                            ->orWhere('witness2_user_id', $userId);
+                      $query->where(function($sq) use ($userId) {
+                          $sq->where('witness1_user_id', $userId)->whereNull('witness1_agreed_at');
+                      })->orWhere(function($sq) use ($userId) {
+                          $sq->where('witness2_user_id', $userId)->whereNull('witness2_agreed_at');
+                      });
                   });
             })
             ->with(['user', 'steps.approver', 'confidentialityAgreement'])
@@ -90,10 +93,13 @@ class TrackingController extends Controller
             abort(404);
         }
 
-        // Allow: 1. Requester, 2. Admin, 3. Any Approver of this request
+        // Allow: 1. Requester, 2. Admin, 3. Any Approver, 4. Any Witness of this request
         $isApprover = $request->steps()->where('approver_id', Auth::id())->exists();
+        
+        $nda = $request->confidentialityAgreement;
+        $isWitness = $nda && ($nda->witness1_user_id == Auth::id() || $nda->witness2_user_id == Auth::id());
 
-        if ($request->user_id !== Auth::id() && Auth::user()->role !== 'admin' && !$isApprover) {
+        if ($request->user_id !== Auth::id() && Auth::user()->role !== 'admin' && !$isApprover && !$isWitness) {
             abort(404);
         }
 
@@ -128,13 +134,16 @@ class TrackingController extends Controller
             abort(403);
         }
 
+        // Only allow cancellation if status is pending (not yet approved by anyone or final)
+        // If you want to allow cancellation even after some steps are approved, just check $request->status !== 'completed'
+        // But usually 'not yet approved' means pending first approval.
         if ($request->status !== 'pending') {
-            return redirect()->back()->with('error', 'ไม่สามารถลบใบคำร้องที่อยู่ระหว่างดำเนินการหรือเสร็จสิ้นแล้วได้');
+            return redirect()->back()->with('error', 'ไม่สามารถยกเลิกใบคำร้องที่อยู่ระหว่างดำเนินการหรือเสร็จสิ้นแล้วได้');
         }
 
         $request->delete();
 
-        return redirect()->route('tracking.index')->with('success', 'ลบใบคำร้องเรียบร้อยแล้ว');
+        return redirect()->route('tracking.index')->with('success', 'ยกเลิกใบคำร้องเรียบร้อยแล้ว');
     }
 
     public function acknowledge(Request $request, $requestNo)

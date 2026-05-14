@@ -36,13 +36,25 @@ class DashboardController extends Controller
             $query->whereMonth('created_at', $selectedMonth);
         }
 
-        $allRequests = $query->latest()->get();
+        $allRequests = $query->with(['steps', 'confidentialityAgreement'])
+            ->latest()
+            ->get();
         
         $stats = [
             'total' => $allRequests->count(),
             'pending' => $allRequests->where('status', 'pending')->count(),
-            'completed' => $allRequests->where('status', 'completed')->count(),
-            'it_pending' => $allRequests->where('status', 'approved')->where('it_status', '!=', 'completed')->count(),
+            'completed' => $allRequests->where('status', 'completed')->filter(function($r) {
+                $nda = $r->confidentialityAgreement;
+                if (!$nda) return false;
+                $isWaitingWitness = !$nda->witness1_agreed_at || ($nda->witness2_user_id && !$nda->witness2_agreed_at);
+                return !$isWaitingWitness;
+            })->count(),
+            'it_pending' => $allRequests->where('status', 'approved')->where('it_status', '!=', 'completed')->count() + 
+                           $allRequests->where('status', 'completed')->filter(function($r) {
+                                $nda = $r->confidentialityAgreement;
+                                if (!$nda) return true;
+                                return !$nda->witness1_agreed_at || ($nda->witness2_user_id && !$nda->witness2_agreed_at);
+                           })->count(),
             'rejected' => $allRequests->where('status', 'rejected')->count(),
         ];
 

@@ -11,31 +11,32 @@
             </div>
 
             @if($isAdmin)
-            <div class="flex flex-wrap gap-3">
-                @if($newRequestsCount > 0)
-                    <div class="flex items-center gap-3 bg-amber-50 border border-amber-200 px-4 py-2 rounded-xl shadow-sm animate-pulse">
-                        <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-white">
-                            <i class="fa-solid fa-file-circle-plus"></i>
+                <div class="flex flex-wrap gap-3">
+                    @if($newRequestsCount > 0)
+                        <div
+                            class="flex items-center gap-3 bg-amber-50 border border-amber-200 px-4 py-2 rounded-xl shadow-sm animate-pulse">
+                            <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-white">
+                                <i class="fa-solid fa-file-circle-plus"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-amber-600 uppercase tracking-tight">คำร้องใหม่</p>
+                                <p class="text-sm font-bold text-amber-900">{{ $newRequestsCount }} รายการค้างพิจารณา</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-[10px] font-bold text-amber-600 uppercase tracking-tight">คำร้องใหม่</p>
-                            <p class="text-sm font-bold text-amber-900">{{ $newRequestsCount }} รายการค้างพิจารณา</p>
-                        </div>
-                    </div>
-                @endif
+                    @endif
 
-                @if($itActionCount > 0)
-                    <div class="flex items-center gap-3 bg-blue-50 border border-blue-200 px-4 py-2 rounded-xl shadow-sm">
-                        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
-                            <i class="fa-solid fa-gears"></i>
+                    @if($itActionCount > 0)
+                        <div class="flex items-center gap-3 bg-blue-50 border border-blue-200 px-4 py-2 rounded-xl shadow-sm">
+                            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                                <i class="fa-solid fa-gears"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-tight">รอ IT ดำเนินการ</p>
+                                <p class="text-sm font-bold text-blue-900">{{ $itActionCount }} รายการที่ต้องจัดการ</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-[10px] font-bold text-blue-600 uppercase tracking-tight">รอ IT ดำเนินการ</p>
-                            <p class="text-sm font-bold text-blue-900">{{ $itActionCount }} รายการที่ต้องจัดการ</p>
-                        </div>
-                    </div>
-                @endif
-            </div>
+                    @endif
+                </div>
             @endif
         </div>
 
@@ -46,7 +47,7 @@
                     :class="tab === 'all' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'"
                     class="px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2">
                     <span>รายการทั้งหมด</span>
-                    <span :class="tab === 'all' ? 'bg-blue-100 text-blue-600' : 'bg-slate-200 text-slate-500'" 
+                    <span :class="tab === 'all' ? 'bg-blue-100 text-blue-600' : 'bg-slate-200 text-slate-500'"
                         class="px-2 py-0.5 rounded-md text-[10px] font-black transition-colors">
                         {{ $allRequests->count() }}
                     </span>
@@ -55,7 +56,8 @@
                     :class="tab === 'pending' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500 hover:text-slate-700'"
                     class="px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2">
                     <span>งานของฉัน</span>
-                    <span :class="tab === 'pending' ? 'bg-blue-600 text-white shadow-sm shadow-blue-200' : 'bg-slate-200 text-slate-500'" 
+                    <span
+                        :class="tab === 'pending' ? 'bg-blue-600 text-white shadow-sm shadow-blue-200' : 'bg-slate-200 text-slate-500'"
                         class="px-2 py-0.5 rounded-md text-[10px] font-black transition-colors">
                         {{ $pendingApprovals->count() }}
                     </span>
@@ -94,29 +96,64 @@
                                     </td>
                                     <td class="px-8 py-5">
                                         @if($req->status === 'completed')
-                                            <span class="px-2 py-0.5 rounded-full bg-green-600 text-white text-[10px] font-bold uppercase shadow-sm">เสร็จสมบูรณ์</span>
+                                            @php
+                                                $nda = $req->confidentialityAgreement;
+                                                $isWaitingWitness = $nda && (!$nda->witness1_agreed_at || ($nda->witness2_user_id && !$nda->witness2_agreed_at));
+                                            @endphp
+                                            @if(!$nda)
+                                                <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-[10px] font-bold uppercase border border-red-200 shadow-sm">รอการบันทึก NDA</span>
+                                            @elseif($isWaitingWitness)
+                                                <span class="px-2 py-0.5 rounded-full bg-orange-100 text-orange-600 text-[10px] font-bold uppercase border border-orange-200 shadow-sm">กำลังรอพยาน</span>
+                                            @else
+                                                <span class="px-2 py-0.5 rounded-full bg-green-600 text-white text-[10px] font-bold uppercase shadow-sm">เสร็จสมบูรณ์</span>
+                                            @endif
                                         @elseif($req->status === 'approved' && $req->it_status == 'completed')
-                                            <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-bold uppercase border border-blue-200">รอผู้ใช้งานยืนยัน</span>
+                                            <span
+                                                class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-bold uppercase border border-blue-200">รอผู้ใช้งานยืนยัน</span>
                                         @elseif($req->status === 'approved')
-                                            <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-bold uppercase">อนุมัติแล้ว</span>
+                                            <span
+                                                class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-bold uppercase">อนุมัติแล้ว</span>
                                         @elseif($req->status === 'rejected')
-                                            <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-[10px] font-bold uppercase">ปฏิเสธ</span>
+                                            <span
+                                                class="px-2 py-0.5 rounded-full bg-red-100 text-red-600 text-[10px] font-bold uppercase">ปฏิเสธ</span>
                                         @else
-                                            <span class="px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600 text-[10px] font-bold uppercase">รอดำเนินการ</span>
+                                            <span
+                                                class="px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-600 text-[10px] font-bold uppercase">รอดำเนินการ</span>
                                         @endif
                                     </td>
                                     <td class="px-8 py-5 text-sm text-slate-500">
                                         @if($req->status === 'completed')
-                                            <span class="inline-flex items-center gap-1 text-green-600 font-bold text-xs">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                                                เสร็จสมบูรณ์
-                                            </span>
+                                            @php
+                                                $nda = $req->confidentialityAgreement;
+                                                $isWaitingWitness = $nda && (!$nda->witness1_agreed_at || ($nda->witness2_user_id && !$nda->witness2_agreed_at));
+                                            @endphp
+                                            @if(!$nda)
+                                                <span class="inline-flex items-center gap-1 text-red-500 font-bold text-xs">
+                                                    <i class="fa-solid fa-file-signature"></i>
+                                                    รอการบันทึก NDA
+                                                </span>
+                                            @elseif($isWaitingWitness)
+                                                <span class="inline-flex items-center gap-1 text-orange-500 font-bold text-xs">
+                                                    <i class="fa-solid fa-users-viewfinder"></i>
+                                                    กำลังรอพยาน
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center gap-1 text-green-600 font-bold text-xs">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                    เสร็จสมบูรณ์
+                                                </span>
+                                            @endif
                                         @elseif($req->status === 'approved' && $req->it_status == 'completed')
-                                            <span class="inline-flex items-center gap-1 text-orange-500 font-bold text-xs animate-pulse">
+                                            <span
+                                                class="inline-flex items-center gap-1 text-orange-500 font-bold text-xs animate-pulse">
                                                 รอผู้ใช้งานยืนยัน
                                             </span>
                                         @elseif($req->status === 'approved')
-                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 font-bold text-[11px] animate-pulse border border-blue-200 shadow-sm">
+                                            <span
+                                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 font-bold text-[11px] animate-pulse border border-blue-200 shadow-sm">
                                                 <i class="fa-solid fa-clock-rotate-left"></i>
                                                 เจ้าหน้าที่ IT ดำเนินการ
                                             </span>
@@ -171,9 +208,11 @@
                                 <td class="px-8 py-5 text-sm font-bold text-blue-600">{{ $step->requestForm->request_no }}</td>
                                 <td class="px-8 py-5">
                                     <div class="text-sm font-medium text-slate-700">{{ $step->requestForm->firstname }}
-                                        {{ $step->requestForm->lastname }}</div>
+                                        {{ $step->requestForm->lastname }}
+                                    </div>
                                     <div class="text-[10px] text-slate-400 uppercase font-bold">
-                                        {{ $step->requestForm->department_name }}</div>
+                                        {{ $step->requestForm->department_name }}
+                                    </div>
                                 </td>
                                 <td class="px-8 py-5">
                                     <span

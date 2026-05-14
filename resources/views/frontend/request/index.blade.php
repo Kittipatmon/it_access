@@ -7,11 +7,9 @@
             <div class="p-6 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-white">
                 <div class="flex flex-col sm:flex-row justify-between items-start gap-4">
                     <div class="flex items-center gap-4">
-                        <div class="h-10 w-10 flex flex-shrink-0 items-center justify-center bg-red-50 rounded-xl border border-red-100">
-                            <span class="text-red-600 font-black text-2xl">K</span>
-                        </div>
+                        <div class="text-3xl font-bold text-[#E10023] tracking-tighter select-none mr-2" style="font-family: 'Outfit', 'Inter', sans-serif;">Kumwell</div>
                         <div>
-                            <h2 class="text-lg md:text-xl font-bold text-slate-800">แบบฟอร์มการร้องขอสิทธิใช้งานเทคโนโลยีสารสนเทศ</h2>
+                            <h2 class="text-lg md:text-xl font-semibold text-slate-800">แบบฟอร์มการร้องขอสิทธิใช้งานเทคโนโลยีสารสนเทศ</h2>
                             <p class="text-[10px] md:text-sm text-slate-500 mt-1">QF-IT-08: Rev: 02</p>
                         </div>
                     </div>
@@ -41,34 +39,53 @@
                                     'transfer' => 'โอนย้าย',
                                     'add_remove_access' => 'เพิ่มสิทธิ์/ลบสิทธิ์',
                                 ] as $value => $label)
-                                <label class="inline-flex items-center px-4 py-2 rounded-xl border border-slate-200 cursor-pointer hover:border-blue-300 hover:bg-blue-50/50 transition"
-                                    :class="request_type === '{{ $value }}' ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500' : 'bg-white text-slate-600'">
-                                    <input type="radio" name="request_type" value="{{ $value }}" x-model="request_type" class="sr-only" required {{ old('request_type') == $value ? 'checked' : '' }}>
+                                <label class="inline-flex items-center px-4 py-2 rounded-xl border border-slate-200 cursor-pointer hover:border-blue-300 transition"
+                                    :class="{
+                                        'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500': request_type === '{{ $value }}',
+                                        'border-red-500 bg-red-50/30 text-red-600': showErrors && !request_type,
+                                        'bg-white text-slate-600': request_type !== '{{ $value }}' && !(showErrors && !request_type)
+                                    }">
+                                    <input type="radio" name="request_type" value="{{ $value }}" x-model="request_type" class="sr-only" {{ old('request_type') == $value ? 'checked' : '' }}>
                                     <span class="text-sm font-medium">{{ $label }}</span>
                                 </label>
                             @endforeach
                         </div>
-                        @error('request_type') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                        @error('request_type') <p class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</p> @enderror
+                        <template x-if="showErrors && !request_type">
+                            <p class="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> กรุณาเลือกประเภทคำร้อง</p>
+                        </template>
                     </div>
 
                     <!-- ข้อมูลส่วนตัว (ภาษาไทย) -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ชื่อ (ภาษาไทย)</label>
-                            <input type="text" name="firstname" value="{{ old('firstname', $user->firstname) }}"
-                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @error('firstname') border-red-500 @enderror">
-                            @error('firstname') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            <input type="text" name="firstname" x-model="firstname"
+                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @error('firstname') border-red-500 @enderror"
+                                :class="{'border-red-500 bg-red-50/30': showErrors && !firstname}">
+                            @error('firstname') <p class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</p> @enderror
+                            <template x-if="showErrors && !firstname">
+                                <p class="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกชื่อ (ภาษาไทย)</p>
+                            </template>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">นามสกุล (ภาษาไทย)</label>
-                            <input type="text" name="lastname" value="{{ old('lastname', $user->lastname) }}"
-                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @error('lastname') border-red-500 @enderror">
-                            @error('lastname') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            <input type="text" name="lastname" x-model="lastname"
+                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @error('lastname') border-red-500 @enderror"
+                                :class="{'border-red-500 bg-red-50/30': showErrors && !lastname}">
+                            @error('lastname') <p class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</p> @enderror
+                            <template x-if="showErrors && !lastname">
+                                <p class="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกนามสกุล (ภาษาไทย)</p>
+                            </template>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ชื่อเล่น</label>
-                            <input type="text" name="nickname_th" value="{{ old('nickname_th', $user->nickname_th) }}"
-                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                            <input type="text" name="nickname_th" x-model="nickname_th"
+                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                :class="{'border-red-500 bg-red-50/30': showErrors && !nickname_th}">
+                            <template x-if="showErrors && !nickname_th">
+                                <p class="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกชื่อเล่น (ภาษาไทย)</p>
+                            </template>
                         </div>
                     </div>
 
@@ -76,20 +93,32 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Name (English)</label>
-                            <input type="text" name="firstname_en" value="{{ old('firstname_en', $user->first_name_en) }}"
-                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @error('firstname_en') border-red-500 @enderror">
-                            @error('firstname_en') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            <input type="text" name="firstname_en" x-model="firstname_en"
+                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @error('firstname_en') border-red-500 @enderror"
+                                :class="{'border-red-500 bg-red-50/30': showErrors && !firstname_en}">
+                            @error('firstname_en') <p class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</p> @enderror
+                            <template x-if="showErrors && !firstname_en">
+                                <p class="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกชื่อ (English)</p>
+                            </template>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Last Name (English)</label>
-                            <input type="text" name="lastname_en" value="{{ old('lastname_en', $user->last_name_en) }}"
-                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @error('lastname_en') border-red-500 @enderror">
-                            @error('lastname_en') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            <input type="text" name="lastname_en" x-model="lastname_en"
+                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @error('lastname_en') border-red-500 @enderror"
+                                :class="{'border-red-500 bg-red-50/30': showErrors && !lastname_en}">
+                            @error('lastname_en') <p class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</p> @enderror
+                            <template x-if="showErrors && !lastname_en">
+                                <p class="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกนามสกุล (English)</p>
+                            </template>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nick Name (English)</label>
-                            <input type="text" name="nickname_en" value="{{ old('nickname_en', $user->nickname_en) }}"
-                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                            <input type="text" name="nickname_en" x-model="nickname_en"
+                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                :class="{'border-red-500 bg-red-50/30': showErrors && !nickname_en}">
+                            <template x-if="showErrors && !nickname_en">
+                                <p class="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกชื่อเล่น (English)</p>
+                            </template>
                         </div>
                     </div>
 
@@ -97,8 +126,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">โทรศัพท์</label>
-                            <input type="text" name="phone" value="{{ old('phone', $user->phone) }}"
-                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                            <input type="text" name="phone" x-model="phone"
+                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                :class="{'border-red-500 bg-red-50/30': showErrors && !phone}">
+                            <template x-if="showErrors && !phone">
+                                <p class="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกเบอร์โทรศัพท์</p>
+                            </template>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ภายใน (Ext.)</label>
@@ -107,8 +140,13 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">รหัสพนักงาน</label>
-                            <input type="text" name="emp_code" value="{{ old('emp_code', $user->emp_code) }}"
-                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                            <input type="text" name="emp_code" x-model="emp_code"
+                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @error('emp_code') border-red-500 @enderror"
+                                :class="{'border-red-500 bg-red-50/30': showErrors && !emp_code}">
+                            @error('emp_code') <p class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</p> @enderror
+                            <template x-if="showErrors && !emp_code">
+                                <p class="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกรหัสพนักงาน</p>
+                            </template>
                         </div>
                     </div>
 
@@ -122,8 +160,12 @@
                                     'employee' => 'พนักงานทั่วไป',
                                     'other' => 'อื่น',
                                 ] as $value => $label)
-                                <label class="inline-flex items-center px-4 py-2 rounded-xl border border-slate-200 cursor-pointer hover:border-blue-300 hover:bg-blue-50/50 transition"
-                                    :class="position_level === '{{ $value }}' ? 'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500' : 'bg-white text-slate-600'">
+                                <label class="inline-flex items-center px-4 py-2 rounded-xl border border-slate-200 cursor-pointer hover:border-blue-300 transition"
+                                    :class="{
+                                        'border-blue-500 bg-blue-50 text-blue-700 ring-1 ring-blue-500': position_level === '{{ $value }}',
+                                        'border-red-500 bg-red-50/30 text-red-600': showErrors && !position_level,
+                                        'bg-white text-slate-600': position_level !== '{{ $value }}' && !(showErrors && !position_level)
+                                    }">
                                     <input type="radio" name="position_level" value="{{ $value }}" x-model="position_level" class="sr-only" {{ old('position_level') == $value ? 'checked' : '' }}>
                                     <span class="text-sm font-medium">{{ $label }}</span>
                                 </label>
@@ -131,134 +173,125 @@
                             <div x-show="position_level === 'other'" x-transition class="flex-1 min-w-[180px]">
                                 <input type="text" name="position_level_other" value="{{ old('position_level_other') }}" placeholder="กรุณาระบุระดับ..."
                                     class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @error('position_level_other') border-red-500 @enderror">
-                                @error('position_level_other') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                @error('position_level_other') <p class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</p> @enderror
+                                <template x-if="showErrors && position_level === 'other' && !position_level_other">
+                                    <p class="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> กรุณาระบุระดับ</p>
+                                </template>
                             </div>
                         </div>
-                        @error('position_level') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                        @error('position_level') <p class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</p> @enderror
+                        <template x-if="showErrors && !position_level">
+                            <p class="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> กรุณาเลือกระดับพนักงาน</p>
+                        </template>
                     </div>
 
                     <!-- ตำแหน่ง + แผนก + ฝ่าย -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ตำแหน่ง</label>
-                            <input type="text" name="position_name" value="{{ old('position_name') }}"
-                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @error('position_name') border-red-500 @enderror">
-                            @error('position_name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            <input type="text" name="position_name" x-model="position_name"
+                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @error('position_name') border-red-500 @enderror"
+                                :class="{'border-red-500 bg-red-50/30': showErrors && !position_name}">
+                            @error('position_name') <p class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</p> @enderror
+                            <template x-if="showErrors && !position_name">
+                                <p class="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกตำแหน่ง</p>
+                            </template>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">แผนก</label>
-                            <input type="text" name="department_name" value="{{ old('department_name', $user->department_rel->name ?? '') }}"
-                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @error('department_name') border-red-500 @enderror">
-                            @error('department_name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                            <input type="text" name="department_name" x-model="department_name"
+                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all @error('department_name') border-red-500 @enderror"
+                                :class="{'border-red-500 bg-red-50/30': showErrors && !department_name}">
+                            @error('department_name') <p class="text-red-500 text-xs mt-1 font-medium flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</p> @enderror
+                            <template x-if="showErrors && !department_name">
+                                <p class="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกแผนก</p>
+                            </template>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase mb-1">ฝ่าย</label>
-                            <input type="text" name="division_name" value="{{ old('division_name') }}"
-                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                            <input type="text" name="division_name" x-model="division_name"
+                                class="block w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                :class="{'border-red-500 bg-red-50/30': showErrors && !division_name}">
+                            <template x-if="showErrors && !division_name">
+                                <p class="text-[10px] text-red-500 font-bold mt-1.5 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> กรุณากรอกฝ่าย</p>
+                            </template>
                         </div>
                     </div>
                 </div>
 
                 <hr class="border-slate-100">
 
-                {{-- ===== ส่วนที่ 2: การเข้าถึง ===== --}}
-                <div class="space-y-5">
+                {{-- ===== ส่วนที่ 2: การเข้าถึง (Dynamic Grid Layout) ===== --}}
+                <div class="space-y-6">
                     <h3 class="text-sm font-bold text-blue-600 uppercase tracking-widest border-l-4 border-blue-500 pl-3">
                         ส่วนที่ 2 การเข้าถึง
                     </h3>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- การเข้าถึงระบบ -->
-                        <div class="bg-slate-50/50 rounded-2xl p-5 border border-slate-100 space-y-4">
-                            <h4 class="text-sm font-bold text-slate-700 pb-2 border-b border-slate-200 flex items-center gap-2">
-                                <svg class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                </svg>
-                                การเข้าถึงระบบ
-                            </h4>
-                            @foreach($systemOptions as $opt)
-                                <div x-data="{ checked: {{ old('system_access.' . $opt->key) ? 'true' : 'false' }} }">
-                                    <label class="flex items-center space-x-3 cursor-pointer group">
-                                        <input type="checkbox" name="system_access[{{ $opt->key }}]" value="1" x-model="checked"
-                                            class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" {{ old('system_access.' . $opt->key) ? 'checked' : '' }}>
-                                        <span class="text-sm text-slate-600 group-hover:text-slate-800 transition">{{ $opt->name }}</span>
-                                    </label>
-                                    @if($opt->has_sub_options && $opt->sub_options)
-                                        <div class="ml-7 mt-2 flex flex-wrap gap-3" x-show="checked" x-transition>
-                                            @foreach($opt->sub_options as $sub)
-                                                @php $subKey = Str::snake(strtolower($sub)); @endphp
-                                                <label class="inline-flex items-center space-x-1.5 cursor-pointer">
-                                                    <input type="{{ $opt->sub_option_type }}" 
-                                                        name="system_access[{{ $opt->key }}_sub]{{ $opt->sub_option_type === 'checkbox' ? '[]' : '' }}" 
-                                                        value="{{ $subKey }}"
-                                                        class="w-3.5 h-3.5 {{ $opt->sub_option_type === 'checkbox' ? 'rounded' : '' }} border-slate-300 text-blue-600 focus:ring-blue-500"
-                                                        {{ (is_array(old('system_access.' . $opt->key . '_sub')) && in_array($subKey, old('system_access.' . $opt->key . '_sub'))) || old('system_access.' . $opt->key . '_sub') == $subKey ? 'checked' : '' }}>
-                                                    <span class="text-xs text-slate-500">{{ $sub }}</span>
-                                                </label>
-                                            @endforeach
-                                        </div>
-                                    @endif
-                                </div>
-                            @endforeach
-                            <!-- Other -->
-                            <div x-data="{ checked: {{ old('system_access.other_check') ? 'true' : 'false' }} }">
-                                <label class="flex items-center space-x-3 cursor-pointer group">
-                                    <input type="checkbox" name="system_access[other_check]" value="1" x-model="checked"
-                                        class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" {{ old('system_access.other_check') ? 'checked' : '' }}>
-                                    <span class="text-sm text-slate-600 group-hover:text-slate-800 transition">Other</span>
-                                </label>
-                                <div class="ml-7 mt-2" x-show="checked" x-transition>
-                                    <input type="text" name="system_access[other_text]" value="{{ old('system_access.other_text') }}" placeholder="ระบุ..."
-                                        class="block w-full border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
-                                </div>
-                            </div>
-                        </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        @foreach($groupedOptions as $categoryKey => $options)
+                            <div class="bg-slate-50/50 rounded-2xl border border-slate-100 p-5 space-y-4 flex flex-col">
+                                <h4 class="text-sm font-bold text-slate-700 pb-3 border-b border-slate-200 flex items-center gap-2">
+                                    <div class="text-blue-600">
+                                        @if($categoryKey === 'system')
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                        @elseif($categoryKey === 'program')
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        @elseif($categoryKey === 'equipment')
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                        @else
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                                        @endif
+                                    </div>
+                                    {{ $categoryLabels[$categoryKey] ?? ucfirst($categoryKey) }}
+                                </h4>
 
-                        <!-- การเข้าถึงโปรแกรม -->
-                        <div class="bg-slate-50/50 rounded-2xl p-5 border border-slate-100 space-y-4">
-                            <h4 class="text-sm font-bold text-slate-700 pb-2 border-b border-slate-200 flex items-center gap-2">
-                                <svg class="h-4 w-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
-                                การเข้าถึงโปรแกรม
-                            </h4>
-                            @foreach($programOptions as $opt)
-                                <div x-data="{ checked: {{ old('program_access.' . $opt->key) ? 'true' : 'false' }} }">
-                                    <label class="flex items-center space-x-3 cursor-pointer group">
-                                        <input type="checkbox" name="program_access[{{ $opt->key }}]" value="1" x-model="checked"
-                                            class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" {{ old('program_access.' . $opt->key) ? 'checked' : '' }}>
-                                        <span class="text-sm text-slate-600 group-hover:text-slate-800 transition">{{ $opt->name }}</span>
-                                    </label>
-                                    @if($opt->has_sub_options && $opt->sub_options)
-                                        <div class="ml-7 mt-2 flex flex-wrap gap-3" x-show="checked" x-transition>
-                                            @foreach($opt->sub_options as $sub)
-                                                @php $subKey = Str::snake(strtolower($sub)); @endphp
-                                                <label class="inline-flex items-center space-x-1.5 cursor-pointer">
-                                                    <input type="{{ $opt->sub_option_type }}" 
-                                                        name="program_access[{{ $opt->key }}_sub]{{ $opt->sub_option_type === 'checkbox' ? '[]' : '' }}" 
-                                                        value="{{ $subKey }}"
-                                                        class="w-3.5 h-3.5 {{ $opt->sub_option_type === 'checkbox' ? 'rounded' : '' }} border-slate-300 text-blue-600 focus:ring-blue-500"
-                                                        {{ (is_array(old('program_access.' . $opt->key . '_sub')) && in_array($subKey, old('program_access.' . $opt->key . '_sub'))) || old('program_access.' . $opt->key . '_sub') == $subKey ? 'checked' : '' }}>
-                                                    <span class="text-xs text-slate-500">{{ $sub }}</span>
-                                                </label>
-                                            @endforeach
+                                <div class="space-y-3 flex-1">
+                                    @foreach($options as $item)
+                                        <div>
+                                            <label class="flex items-center gap-3 cursor-pointer group">
+                                                <div class="relative flex items-center">
+                                                    <input type="checkbox" name="{{ $categoryKey }}_access[]" value="{{ $item->key }}" 
+                                                        x-model="access_selections['{{ $categoryKey }}']"
+                                                        class="w-4.5 h-4.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-all">
+                                                </div>
+                                                <div class="flex-1">
+                                                    <span class="text-sm text-slate-600 group-hover:text-slate-900 transition font-medium">{{ $item->name }}</span>
+                                                    
+                                                    {{-- Sub Options (Show if exists) --}}
+                                                    @if($item->has_sub_options && !empty($item->sub_options))
+                                                        <div class="mt-2 flex flex-wrap gap-1.5" x-show="access_selections['{{ $categoryKey }}'].includes('{{ $item->key }}')" x-transition>
+                                                            @foreach($item->sub_options as $sub)
+                                                                <label class="cursor-pointer">
+                                                                    <input type="{{ $item->sub_option_type ?? 'radio' }}" 
+                                                                        name="sub_options[{{ $item->key }}]{{ ($item->sub_option_type ?? 'radio') === 'checkbox' ? '[]' : '' }}" 
+                                                                        value="{{ $sub }}" class="sr-only peer">
+                                                                    <span class="px-2 py-1 rounded border border-slate-100 bg-white text-[10px] font-bold text-slate-500 peer-checked:border-blue-500 peer-checked:bg-blue-600 peer-checked:text-white transition-all block">
+                                                                        {{ $sub }}
+                                                                    </span>
+                                                                </label>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </label>
                                         </div>
-                                    @endif
-                                </div>
-                            @endforeach
-                            <!-- Other -->
-                            <div x-data="{ checked: {{ old('program_access.other_check') ? 'true' : 'false' }} }">
-                                <label class="flex items-center space-x-3 cursor-pointer group">
-                                    <input type="checkbox" name="program_access[other_check]" value="1" x-model="checked"
-                                        class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" {{ old('program_access.other_check') ? 'checked' : '' }}>
-                                    <span class="text-sm text-slate-600 group-hover:text-slate-800 transition">Other</span>
-                                </label>
-                                <div class="ml-7 mt-2" x-show="checked" x-transition>
-                                    <input type="text" name="program_access[other_text]" value="{{ old('program_access.other_text') }}" placeholder="ระบุ..."
-                                        class="block w-full border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                                    @endforeach
+                                    
+                                    {{-- Other Option (Standardized) --}}
+                                    <div x-data="{ isOther: false }">
+                                        <label class="flex items-center gap-3 cursor-pointer group">
+                                            <input type="checkbox" x-model="isOther" class="w-4.5 h-4.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 transition-all">
+                                            <span class="text-sm text-slate-500 group-hover:text-slate-700 transition font-medium italic">Other</span>
+                                        </label>
+                                        <div class="mt-2" x-show="isOther" x-transition>
+                                            <input type="text" name="{{ $categoryKey }}_access_other" 
+                                                class="w-full border-slate-200 rounded-lg text-xs px-3 py-2 focus:ring-1 focus:ring-blue-500 bg-white shadow-sm"
+                                                placeholder="ระบุรายการอื่นๆ...">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
 
@@ -413,8 +446,25 @@
         function formData() {
             return {
                 loading: false,
+                showErrors: false,
                 request_type: '{{ old('request_type', '') }}',
+                firstname: '{{ old('firstname', $user->firstname) }}',
+                lastname: '{{ old('lastname', $user->lastname) }}',
+                nickname_th: '{{ old('nickname_th', $user->nickname_th) }}',
+                firstname_en: '{{ old('firstname_en', $user->first_name_en) }}',
+                lastname_en: '{{ old('lastname_en', $user->last_name_en) }}',
+                nickname_en: '{{ old('nickname_en', $user->nickname_en) }}',
+                phone: '{{ old('phone', $user->phone) }}',
+                emp_code: '{{ old('emp_code', $user->emp_code) }}',
                 position_level: '{{ old('position_level', '') }}',
+                position_name: '{{ old('position_name', '') }}',
+                department_name: '{{ old('department_name', $user->department_rel->name ?? '') }}',
+                division_name: '{{ old('division_name', '') }}',
+                access_selections: {
+                    @foreach($groupedOptions as $cat => $items)
+                    '{{ $cat }}': [],
+                    @endforeach
+                },
                 use_existing_signature: {{ Auth::user()->signature ? 'true' : 'false' }},
                 signature_method: '{{ old('signature_method', (Auth::user()->signature ? 'existing' : 'none')) }}',
 
@@ -459,14 +509,65 @@
                 },
 
                 handleSubmit(e) {
-                    this.loading = true;
+                    this.showErrors = true;
+                    
+                    // Basic validation check
+                    const required = [
+                        this.request_type, this.firstname, this.lastname, this.nickname_th,
+                        this.firstname_en, this.lastname_en, this.nickname_en,
+                        this.phone, this.emp_code,
+                        this.position_level, this.position_name, this.department_name, this.division_name
+                    ];
+                    
+                    if (required.some(val => !val)) {
+                        e.preventDefault();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'ข้อมูลส่วนตัวไม่ครบถ้วน',
+                            text: 'กรุณากรอกข้อมูลในช่องที่ระบุสีแดงให้ครบถ้วน',
+                            confirmButtonColor: '#3b82f6',
+                        });
+                        return false;
+                    }
+
+                    // Dynamic validation
+                    const hasSelection = Object.values(this.access_selections).some(arr => arr.length > 0);
+                    if (!hasSelection) {
+                        e.preventDefault();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'ยังไม่ได้เลือกการเข้าถึง',
+                            text: 'กรุณาเลือกอย่างน้อย 1 รายการในหมวดหมู่ต่างๆ',
+                            confirmButtonColor: '#3b82f6',
+                        });
+                        return false;
+                    }
 
                     if (this.signature_method === 'draw') {
-                        if (!signaturePad.isEmpty()) {
-                            document.getElementById('signature-input').value = signaturePad.toDataURL();
+                        if (signaturePad.isEmpty()) {
+                            e.preventDefault();
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'กรุณาลงลายมือชื่อ',
+                                text: 'กรุณาวาดลายมือชื่อของท่านในช่องที่กำหนด',
+                                confirmButtonColor: '#3b82f6',
+                            });
+                            return false;
                         }
+                        document.getElementById('signature-input').value = signaturePad.toDataURL();
+                    } else if (this.signature_method === 'none') {
+                        e.preventDefault();
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'กรุณาลงลายมือชื่อ',
+                            text: 'กรุณาเลือกวิธีการลงลายมือชื่อ',
+                            confirmButtonColor: '#3b82f6',
+                        });
+                        return false;
                     }
                     
+                    this.loading = true;
                     return true;
                 }
             }
