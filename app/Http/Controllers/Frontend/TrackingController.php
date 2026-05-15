@@ -19,18 +19,27 @@ class TrackingController extends Controller
     public function index(Request $request)
     {
         $userId = Auth::id();
+        $repId = \App\Models\SystemSetting::where('key', 'nda_company_representative_id')->value('value');
+        $isRep = ($userId == $repId);
+        $autoSign = \App\Models\SystemSetting::where('key', 'nda_auto_sign')->value('value') == '1';
         
-        $query = \App\Models\RequestForm::where(function($q) use ($userId) {
+        $query = \App\Models\RequestForm::where(function($q) use ($userId, $isRep, $autoSign) {
                 $q->where('user_id', $userId)
                   ->orWhereHas('steps', function ($query) use ($userId) {
-                      $query->where('approver_id', $userId);
+                      $query->where('approver_id', $userId)->where('status', 'pending');
                   })
-                  ->orWhereHas('confidentialityAgreement', function ($query) use ($userId) {
+                  ->orWhereHas('confidentialityAgreement', function ($query) use ($userId, $isRep, $autoSign) {
                       $query->where(function($sq) use ($userId) {
                           $sq->where('witness1_user_id', $userId)->whereNull('witness1_agreed_at');
                       })->orWhere(function($sq) use ($userId) {
                           $sq->where('witness2_user_id', $userId)->whereNull('witness2_agreed_at');
                       });
+
+                      if ($isRep) {
+                          $query->orWhere(function($sq) {
+                              $sq->whereNull('company_agreed_at')->where('is_auto_sign', 0);
+                          });
+                      }
                   });
             })
             ->with(['user', 'steps.approver', 'confidentialityAgreement'])
@@ -77,11 +86,29 @@ class TrackingController extends Controller
             return $isW1Pending || $isW2Pending;
         });
 
+        // Requests that the current user needs to sign as Company Representative
+        $toSignNDACompany = $allRequests->filter(function ($request) use ($userId, $isRep) {
+            if (!$isRep) return false;
+            $nda = $request->confidentialityAgreement;
+            return $nda && !$nda->company_agreed_at && !$nda->is_auto_sign;
+        });
+
+        // Requests that the requester needs to record NDA for
+        $toRecordNDA = $allRequests->filter(function ($request) use ($userId) {
+            return $request->user_id == $userId && 
+                   $request->status == 'approved' && // Approved by all, ready for NDA
+                   $request->it_status == 'completed' && // IT finished, ready for NDA
+                   $request->user_acknowledged_at && // User acknowledged, ready for NDA
+                   !$request->confidentialityAgreement;
+        });
+
         return view('frontend.tracking.index', [
             'requests' => $allRequests,
             'toApprove' => $toApprove,
             'toAcknowledge' => $toAcknowledge,
-            'toVerifyNDA' => $toVerifyNDA
+            'toVerifyNDA' => $toVerifyNDA,
+            'toSignNDACompany' => $toSignNDACompany,
+            'toRecordNDA' => $toRecordNDA
         ]);
     }
 
@@ -99,7 +126,10 @@ class TrackingController extends Controller
         $nda = $request->confidentialityAgreement;
         $isWitness = $nda && ($nda->witness1_user_id == Auth::id() || $nda->witness2_user_id == Auth::id());
 
-        if ($request->user_id !== Auth::id() && Auth::user()->role !== 'admin' && !$isApprover && !$isWitness) {
+        $repId = \App\Models\SystemSetting::where('key', 'nda_company_representative_id')->value('value');
+        $isRep = ($repId == Auth::id());
+
+        if ($request->user_id !== Auth::id() && Auth::user()->role !== 'admin' && !$isApprover && !$isWitness && !$isRep) {
             abort(404);
         }
 

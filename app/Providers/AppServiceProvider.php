@@ -47,7 +47,24 @@ class AppServiceProvider extends ServiceProvider
                     });
                 })->count();
 
-                $view->with('navPendingCount', $toApproveCount + $toAcknowledgeCount + $toVerifyNDACount);
+                // Count requests where user needs to sign as Company Representative
+                $repId = \App\Models\SystemSetting::where('key', 'nda_company_representative_id')->value('value');
+                $toSignNDACompanyCount = 0;
+                if ($userId == $repId) {
+                    $toSignNDACompanyCount = \App\Models\RequestForm::whereHas('confidentialityAgreement', function($q) {
+                        $q->whereNull('company_agreed_at')->where('is_auto_sign', 0);
+                    })->count();
+                }
+
+                // Count requests where user needs to record NDA
+                $toRecordNDACount = \App\Models\RequestForm::where('user_id', $userId)
+                    ->where('status', 'approved')
+                    ->where('it_status', 'completed')
+                    ->whereNotNull('user_acknowledged_at')
+                    ->whereDoesntHave('confidentialityAgreement')
+                    ->count();
+
+                $view->with('navPendingCount', $toApproveCount + $toAcknowledgeCount + $toVerifyNDACount + $toSignNDACompanyCount + $toRecordNDACount);
             }
         });
 

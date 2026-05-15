@@ -75,6 +75,7 @@ class WorkflowService
                     'step_name' => $step['name'],
                     'approver_id' => $step['approver_id'],
                     'status' => 'pending',
+                    'is_auto_sign' => $step['is_auto_sign'] ?? false,
                 ]);
             }
 

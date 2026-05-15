@@ -556,15 +556,6 @@
                             return false;
                         }
                         document.getElementById('signature-input').value = signaturePad.toDataURL();
-                    } else if (this.signature_method === 'none') {
-                        e.preventDefault();
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'กรุณาลงลายมือชื่อ',
-                            text: 'กรุณาเลือกวิธีการลงลายมือชื่อ',
-                            confirmButtonColor: '#3b82f6',
-                        });
-                        return false;
                     }
                     
                     this.loading = true;

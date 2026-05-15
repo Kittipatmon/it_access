@@ -11,6 +11,7 @@ class ApprovalStepConfig extends Model
         'approver_id',
         'step_order',
         'is_active',
+        'is_auto_sign',
     ];
 
     public function approver()

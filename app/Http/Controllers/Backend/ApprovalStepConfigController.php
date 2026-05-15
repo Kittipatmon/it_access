@@ -29,7 +29,11 @@ class ApprovalStepConfigController extends Controller
             'step_order.unique' => 'ลำดับขั้นตอนนี้ถูกใช้งานแล้ว กรุณาเลือกลำดับอื่น',
         ]);
 
-        ApprovalStepConfig::create($request->all());
+        $data = $request->all();
+        $data['is_active'] = $request->has('is_active') ? 1 : 0;
+        $data['is_auto_sign'] = $request->has('is_auto_sign') ? 1 : 0;
+        
+        ApprovalStepConfig::create($data);
 
         return redirect()->back()->with('success', 'เพิ่มขั้นตอนการอนุมัติสำเร็จ');
     }
@@ -45,7 +49,12 @@ class ApprovalStepConfigController extends Controller
         ]);
 
         $config = ApprovalStepConfig::findOrFail($id);
-        $config->update($request->all());
+        
+        $data = $request->all();
+        $data['is_active'] = $request->has('is_active') ? 1 : 0;
+        $data['is_auto_sign'] = $request->has('is_auto_sign') ? 1 : 0;
+        
+        $config->update($data);
 
         return redirect()->back()->with('success', 'ปรับปรุงขั้นตอนการอนุมัติสำเร็จ');
     }

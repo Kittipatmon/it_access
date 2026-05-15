@@ -40,7 +40,9 @@ Route::middleware(['auth'])->group(function () {
     // NDA Routes
     Route::get('/request/{requestNo}/nda', [\App\Http\Controllers\Frontend\ConfidentialityAgreementController::class, 'show'])->name('request.nda');
     Route::post('/request/{requestNo}/nda', [\App\Http\Controllers\Frontend\ConfidentialityAgreementController::class, 'store'])->name('request.nda.store');
+    Route::post('/request/{requestNo}/nda/company/agree', [\App\Http\Controllers\Frontend\ConfidentialityAgreementController::class, 'agreeCompany'])->name('request.nda.company.agree');
     Route::post('/request/{requestNo}/nda/witness/{witnessNo}/agree', [\App\Http\Controllers\Frontend\ConfidentialityAgreementController::class, 'agreeWitness'])->name('request.nda.witness.agree');
+    Route::get('/request/{requestNo}/nda/export', [\App\Http\Controllers\Frontend\ConfidentialityAgreementController::class, 'export'])->name('request.nda.export');
 
     // Management Routes (Accessible by all logged in users, e.g. Managers)
     Route::prefix('manage')->name('manage.')->group(function () {

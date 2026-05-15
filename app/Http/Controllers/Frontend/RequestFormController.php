@@ -65,6 +65,7 @@ class RequestFormController extends Controller
             return [
                 'name' => $config->step_name,
                 'approver_id' => $config->approver_id,
+                'is_auto_sign' => $config->is_auto_sign,
             ];
         })->toArray();
 

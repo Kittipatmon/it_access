@@ -27,6 +27,11 @@
             border: 1px solid #f1f5f9 !important;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
         }
+        
+        /* Toggle Switch Styles */
+        .toggle-checkbox:checked { right: 0; border-color: #2563eb; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #2563eb; }
+        .toggle-checkbox { right: 16px; transition: all 0.3s; }
     </style>
 
     <div class="max-w-2xl mx-auto space-y-6">
@@ -72,6 +77,19 @@
                         </div>
                         @endif
                     @endif
+                    
+                    <div class="flex items-center justify-between p-6 bg-blue-50/50 rounded-2xl border border-blue-100/50">
+                        <div class="space-y-1">
+                            <p class="text-sm font-bold text-slate-700">ลงชื่อและลายเซ็น อัตโนมัติ (Auto Sign)</p>
+                            <p class="text-[10px] text-slate-400">ระบบจะใช้ลายเซ็นที่บันทึกไว้ของพนักงานท่านนี้ลงใน NDA โดยอัตโนมัติ</p>
+                        </div>
+                        <div class="relative inline-block w-10 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="nda_auto_sign" id="nda_auto_sign" value="1" 
+                                {{ ($autoSignSetting && $autoSignSetting->value == '1') ? 'checked' : '' }}
+                                class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-slate-300 checked:right-0 checked:border-blue-600"/>
+                            <label for="nda_auto_sign" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer"></label>
+                        </div>
+                    </div>
 
                     <div class="pt-6 border-t border-slate-50">
                         <button type="submit" 
@@ -83,10 +101,10 @@
             </div>
         </div>
         
-        <a href="{{ route('backend.dashboard') }}" class="flex items-center gap-2 text-slate-400 hover:text-slate-600 transition text-sm font-bold mx-auto w-fit">
+        <!-- <a href="{{ route('backend.dashboard') }}" class="flex items-center gap-2 text-slate-400 hover:text-slate-600 transition text-sm font-bold mx-auto w-fit">
             <i class="fa-solid fa-arrow-left"></i>
             กลับไปยังแดชบอร์ด
-        </a>
+        </a> -->
     </div>
 
     <!-- Tom Select JS -->

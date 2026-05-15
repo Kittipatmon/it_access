@@ -23,7 +23,7 @@
             </div>
 
             {{-- งานที่รอคุณดำเนินการ (Priority Actions) --}}
-            @if($toApprove->count() > 0 || $toAcknowledge->count() > 0 || $toVerifyNDA->count() > 0)
+            @if($toApprove->count() > 0 || $toAcknowledge->count() > 0 || $toVerifyNDA->count() > 0 || $toSignNDACompany->count() > 0 || $toRecordNDA->count() > 0)
                 <div class="mb-12">
                     <div class="flex items-center gap-4 mb-6">
                         <h3 class="text-xs font-bold text-blue-600 uppercase tracking-[0.2em] flex items-center gap-2">
@@ -31,7 +31,7 @@
                                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                                 <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-600"></span>
                             </span>
-                            งานที่รอคุณดำเนินการ ({{ $toApprove->count() + $toAcknowledge->count() + $toVerifyNDA->count() }})
+                            งานที่รอคุณดำเนินการ ({{ $toApprove->count() + $toAcknowledge->count() + $toVerifyNDA->count() + $toSignNDACompany->count() + $toRecordNDA->count() }})
                         </h3>
                         <div class="flex-grow h-px bg-blue-100"></div>
                     </div>
@@ -105,6 +105,52 @@
                                 </div>
                             </a>
                         @endforeach
+
+                        @foreach($toSignNDACompany as $req)
+                            <a href="{{ route('request.nda', $req->request_no) }}"
+                                class="relative block p-6 bg-white border border-blue-100 rounded-[2rem] hover:shadow-2xl hover:shadow-blue-200/50 transition-all duration-500 group overflow-hidden">
+                                <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+                                
+                                <div class="relative">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <span class="px-3 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold rounded-lg uppercase border border-blue-100 text-center">ลงนามบริษัท</span>
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Waiting Company Sign</span>
+                                    </div>
+                                    <div class="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{{ $req->request_no }}</div>
+                                    <div class="text-xs text-slate-500 mt-1 font-medium">{{ $req->firstname }} {{ $req->lastname }}</div>
+                                    
+                                    <div class="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
+                                        <span class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">คลิกเพื่อลงนาม (Manual)</span>
+                                        <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center transition-transform group-hover:translate-x-1">
+                                            <i class="fa-solid fa-file-signature text-xs"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
+
+                        @foreach($toRecordNDA as $req)
+                            <a href="{{ route('request.nda', $req->request_no) }}"
+                                class="relative block p-6 bg-white border border-red-100 rounded-[2rem] hover:shadow-2xl hover:shadow-red-200/50 transition-all duration-500 group overflow-hidden">
+                                <div class="absolute -right-4 -top-4 w-24 h-24 bg-red-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
+                                
+                                <div class="relative">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <span class="px-3 py-1 bg-red-50 text-red-600 text-[10px] font-bold rounded-lg uppercase border border-red-100 text-center">รอการบันทึก NDA</span>
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Waiting NDA Recording</span>
+                                    </div>
+                                    <div class="text-lg font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{{ $req->request_no }}</div>
+                                    <div class="text-xs text-slate-500 mt-1 font-medium">{{ $req->firstname }} {{ $req->lastname }}</div>
+                                    
+                                    <div class="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
+                                        <span class="text-[10px] font-bold text-red-500 uppercase tracking-widest">คลิกเพื่อบันทึก NDA</span>
+                                        <div class="w-8 h-8 bg-red-50 text-red-600 rounded-xl flex items-center justify-center transition-transform group-hover:translate-x-1">
+                                            <i class="fa-solid fa-file-contract text-xs"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
                     </div>
                 </div>
             @endif
@@ -158,6 +204,8 @@
                                                     <span class="px-3 py-1 inline-flex text-[10px] font-bold leading-5 rounded-lg bg-red-100 text-red-600 border border-red-200 uppercase">รอการบันทึก NDA</span>
                                                 @elseif($isWaitingWitness)
                                                     <span class="px-3 py-1 inline-flex text-[10px] font-bold leading-5 rounded-lg bg-orange-100 text-orange-600 border border-orange-200 uppercase">กำลังรอพยาน</span>
+                                                @elseif(!$nda->company_agreed_at && !$nda->is_auto_sign)
+                                                    <span class="px-3 py-1 inline-flex text-[10px] font-bold leading-5 rounded-lg bg-blue-100 text-blue-600 border border-blue-200 uppercase">รอผู้มีอำนาจลงนาม</span>
                                                 @else
                                                     <span class="px-3 py-1 inline-flex text-[10px] font-bold leading-5 rounded-lg bg-green-500 text-white shadow-lg shadow-green-100 uppercase">เสร็จสมบูรณ์</span>
                                                 @endif

@@ -21,6 +21,7 @@ class ConfidentialityAgreement extends Model
         'province',
         'contact_no',
         'employee_signature',
+        'company_signature',
         'witness1_signature',
         'witness2_signature',
         'witness1_name',
@@ -29,6 +30,8 @@ class ConfidentialityAgreement extends Model
         'witness2_user_id',
         'witness1_agreed_at',
         'witness2_agreed_at',
+        'company_agreed_at',
+        'is_auto_sign',
         'agreement_date',
     ];
 
@@ -36,6 +39,8 @@ class ConfidentialityAgreement extends Model
         'agreement_date' => 'datetime',
         'witness1_agreed_at' => 'datetime',
         'witness2_agreed_at' => 'datetime',
+        'company_agreed_at' => 'datetime',
+        'is_auto_sign' => 'boolean',
     ];
 
     public function requestForm()

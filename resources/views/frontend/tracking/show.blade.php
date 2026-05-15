@@ -27,7 +27,7 @@
                             </button>
                         </form>
                      @endif
-                     <a href="{{ route('tracking.print', $request->request_no) }}" class="flex-1 sm:flex-none text-center px-6 py-2 bg-slate-900 text-white rounded-xl font-bold text-sm hover:scale-105 transition-all">
+                     <a href="{{ route('tracking.print', $request->request_no) }}" target="_blank" class="flex-1 sm:flex-none text-center px-6 py-2 bg-slate-900 text-white rounded-xl font-bold text-sm hover:scale-105 transition-all">
                         พิมพ์ใบคำร้อง (PDF)
                      </a>
                 </div>
@@ -104,20 +104,21 @@
                                 <h4 class="text-xs font-bold text-slate-500 mb-3 underline italic uppercase">ระบบที่ต้องการเข้าถึง</h4>
                                 <ul class="text-xs space-y-1 text-slate-700">
                                     @php $hasSystem = false; @endphp
-                                    @foreach($request->system_access ?? [] as $key => $val)
-                                        @if($val && !Str::endsWith($key, '_sub') && $key !== 'other_check' && $key !== 'other_text')
-                                            <li>• {{ ucwords(str_replace('_', ' ', $key)) }}
-                                                @if(isset($request->system_access[$key.'_sub']))
-                                                    <span class="text-[10px] text-blue-500">({{ is_array($request->system_access[$key.'_sub']) ? implode(', ', $request->system_access[$key.'_sub']) : $request->system_access[$key.'_sub'] }})</span>
-                                                @endif
-                                            </li>
-                                            @php $hasSystem = true; @endphp
+                                    @foreach($request->system_access ?? [] as $item)
+                                        @if(isset($item['key']))
+                                            @if($item['key'] === 'other' && !empty($item['value']))
+                                                <li>• อื่นๆ: {{ $item['value'] }}</li>
+                                                @php $hasSystem = true; @endphp
+                                            @elseif($item['key'] !== 'other')
+                                                <li>• {{ ucwords(str_replace('_', ' ', $item['key'])) }}
+                                                    @if(!empty($item['sub_options']))
+                                                        <span class="text-[10px] text-blue-500">({{ is_array($item['sub_options']) ? implode(', ', $item['sub_options']) : $item['sub_options'] }})</span>
+                                                    @endif
+                                                </li>
+                                                @php $hasSystem = true; @endphp
+                                            @endif
                                         @endif
                                     @endforeach
-                                    @if(isset($request->system_access['other_check']) && $request->system_access['other_check'])
-                                        <li>• Other: {{ $request->system_access['other_text'] ?? '-' }}</li>
-                                        @php $hasSystem = true; @endphp
-                                    @endif
                                     @if(!$hasSystem) <li>-</li> @endif
                                 </ul>
                             </div>
@@ -125,20 +126,21 @@
                                 <h4 class="text-xs font-bold text-slate-500 mb-3 underline italic uppercase">โปรแกรมที่ต้องการ</h4>
                                 <ul class="text-xs space-y-1 text-slate-700">
                                     @php $hasProgram = false; @endphp
-                                    @foreach($request->program_access ?? [] as $key => $val)
-                                        @if($val && !Str::endsWith($key, '_sub') && $key !== 'other_check' && $key !== 'other_text')
-                                            <li>• {{ ucwords(str_replace('_', ' ', $key)) }}
-                                                @if(isset($request->program_access[$key.'_sub']))
-                                                    <span class="text-[10px] text-orange-500">({{ is_array($request->program_access[$key.'_sub']) ? implode(', ', $request->program_access[$key.'_sub']) : $request->program_access[$key.'_sub'] }})</span>
-                                                @endif
-                                            </li>
-                                            @php $hasProgram = true; @endphp
+                                    @foreach($request->program_access ?? [] as $item)
+                                        @if(isset($item['key']))
+                                            @if($item['key'] === 'other' && !empty($item['value']))
+                                                <li>• อื่นๆ: {{ $item['value'] }}</li>
+                                                @php $hasProgram = true; @endphp
+                                            @elseif($item['key'] !== 'other')
+                                                <li>• {{ ucwords(str_replace('_', ' ', $item['key'])) }}
+                                                    @if(!empty($item['sub_options']))
+                                                        <span class="text-[10px] text-orange-500">({{ is_array($item['sub_options']) ? implode(', ', $item['sub_options']) : $item['sub_options'] }})</span>
+                                                    @endif
+                                                </li>
+                                                @php $hasProgram = true; @endphp
+                                            @endif
                                         @endif
                                     @endforeach
-                                    @if(isset($request->program_access['other_check']) && $request->program_access['other_check'])
-                                        <li>• Other: {{ $request->program_access['other_text'] ?? '-' }}</li>
-                                        @php $hasProgram = true; @endphp
-                                    @endif
                                     @if(!$hasProgram) <li>-</li> @endif
                                 </ul>
                             </div>
@@ -146,20 +148,21 @@
                                 <h4 class="text-xs font-bold text-slate-500 mb-3 underline italic uppercase">อุปกรณ์การใช้งาน</h4>
                                 <ul class="text-xs space-y-1 text-slate-700">
                                     @php $hasEquip = false; @endphp
-                                    @foreach($request->equipment_access ?? [] as $key => $val)
-                                        @if($val && !Str::endsWith($key, '_sub') && $key !== 'other_check' && $key !== 'other_text')
-                                            <li>• {{ ucwords(str_replace('_', ' ', $key)) }}
-                                                @if(isset($request->equipment_access[$key.'_sub']))
-                                                    <span class="text-[10px] text-green-600">({{ is_array($request->equipment_access[$key.'_sub']) ? implode(', ', $request->equipment_access[$key.'_sub']) : $request->equipment_access[$key.'_sub'] }})</span>
-                                                @endif
-                                            </li>
-                                            @php $hasEquip = true; @endphp
+                                    @foreach($request->equipment_access ?? [] as $item)
+                                        @if(isset($item['key']))
+                                            @if($item['key'] === 'other' && !empty($item['value']))
+                                                <li>• อื่นๆ: {{ $item['value'] }}</li>
+                                                @php $hasEquip = true; @endphp
+                                            @elseif($item['key'] !== 'other')
+                                                <li>• {{ ucwords(str_replace('_', ' ', $item['key'])) }}
+                                                    @if(!empty($item['sub_options']))
+                                                        <span class="text-[10px] text-green-600">({{ is_array($item['sub_options']) ? implode(', ', $item['sub_options']) : $item['sub_options'] }})</span>
+                                                    @endif
+                                                </li>
+                                                @php $hasEquip = true; @endphp
+                                            @endif
                                         @endif
                                     @endforeach
-                                    @if(isset($request->equipment_access['other_check']) && $request->equipment_access['other_check'])
-                                        <li>• Other: {{ $request->equipment_access['other_text'] ?? '-' }}</li>
-                                        @php $hasEquip = true; @endphp
-                                    @endif
                                     @if(!$hasEquip) <li>-</li> @endif
                                 </ul>
                             </div>
@@ -532,14 +535,14 @@
 
                  <div class="bg-white p-8 rounded-3xl border-2 border-slate-100 shadow-sm transition hover:shadow-md flex flex-col items-center justify-center gap-6">
                     @if($nda)
-                            @if($nda->witness1_agreed_at && $nda->witness2_agreed_at)
+                            @if($nda->witness1_agreed_at && (!$nda->witness2_user_id || $nda->witness2_agreed_at))
                                 <div class="flex items-center gap-4">
                                     <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-green-500">
                                         <i class="fa-solid fa-circle-check text-2xl"></i>
                                     </div>
                                     <div>
                                         <h4 class="font-bold text-slate-800">บันทึกข้อตกลงรักษาความลับเรียบร้อยแล้ว</h4>
-                                        <p class="text-xs text-slate-400">เสร็จสมบูรณ์เมื่อ {{ $nda->witness2_agreed_at->format('d/m/Y H:i') }}</p>
+                                        <p class="text-xs text-slate-400">เสร็จสมบูรณ์เมื่อ {{ ($nda->witness2_agreed_at ?: $nda->witness1_agreed_at)->format('d/m/Y H:i') }}</p>
                                     </div>
                                 </div>
                             @else
@@ -553,11 +556,14 @@
                                     </div>
                                 </div>
                             @endif
-                            <div class="flex flex-col items-center gap-4 w-full">
-                                <div class="w-full h-px bg-slate-100 mb-2"></div>
+                            <div class="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
                                 <a href="{{ route('request.nda', $request->request_no) }}" 
-                                    class="w-full sm:w-auto px-12 py-3 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 transition shadow-lg shadow-slate-200 text-center">
-                                    <i class="fa-solid fa-file-invoice mr-2"></i> ดูรายละเอียดข้อตกลงรักษาความลับ (NDA)
+                                    class="w-full sm:w-auto px-8 py-3 bg-slate-900 text-white rounded-2xl font-bold text-sm hover:bg-slate-800 transition shadow-lg shadow-slate-200 text-center">
+                                    <i class="fa-solid fa-file-invoice mr-2"></i> ดูรายละเอียด (NDA)
+                                </a>
+                                <a href="{{ route('request.nda.export', $request->request_no) }}" target="_blank"
+                                    class="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white rounded-2xl font-bold text-sm hover:bg-blue-700 transition shadow-lg shadow-blue-200 text-center">
+                                    <i class="fa-solid fa-file-pdf mr-2"></i> พิมพ์เอกสาร (PDF)
                                 </a>
                             </div>
                         </div>

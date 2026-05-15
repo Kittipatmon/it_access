@@ -15,6 +15,7 @@ class ApprovalStep extends Model
         'approved_at',
         'remark',
         'signature_path',
+        'is_auto_sign',
     ];
 
     protected $casts = [

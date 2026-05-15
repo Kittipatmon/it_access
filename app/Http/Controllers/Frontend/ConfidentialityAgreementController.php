@@ -43,9 +43,12 @@ class ConfidentialityAgreementController extends Controller
         $departments = \App\Models\Department::orderBy('name')->pluck('name');
 
         $repId = \App\Models\SystemSetting::where('key', 'nda_company_representative_id')->value('value');
+        $autoSign = \App\Models\SystemSetting::where('key', 'nda_auto_sign')->value('value') == '1';
         $manager = User::find($repId) ?? User::where('firstname', 'เกรียงศักดิ์')->where('lastname', 'อำนวยโชค')->first();
 
-        return view('frontend.request.nda', compact('requestForm', 'existing', 'months', 'users', 'departments', 'manager'));
+        $isCompanyRep = $manager && $manager->id === Auth::id();
+
+        return view('frontend.request.nda', compact('requestForm', 'existing', 'months', 'users', 'departments', 'manager', 'autoSign', 'isCompanyRep'));
     }
 
     public function store(Request $request, $requestNo)
@@ -72,11 +75,14 @@ class ConfidentialityAgreementController extends Controller
         $witness1 = User::find($validated['witness1_user_id']);
         $witness2 = User::find($validated['witness2_user_id']);
 
+        $autoSign = \App\Models\SystemSetting::where('key', 'nda_auto_sign')->value('value') == '1';
+
         ConfidentialityAgreement::updateOrCreate(
             ['request_form_id' => $requestForm->id],
             array_merge($validated, [
                 'user_id' => Auth::id(),
                 'agreement_date' => now(),
+                'is_auto_sign' => $autoSign,
                 'witness1_name' => $witness1->fullname,
                 'witness2_name' => $witness2 ? $witness2->fullname : null,
             ])
@@ -84,6 +90,25 @@ class ConfidentialityAgreementController extends Controller
 
         return redirect()->route('tracking.show', $requestNo)
             ->with('success', 'บันทึกข้อตกลงรักษาความลับเรียบร้อยแล้ว กรุณาแจ้งพยานให้เข้ามารับรองเอกสาร');
+    }
+
+    public function agreeCompany(Request $request, $requestNo)
+    {
+        $requestForm = RequestForm::where('request_no', $requestNo)->firstOrFail();
+        $nda = ConfidentialityAgreement::where('request_form_id', $requestForm->id)->firstOrFail();
+
+        $repId = \App\Models\SystemSetting::where('key', 'nda_company_representative_id')->value('value');
+        
+        if (Auth::id() != $repId && Auth::user()->role !== 'admin') {
+            abort(403);
+        }
+
+        $nda->update([
+            'company_agreed_at' => now(),
+            'company_signature' => $request->signature,
+        ]);
+
+        return response()->json(['success' => true]);
     }
 
     public function agreeWitness(Request $request, $requestNo, $witnessNo)
@@ -123,5 +148,37 @@ class ConfidentialityAgreementController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    public function export($requestNo)
+    {
+        $requestForm = RequestForm::where('request_no', $requestNo)->firstOrFail();
+        $nda = ConfidentialityAgreement::where('request_form_id', $requestForm->id)->firstOrFail();
+
+        // Check if user is requester, witness, or admin
+        $isRequester = $requestForm->user_id === Auth::id();
+        $isWitness1 = $nda->witness1_user_id === Auth::id();
+        $isWitness2 = $nda->witness2_user_id === Auth::id();
+        $isAdmin = Auth::user()->role === 'admin';
+        
+        $repId = \App\Models\SystemSetting::where('key', 'nda_company_representative_id')->value('value');
+        $isRep = ($repId == Auth::id());
+
+        if (!$isRequester && !$isWitness1 && !$isWitness2 && !$isAdmin && !$isRep) {
+            abort(403);
+        }
+
+        $existing = $nda;
+        
+        $months = [
+            '01' => 'มกราคม', '02' => 'กุมภาพันธ์', '03' => 'มีนาคม', '04' => 'เมษายน',
+            '05' => 'พฤษภาคม', '06' => 'มิถุนายน', '07' => 'กรกฎาคม', '08' => 'สิงหาคม',
+            '09' => 'กันยายน', '10' => 'ตุลาคม', '11' => 'พฤศจิกายน', '12' => 'ธันวาคม'
+        ];
+
+        $repId = \App\Models\SystemSetting::where('key', 'nda_company_representative_id')->value('value');
+        $manager = User::find($repId) ?? User::where('firstname', 'เกรียงศักดิ์')->where('lastname', 'อำนวยโชค')->first();
+
+        return view('frontend.request.nda_print', compact('requestForm', 'existing', 'months', 'manager'));
     }
 }

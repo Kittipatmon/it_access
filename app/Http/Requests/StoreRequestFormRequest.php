@@ -45,7 +45,7 @@ class StoreRequestFormRequest extends FormRequest
             'sub_options' => 'nullable|array',
 
             'details' => 'nullable|string',
-            'signature' => 'required|string',
+            'signature' => 'nullable|string',
             'existing_signature' => 'nullable|string',
             'signature_file' => 'nullable|image|max:2048',
         ];

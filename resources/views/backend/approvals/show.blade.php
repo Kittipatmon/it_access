@@ -13,7 +13,7 @@
                 กลับไปที่รายการคำร้อง
             </a>
             <div class="flex gap-2">
-                 <a href="{{ route('tracking.print', $request->request_no) }}" class="px-6 py-2 bg-slate-900 text-white rounded-xl font-bold text-xs hover:scale-105 transition-all">
+                 <a href="{{ route('tracking.print', $request->request_no) }}" target="_blank" class="px-6 py-2 bg-slate-900 text-white rounded-xl font-bold text-xs hover:scale-105 transition-all">
                     พิมพ์ใบคำร้อง (PDF)
                  </a>
             </div>
@@ -41,7 +41,7 @@
                     @elseif($request->status == 'completed')
                         @php
                             $nda = $request->confidentialityAgreement;
-                            $isWaitingWitness = $nda && (!$nda->witness1_agreed_at || !$nda->witness2_agreed_at);
+                            $isWaitingWitness = $nda && (!$nda->witness1_agreed_at || ($nda->witness2_user_id && !$nda->witness2_agreed_at));
                         @endphp
                         @if($isWaitingWitness)
                             <span class="px-3 py-1 rounded-full bg-orange-100 text-orange-800 text-[10px] font-bold uppercase border border-orange-200 shadow-sm">กำลังรอพยาน</span>
@@ -529,10 +529,19 @@
         @endphp
 
         @if($isMyTurn)
-            <div class="mt-12 no-print animate-fade-in" x-data="{ showForm: false, actionType: '', useExisting: {{ Auth::user()->signature ? 'true' : 'false' }} }">
+            <div class="mt-12 no-print animate-fade-in" x-data="{ 
+                showForm: false, 
+                actionType: '', 
+                useExisting: {{ ($currentStep->is_auto_sign && Auth::user()->signature) ? 'true' : (Auth::user()->signature ? 'true' : 'false') }} 
+            }">
                 <div x-show="!showForm" class="bg-blue-600 rounded-[2.5rem] p-12 text-center shadow-2xl shadow-blue-200 border border-blue-500">
                     <h3 class="text-2xl font-bold text-white mb-3 uppercase tracking-tight">{{ $isAdmin && $currentStep->approver_id != Auth::id() ? 'Administrator Action' : 'กรุณาดำเนินการอนุมัติ' }}</h3>
-                    <p class="text-blue-100 text-sm font-bold uppercase tracking-widest mb-8">ลำดับที่ {{ $currentStep->step_order }}: {{ $currentStep->step_name }}</p>
+                    <div class="flex items-center justify-center gap-2 mb-8">
+                        <p class="text-blue-100 text-sm font-bold uppercase tracking-widest">ลำดับที่ {{ $currentStep->step_order }}: {{ $currentStep->step_name }}</p>
+                        @if($currentStep->is_auto_sign)
+                            <span class="px-2 py-0.5 rounded-full bg-blue-400 text-white text-[10px] font-bold uppercase border border-blue-300 shadow-sm animate-pulse">Auto Sign Enabled</span>
+                        @endif
+                    </div>
                     <div class="flex items-center justify-center gap-6">
                         <button @click="showForm = true; actionType = 'approve'" class="px-12 py-4 bg-white text-blue-600 rounded-2xl font-bold text-sm uppercase tracking-widest hover:scale-105 transition shadow-xl shadow-blue-800/20">อนุมัติคำร้อง</button>
                         <button @click="showForm = true; actionType = 'reject'" class="px-12 py-4 bg-red-500 text-white rounded-2xl font-bold text-sm uppercase tracking-widest hover:bg-red-600 hover:scale-105 transition shadow-xl shadow-red-900/20">ปฏิเสธ</button>

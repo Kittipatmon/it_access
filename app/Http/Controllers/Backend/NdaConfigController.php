@@ -12,9 +12,10 @@ class NdaConfigController extends Controller
     public function index()
     {
         $setting = SystemSetting::where('key', 'nda_company_representative_id')->first();
+        $autoSignSetting = SystemSetting::where('key', 'nda_auto_sign')->first();
         $users = User::where('status', 'active')->orderBy('firstname')->get();
         
-        return view('backend.nda-config.index', compact('setting', 'users'));
+        return view('backend.nda-config.index', compact('setting', 'autoSignSetting', 'users'));
     }
 
     public function update(Request $request)
@@ -26,6 +27,11 @@ class NdaConfigController extends Controller
         SystemSetting::updateOrCreate(
             ['key' => 'nda_company_representative_id'],
             ['value' => $request->representative_id, 'description' => 'ID ของผู้ลงนามในนามบริษัทสำหรับ NDA']
+        );
+        
+        SystemSetting::updateOrCreate(
+            ['key' => 'nda_auto_sign'],
+            ['value' => $request->has('nda_auto_sign') ? '1' : '0', 'description' => 'เปิดใช้งานการลงนามอัตโนมัติสำหรับ NDA']
         );
 
         return redirect()->back()->with('success', 'ปรับปรุงผู้เซ็นในนามบริษัทสำเร็จ');

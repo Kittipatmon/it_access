@@ -188,9 +188,57 @@
         $itProg = $request->it_program_config ?? [];
         $itEquip = $request->it_equipment_config ?? [];
 
-        function isChecked($arr, $key)
+        // Robust helper to check if an item is selected
+        function isItemSelected($accessData, $targetKey) {
+            if (!is_array($accessData)) return false;
+            
+            // Check if it's associative array format (key => value)
+            if (isset($accessData[$targetKey]) && $accessData[$targetKey]) {
+                return true;
+            }
+            
+            // Check if it's array of objects format ([{key: '...'}, ...])
+            foreach ($accessData as $item) {
+                if (is_array($item) && isset($item['key']) && $item['key'] === $targetKey) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+        // Robust helper to get sub-options
+        function getSubOptions($accessData, $targetKey) {
+             if (!is_array($accessData)) return [];
+             
+             // Check associative format
+             if (isset($accessData[$targetKey . '_sub'])) {
+                 return (array) $accessData[$targetKey . '_sub'];
+             }
+             
+             // Check object format
+             foreach ($accessData as $item) {
+                if (is_array($item) && isset($item['key']) && $item['key'] === $targetKey) {
+                    return (array) ($item['sub_options'] ?? []);
+                }
+            }
+            return [];
+        }
+
+        function isChecked($accessData, $targetKey)
         {
-            return isset($arr[$key]) && $arr[$key] ? '✔' : '&nbsp;&nbsp;';
+            return isItemSelected($accessData, $targetKey) ? '✔' : '&nbsp;&nbsp;';
+        }
+
+        // Shared signature retrieval
+        $nda = $request->confidentialityAgreement;
+        $userSig = null;
+        if ($request->signature_path) {
+            $userSig = asset('storage/' . $request->signature_path);
+        } elseif ($request->user && $request->user->signature_url) {
+            $userSig = $request->user->signature_url;
+        } elseif ($nda && $nda->employee_signature) {
+            $userSig = $nda->employee_signature;
         }
     @endphp
     <!-- ==================== PAGE 1 ==================== -->
@@ -199,7 +247,7 @@
         <div
             style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; margin-top: 10px;">
             <div class="font-bold" style="font-size: 16px;">
-                Req.No <span class="dot-line" style="width: 200px; text-align: left;">{{ $request->request_no }}</span>
+                Req.No <span class="dot-line" style="padding: 0 10px;">{{ $request->request_no }}</span>
             </div>
             <div>
                 <span
@@ -277,9 +325,9 @@
                     <div style="margin-bottom: 15px;">[ {!! isChecked($sysAccess, 'email_address') !!} ] Email Address</div>
                     <div style="margin-bottom: 15px;">
                         File Server Access: [
-                        {!! isChecked($sysAccess, 'file_server_access_sub') == '✔' && in_array('user', $sysAccess['file_server_access_sub'] ?? []) ? '✔' : '&nbsp;&nbsp;' !!}
+                        {!! in_array('user', getSubOptions($sysAccess, 'file_server_access')) ? '✔' : '&nbsp;&nbsp;' !!}
                         ] User [
-                        {!! isChecked($sysAccess, 'file_server_access_sub') == '✔' && in_array('admin', $sysAccess['file_server_access_sub'] ?? []) ? '✔' : '&nbsp;&nbsp;' !!}
+                        {!! in_array('admin', getSubOptions($sysAccess, 'file_server_access')) ? '✔' : '&nbsp;&nbsp;' !!}
                         ] Admin
                     </div>
                     <div>[ {!! isChecked($sysAccess, 'other_check') !!} ] Other: <span class="dot-line" style="width: 100px;">{{ $sysAccess['other_text'] ?? '' }}</span></div>
@@ -290,8 +338,8 @@
                     <div style="margin-bottom: 15px;">[ {!! isChecked($progAccess, 'sap_b1') !!} ] SAP B1</div>
                     <div style="margin-bottom: 15px;">
                         Level: 
-                        <span class="checkbox">{!! isChecked($progAccess, 'sap_b1_sub') == '✔' && in_array('pro', $progAccess['sap_b1_sub'] ?? []) ? '✔' : '' !!}</span> Pro
-                        <span class="checkbox">{!! isChecked($progAccess, 'sap_b1_sub') == '✔' && in_array('crm', $progAccess['sap_b1_sub'] ?? []) ? '✔' : '' !!}</span> CRM
+                        <span class="checkbox">{!! in_array('pro', getSubOptions($progAccess, 'sap_b1')) ? '✔' : '' !!}</span> Pro
+                        <span class="checkbox">{!! in_array('crm', getSubOptions($progAccess, 'sap_b1')) ? '✔' : '' !!}</span> CRM
                     </div>
                     <div style="margin-bottom: 15px;">[ {!! isChecked($progAccess, 'rapid_payroll') !!} ] Rapid payroll</div>
                     <div>[ {!! isChecked($progAccess, 'other_check') !!} ] Other: <span class="dot-line" style="width: 100px;">{{ $progAccess['other_text'] ?? '' }}</span></div>
@@ -300,15 +348,29 @@
                 <td class="box-cell" style="width: 32%;">
                     <div class="font-bold" style="margin-bottom: 20px;">อุปกรณ์คอมพิวเตอร์</div>
                     @php $hasEquip = false; @endphp
-                    @foreach($equipAccess as $key => $val)
-                        @if($val && !Str::endsWith($key, '_sub') && $key !== 'other_check' && $key !== 'other_text')
-                            <div style="margin-bottom: 10px;">[ ✔ ] {{ ucwords(str_replace('_', ' ', $key)) }}</div>
+                    @if(is_array($equipAccess) && isset($equipAccess[0]['key']))
+                        {{-- Array of objects format --}}
+                        @foreach($equipAccess as $item)
+                            @if(isset($item['key']) && $item['key'] !== 'other')
+                                <div style="margin-bottom: 10px;">[ ✔ ] {{ ucwords(str_replace('_', ' ', $item['key'])) }}</div>
+                                @php $hasEquip = true; @endphp
+                            @elseif(isset($item['key']) && $item['key'] === 'other' && isset($item['value']))
+                                <div style="margin-bottom: 10px;">[ ✔ ] Other: {{ $item['value'] }}</div>
+                                @php $hasEquip = true; @endphp
+                            @endif
+                        @endforeach
+                    @else
+                        {{-- Associative array format --}}
+                        @foreach($equipAccess as $key => $val)
+                            @if($val && !Str::endsWith($key, '_sub') && $key !== 'other_check' && $key !== 'other_text')
+                                <div style="margin-bottom: 10px;">[ ✔ ] {{ ucwords(str_replace('_', ' ', $key)) }}</div>
+                                @php $hasEquip = true; @endphp
+                            @endif
+                        @endforeach
+                        @if(isset($equipAccess['other_check']) && $equipAccess['other_check'])
+                            <div style="margin-bottom: 10px;">[ ✔ ] Other: {{ $equipAccess['other_text'] ?? '' }}</div>
                             @php $hasEquip = true; @endphp
                         @endif
-                    @endforeach
-                    @if(isset($equipAccess['other_check']) && $equipAccess['other_check'])
-                        <div style="margin-bottom: 10px;">[ ✔ ] Other: {{ $equipAccess['other_text'] ?? '' }}</div>
-                        @php $hasEquip = true; @endphp
                     @endif
                     @if(!$hasEquip) <div style="color: #ccc; italic;">-</div> @endif
                 </td>
@@ -318,18 +380,23 @@
         <div style="margin-top: 30px;">
             @php
                 $requesterStep = $request; // just use created_at
-                $reviewerStep = $request->steps->where('step_order', 1)->first();
-                $approverStep = $request->steps->where('step_order', 2)->first();
+                $totalSteps = $request->steps->count();
+                $reviewerStep = null;
+                $approverStep = null;
+
+                if ($totalSteps == 1) {
+                    // If only one step, display it in the Approver slot
+                    $approverStep = $request->steps->first();
+                } elseif ($totalSteps >= 2) {
+                    // Step 1 is Reviewer, Last Step is Approver
+                    $reviewerStep = $request->steps->where('step_order', 1)->first();
+                    $approverStep = $request->steps->sortByDesc('step_order')->first();
+                }
             @endphp
             <div class="flex-row" style="padding-left: 20px;">
                 <span>ผู้ร้องขอ&nbsp;</span>
                 <span class="dot-line" style="flex: 2;">
-                    @if($request->signature_path)
-                        <img src="{{ asset('storage/' . $request->signature_path) }}"
-                            style="height: 40px; position: absolute; left: 50%; bottom: 3px; transform: translateX(-50%);">
-                    @else
-                        {{ $request->firstname }} {{ $request->lastname }}
-                    @endif
+                    {{ $request->firstname }} {{ $request->lastname }}
                 </span>
                 <span>&nbsp;&nbsp;วันที่&nbsp;</span><span class="dot-line"
                     style="flex: 1;">{{ $request->created_at->format('d/m/Y') }}</span>
@@ -337,9 +404,8 @@
             <div class="flex-row" style="padding-left: 20px;">
                 <span>ผู้ตรวจสอบ&nbsp;</span>
                 <span class="dot-line" style="flex: 2;">
-                    @if($reviewerStep && $reviewerStep->status == 'approved' && $reviewerStep->approver && $reviewerStep->approver->signature)
-                        <img src="{{ asset('storage/signatures/' . $reviewerStep->approver->signature) }}"
-                            style="height: 40px; position: absolute; left: 50%; bottom: 3px; transform: translateX(-50%);">
+                    @if($reviewerStep && $reviewerStep->status == 'approved')
+                        {{ $reviewerStep->approver->fullname ?? '' }}
                     @endif
                 </span>
                 <span>&nbsp;&nbsp;วันที่&nbsp;</span><span class="dot-line"
@@ -348,9 +414,8 @@
             <div class="flex-row" style="padding-left: 20px;">
                 <span>ผู้อนุมัติ&nbsp;</span>
                 <span class="dot-line" style="flex: 2;">
-                    @if($approverStep && $approverStep->status == 'approved' && $approverStep->approver && $approverStep->approver->signature)
-                        <img src="{{ asset('storage/signatures/' . $approverStep->approver->signature) }}"
-                            style="height: 40px; position: absolute; left: 50%; bottom: 3px; transform: translateX(-50%);">
+                    @if($approverStep && $approverStep->status == 'approved')
+                        {{ $approverStep->approver->fullname ?? '' }}
                     @endif
                 </span>
                 <span>&nbsp;&nbsp;วันที่&nbsp;</span><span class="dot-line"
@@ -472,9 +537,9 @@
             </tr>
             <tr>
                 <td colspan="5" class="text-center" style="padding-top: 15px;">
-                    ดำเนินการโดย : <span class="dot-line" style="width: 250px;">{{ $request->itStaff->fullname ?? '' }}</span>
+                    ดำเนินการโดย : <span class="dot-line" style="min-width: 200px;">{{ $request->itStaff->fullname ?? '' }}</span>
                     &nbsp;&nbsp;&nbsp;
-                    วันที่: <span class="dot-line" style="width: 150px;">{{ $request->it_configured_at ? $request->it_configured_at->format('d/m/Y') : '......../......../........' }}</span>
+                    วันที่: <span class="dot-line" style="min-width: 120px;">{{ $request->it_configured_at ? $request->it_configured_at->format('d/m/Y') : '......../......../........' }}</span>
                 </td>
             </tr>
         </table>
@@ -490,9 +555,8 @@
         <div class="flex-row" style="padding-left: 20px;">
             <span>ผู้ใช้งาน&nbsp;</span>
             <span class="dot-line" style="flex: 2;">
-                @if($request->user_acknowledged_at && $request->user && $request->user->signature)
-                    <img src="{{ asset('storage/signatures/' . $request->user->signature) }}"
-                        style="height: 40px; position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);">
+                @if($request->user_acknowledged_at)
+                    {{ $request->firstname }} {{ $request->lastname }}
                 @endif
             </span>
             <span>&nbsp;&nbsp;วันที่&nbsp;</span><span class="dot-line"
@@ -680,20 +744,19 @@
 
         <div style="margin-top: 100px; width: 400px; margin-left: auto; text-align: center; line-height: 1.2;">
             <div style="white-space: nowrap;">
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ลงชื่อ <span class="dot-line" style="width: 150px;">
-                    @if($request->user_acknowledged_at && $request->user && $request->user->signature)
-                        <img src="{{ asset('storage/signatures/' . $request->user->signature) }}"
-                            style="height: 40px; position: absolute; left: 50%; bottom: 3px; transform: translateX(-50%);">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ลงชื่อ <span class="dot-line" style="min-width: 150px;">
+                    @if($request->user_acknowledged_at)
+                        {{ $request->firstname }} {{ $request->lastname }}
                     @endif
                 </span> ผู้ใช้งานรับทราบ
             </div>
             <div style="margin-top: 10px;">
                 (&nbsp;<span class="dot-line"
-                    style="width: 150px;">{{ $request->firstname }} {{ $request->lastname }}</span>&nbsp;)
+                    style="min-width: 150px;">{{ $request->firstname }} {{ $request->lastname }}</span>&nbsp;)
             </div>
             <div style="margin-top: 10px;">
                 วันที่ <span class="dot-line"
-                    style="width: 150px;">{{ $request->user_acknowledged_at ? $request->user_acknowledged_at->format('d/m/Y') : '......../......../........' }}</span>
+                    style="min-width: 120px;">{{ $request->user_acknowledged_at ? $request->user_acknowledged_at->format('d/m/Y') : '......../......../........' }}</span>
             </div>
         </div>
         <div class="doc-no" style="bottom: -130px;">
@@ -707,9 +770,9 @@
                 window.print();
             }, 500);
 
-            // Return to previous page after print dialog is closed (Save or Cancel)
+            // Close window after print dialog is closed (Save or Cancel)
             window.onafterprint = function() {
-                window.history.back();
+                window.close();
             };
 
             // Fallback for browsers that don't support onafterprint properly
@@ -717,7 +780,7 @@
             window.addEventListener('focus', function() {
                 // When user returns focus to the window, it often means the print dialog is closed
                 setTimeout(function() {
-                    window.history.back();
+                    window.close();
                 }, 500);
             }, { once: true });
         }

@@ -56,6 +56,7 @@
                             <th class="px-8 py-4 font-bold">ชื่อขั้นตอน</th>
                             <th class="px-8 py-4 font-bold">ผู้อนุมัติ</th>
                             <th class="px-8 py-4 font-bold">สถานะ</th>
+                            <th class="px-8 py-4 font-bold">Auto Sign</th>
                             <th class="px-8 py-4 font-bold text-right">Actions</th>
                         </tr>
                     </thead>
@@ -72,6 +73,7 @@
                             <td class="px-8 py-5">
                                 <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-600 text-[10px] font-bold uppercase border border-blue-200">System</span>
                             </td>
+                            <td class="px-8 py-5 text-sm text-slate-400 italic">-</td>
                             <td class="px-8 py-5 text-right">
                                 <span class="text-[10px] text-slate-300 italic font-medium">ขั้นตอนพื้นฐาน</span>
                             </td>
@@ -95,6 +97,15 @@
                                     @if($config->is_active)
                                         <span
                                             class="px-2 py-0.5 rounded-full bg-green-50 text-green-600 text-[10px] font-bold uppercase border border-green-100">เปิดใช้งาน</span>
+                                    @else
+                                        <span
+                                            class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-400 text-[10px] font-bold uppercase">ปิดใช้งาน</span>
+                                    @endif
+                                </td>
+                                <td class="px-8 py-5">
+                                    @if($config->is_auto_sign)
+                                        <span
+                                            class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold uppercase border border-blue-100">เปิดใช้งาน</span>
                                     @else
                                         <span
                                             class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-400 text-[10px] font-bold uppercase">ปิดใช้งาน</span>
@@ -125,7 +136,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-8 py-12 text-center text-slate-400">
+                                <td colspan="6" class="px-8 py-12 text-center text-slate-400">
                                     ยังไม่มีการกำหนดขั้นตอนการอนุมัติ
                                 </td>
                             </tr>
@@ -183,14 +194,23 @@
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between py-2 px-1">
+                <div class="grid grid-cols-2 gap-4 py-2 px-1">
                     <div class="flex items-center space-x-3">
                         <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
                             <input type="checkbox" name="is_active" id="is_active" value="1" checked 
                                 class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-slate-300 checked:right-0 checked:border-blue-600"/>
                             <label for="is_active" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer"></label>
                         </div>
-                        <span class="text-sm text-slate-600 font-semibold italic">เปิดใช้งานขั้นตอนนี้</span>
+                        <span class="text-sm text-slate-600 font-semibold italic">เปิดใช้งาน</span>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="is_auto_sign" id="is_auto_sign" value="1" 
+                                class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-slate-300 checked:right-0 checked:border-blue-600"/>
+                            <label for="is_auto_sign" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer"></label>
+                        </div>
+                        <span class="text-sm text-slate-600 font-semibold italic">Auto Sign</span>
                     </div>
                 </div>
 
@@ -282,6 +302,7 @@
         filterApprovers('');
         
         document.getElementById('is_active').checked = true;
+        document.getElementById('is_auto_sign').checked = false;
         
         const modal = document.getElementById('config-modal');
         const container = document.getElementById('modal-container');
@@ -311,6 +332,7 @@
         filterApprovers(deptId, config.approver_id);
         
         document.getElementById('is_active').checked = config.is_active == 1;
+        document.getElementById('is_auto_sign').checked = config.is_auto_sign == 1;
         
         const modal = document.getElementById('config-modal');
         const container = document.getElementById('modal-container');

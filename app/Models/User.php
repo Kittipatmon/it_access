@@ -45,7 +45,7 @@ class User extends Authenticatable
         'signature',
     ];
 
-    protected $appends = ['fullname', 'department_name'];
+    protected $appends = ['fullname', 'department_name', 'signature_url'];
 
     public function getDepartmentNameAttribute(): string
     {
@@ -139,5 +139,17 @@ class User extends Authenticatable
             return \Carbon\Carbon::createFromTimestamp($timestamp)->timezone('Asia/Bangkok');
         }
         return null;
+    }
+
+    public function getSignatureUrlAttribute()
+    {
+        if (!$this->signature) return null;
+
+        $localPath = 'signatures/' . $this->signature;
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($localPath)) {
+            return asset('storage/' . $localPath);
+        }
+
+        return 'https://appkum.kumwell.com/storage/signatures/' . $this->signature;
     }
 }

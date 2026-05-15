@@ -31,6 +31,8 @@
         $canSignEmployee = !$existing && $isOwner;
         $canSignWitness1 = $existing && $isW1 && !$existing->witness1_agreed_at;
         $canSignWitness2 = $existing && $isW2 && !$existing->witness2_agreed_at;
+        
+        $canSignCompany = $existing && $isCompanyRep && !$existing->company_agreed_at && !$existing->is_auto_sign;
     @endphp
     <!-- Document Header -->
     <div class="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -64,6 +66,15 @@
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">วันที่สร้าง</p>
                 <p class="text-sm font-bold text-slate-700 mt-1 leading-none">{{ now()->format('d/m/Y') }}</p>
             </div>
+            @if($existing)
+            <div class="pl-4 border-l border-slate-100">
+                <a href="{{ route('request.nda.export', $requestForm->request_no) }}" target="_blank"
+                    class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl transition shadow-lg shadow-slate-200">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span class="text-xs font-bold uppercase tracking-widest">Export PDF</span>
+                </a>
+            </div>
+            @endif
         </div>
     </div>
 
@@ -289,19 +300,81 @@
                         
                         <!-- Company Signature -->
                         <div class="space-y-6 text-center">
-                            <div class="h-32 flex items-center justify-center border-b border-slate-200 border-dashed relative">
-                                @if($manager && $manager->signature)
-                                    <img src="{{ asset('storage/signatures/' . $manager->signature) }}" class="h-full object-contain mix-blend-multiply" alt="Signature">
-                                @else
-                                    <div class="text-4xl font-bold text-slate-800 select-none opacity-20" style="font-family: 'Charm', cursive;">
-                                        {{ $manager ? $manager->fullname : 'Kriangsak A.' }}
-                                    </div>
+                            <div class="relative group">
+                                <div class="h-32 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl relative overflow-hidden transition-all group-hover:border-blue-400"
+                                    :class="{
+                                        'ring-4 ring-blue-50 border-blue-500 bg-white': activePad === 'company',
+                                    }">
+                                    
+                                    @php
+                                        $shouldAutoSign = $existing ? $existing->is_auto_sign : $autoSign;
+                                    @endphp
+                                    
+                                    @if($shouldAutoSign)
+                                        @if($manager && $manager->signature_url)
+                                            <img src="{{ $manager->signature_url }}" class="h-full mx-auto mix-blend-multiply" alt="Signature">
+                                        @else
+                                            <div class="h-full flex items-center justify-center text-3xl font-bold text-slate-700">
+                                                {{ $manager ? $manager->fullname : 'เกรียงศักดิ์ อำนวยโชค' }}
+                                            </div>
+                                        @endif
+                                    @elseif($existing && $existing->company_signature && str_starts_with($existing->company_signature, 'data:image'))
+                                        <img src="{{ $existing->company_signature }}" class="h-full mx-auto">
+                                    @elseif($existing && $existing->company_agreed_at)
+                                        {{-- Moved text-based signature to dotted line below --}}
+                                        <div class="h-full flex items-center justify-center text-slate-300 italic text-xs">บันทึกข้อมูลเรียบร้อยแล้ว</div>
+                                    @else
+                                        <div :class="{'opacity-0 pointer-events-none': isTyped.company}">
+                                            <canvas id="signature-company" class="w-full h-full cursor-crosshair @if(!$canSignCompany) pointer-events-none opacity-20 @endif"></canvas>
+                                        </div>
+                                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 group-hover:opacity-10" x-show="!activePad">
+                                            <i class="fa-solid fa-pen-nib text-4xl"></i>
+                                        </div>
+                                    @endif
+                                </div>
+                                
+                                @if($canSignCompany)
+                                <div class="absolute -top-3 -right-3 flex gap-2">
+                                    <input type="file" id="upload-company" accept="image/*" class="hidden" @change="uploadToPad('company', $event)">
+                                    <button type="button" @click="document.getElementById('upload-company').click()" class="w-8 h-8 bg-emerald-600 text-white rounded-full shadow-md flex items-center justify-center hover:bg-emerald-700 transition" title="อัปโหลดรูปภาพลายเซ็น">
+                                        <i class="fa-solid fa-image text-xs"></i>
+                                    </button>
+                                    @if(Auth::user()->signature)
+                                    <button type="button" @click="useSystemSignature('company')" class="w-8 h-8 bg-blue-600 text-white rounded-full shadow-md flex items-center justify-center hover:bg-blue-700 transition" title="ใช้ลายเซ็นจากระบบ">
+                                        <i class="fa-solid fa-file-signature text-xs"></i>
+                                    </button>
+                                    @endif
+                                    <button type="button" @click="clearPad('company')" class="w-8 h-8 bg-white border border-slate-100 rounded-full shadow-md flex items-center justify-center text-red-500 hover:bg-red-50 transition">
+                                        <i class="fa-solid fa-eraser text-xs"></i>
+                                    </button>
+                                </div>
                                 @endif
                             </div>
-                            <div class="space-y-1">
-                                <p class="text-sm font-bold text-slate-900">ลงชื่อ...................................................... บริษัท</p>
-                                <p class="text-xs font-bold text-slate-500">(คุณ{{ $manager->fullname ?? 'เกรียงศักดิ์ อำนวยโชค' }})</p>
-                                <p class="text-[10px] text-slate-400 leading-tight">{{ $manager->department_name ?? 'ผู้จัดการแผนกเทคโนโลยีสารสนเทศและการสื่อสาร' }}<br>บริษัท คัมเวล คอร์ปอเรชั่น จำกัด (มหาชน)</p>
+                            
+                            <div class="space-y-3">
+                                <div class="space-y-1">
+                                    <div class="relative inline-block">
+                                        <p class="text-sm font-bold text-slate-900">ลงชื่อ...................................................... บริษัท</p>
+                                        <span x-show="isTyped.company" x-text="typedName.company" class="absolute left-1/2 -translate-x-1/2 bottom-[1px] text-2xl font-bold text-slate-800 whitespace-nowrap pointer-events-none"></span>
+                                        @if($existing && $existing->company_agreed_at && !str_starts_with($existing->company_signature ?? '', 'data:image'))
+                                            <span class="absolute left-1/2 -translate-x-1/2 bottom-[1px] text-2xl font-bold text-slate-800 whitespace-nowrap pointer-events-none">
+                                                {{ $manager->fullname ?? 'เกรียงศักดิ์ อำนวยโชค' }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <p class="text-xs font-bold text-slate-500">(คุณ{{ $manager->fullname ?? 'เกรียงศักดิ์ อำนวยโชค' }})</p>
+                                    @if($existing && $existing->company_agreed_at)
+                                        <p class="text-[10px] text-green-500 font-bold uppercase tracking-widest mt-1">รับรองแล้วเมื่อ {{ $existing->company_agreed_at->format('d/m/Y H:i') }}</p>
+                                    @elseif($existing && !$existing->is_auto_sign)
+                                        <p class="text-[10px] text-slate-400 italic mt-1">รอผู้รับมอบอำนาจลงนาม</p>
+                                    @endif
+                                </div>
+                                
+                                @if($canSignCompany)
+                                    <button type="button" @click="agreeCompany()" class="mt-4 w-full py-2 bg-blue-600 text-white rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg shadow-blue-100 hover:bg-blue-700 transition transform hover:-translate-y-0.5 active:scale-95">
+                                        ลงนามในนามบริษัท
+                                    </button>
+                                @endif
                             </div>
                         </div>
 
@@ -313,10 +386,15 @@
                                         'ring-4 ring-blue-50 border-blue-500 bg-white': activePad === 'employee',
                                         'border-red-500 bg-red-50/30': showErrors && !isSigned.employee
                                     }">
-                                    @if($existing && $existing->employee_signature)
+                                    @if($existing && $existing->employee_signature && str_starts_with($existing->employee_signature, 'data:image'))
                                         <img src="{{ $existing->employee_signature }}" class="h-full mx-auto">
+                                    @elseif($existing && $existing->employee_signature)
+                                        {{-- Moved text-based signature to dotted line below --}}
+                                        <div class="h-full flex items-center justify-center text-slate-300 italic text-xs">บันทึกข้อมูลเรียบร้อยแล้ว</div>
                                     @else
-                                        <canvas id="signature-employee" class="w-full h-full cursor-crosshair @if(!$canSignEmployee) pointer-events-none opacity-20 @endif"></canvas>
+                                        <div :class="{'opacity-0 pointer-events-none': isTyped.employee}">
+                                            <canvas id="signature-employee" class="w-full h-full cursor-crosshair @if(!$canSignEmployee) pointer-events-none opacity-20 @endif"></canvas>
+                                        </div>
                                         <input type="hidden" name="employee_signature" id="employee_signature" value="{{ old('employee_signature') }}">
                                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 group-hover:opacity-10" x-show="!activePad">
                                             <i class="fa-solid fa-pen-nib text-4xl"></i>
@@ -328,6 +406,10 @@
                                 </template>
                                 @if($canSignEmployee)
                                 <div class="absolute -top-3 -right-3 flex gap-2">
+                                    <input type="file" id="upload-employee" accept="image/*" class="hidden" @change="uploadToPad('employee', $event)">
+                                    <button type="button" @click="document.getElementById('upload-employee').click()" class="w-8 h-8 bg-emerald-600 text-white rounded-full shadow-md flex items-center justify-center hover:bg-emerald-700 transition" title="อัปโหลดรูปภาพลายเซ็น">
+                                        <i class="fa-solid fa-image text-xs"></i>
+                                    </button>
                                     @if(Auth::user()->signature)
                                     <button type="button" @click="useSystemSignature('employee')" class="w-8 h-8 bg-blue-600 text-white rounded-full shadow-md flex items-center justify-center hover:bg-blue-700 transition" title="ใช้ลายเซ็นจากระบบ">
                                         <i class="fa-solid fa-file-signature text-xs"></i>
@@ -341,7 +423,15 @@
                             </div>
                             <div class="space-y-3">
                                 <div class="space-y-1">
-                                    <p class="text-sm font-bold text-slate-900">ลงชื่อ...................................................... พนักงาน</p>
+                                    <div class="relative inline-block">
+                                        <p class="text-sm font-bold text-slate-900">ลงชื่อ...................................................... พนักงาน</p>
+                                        <span x-show="isTyped.employee" x-text="typedName.employee" class="absolute left-1/2 -translate-x-1/2 bottom-[1px] text-2xl font-bold text-slate-800 whitespace-nowrap pointer-events-none"></span>
+                                        @if($existing && $existing->employee_signature && !str_starts_with($existing->employee_signature, 'data:image'))
+                                            <span class="absolute left-1/2 -translate-x-1/2 bottom-[1px] text-2xl font-bold text-slate-800 whitespace-nowrap pointer-events-none">
+                                                {{ $existing->prefix }}{{ $existing->full_name }}
+                                            </span>
+                                        @endif
+                                    </div>
                                     <p class="text-xs font-bold text-slate-500">({{ $requestForm->firstname . ' ' . $requestForm->lastname }})</p>
                                 </div>
                                 @if($canSignEmployee)
@@ -359,10 +449,15 @@
                             <div class="relative group">
                                 <div class="h-32 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl relative overflow-hidden transition-all"
                                     :class="{'ring-4 ring-blue-50 border-blue-500 bg-white': activePad === 'witness1'}">
-                                    @if($existing && $existing->witness1_signature)
+                                    @if($existing && $existing->witness1_signature && str_starts_with($existing->witness1_signature, 'data:image'))
                                         <img src="{{ $existing->witness1_signature }}" class="h-full mx-auto">
+                                    @elseif($existing && $existing->witness1_agreed_at)
+                                        {{-- Moved text-based signature to dotted line below --}}
+                                        <div class="h-full flex items-center justify-center text-slate-300 italic text-xs">บันทึกข้อมูลเรียบร้อยแล้ว</div>
                                     @else
-                                        <canvas id="signature-witness1" class="w-full h-full cursor-crosshair @if(!$canSignWitness1) pointer-events-none opacity-20 @endif"></canvas>
+                                        <div :class="{'opacity-0 pointer-events-none': isTyped.witness1}">
+                                            <canvas id="signature-witness1" class="w-full h-full cursor-crosshair @if(!$canSignWitness1) pointer-events-none opacity-20 @endif"></canvas>
+                                        </div>
                                         <input type="hidden" name="witness1_signature" id="witness1_signature" value="{{ old('witness1_signature') }}">
                                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 group-hover:opacity-10" x-show="!activePad">
                                             <i class="fa-solid fa-pen-nib text-4xl"></i>
@@ -371,6 +466,10 @@
                                 </div>
                                 @if($canSignWitness1)
                                 <div class="absolute -top-3 -right-3 flex gap-2">
+                                    <input type="file" id="upload-witness1" accept="image/*" class="hidden" @change="uploadToPad('witness1', $event)">
+                                    <button type="button" @click="document.getElementById('upload-witness1').click()" class="w-8 h-8 bg-emerald-600 text-white rounded-full shadow-md flex items-center justify-center hover:bg-emerald-700 transition" title="อัปโหลดรูปภาพลายเซ็น">
+                                        <i class="fa-solid fa-image text-xs"></i>
+                                    </button>
                                     @if(Auth::user()->signature)
                                     <button type="button" @click="useSystemSignature('witness1')" class="w-8 h-8 bg-blue-600 text-white rounded-full shadow-md flex items-center justify-center hover:bg-blue-700 transition" title="ใช้ลายเซ็นจากระบบ">
                                         <i class="fa-solid fa-file-signature text-xs"></i>
@@ -384,9 +483,17 @@
                             </div>
                             <div class="space-y-4">
                                 <div class="space-y-1">
-                                    <p class="text-sm font-bold text-slate-900">ลงชื่อ...................................................... พยาน</p>
+                                    <div class="relative inline-block">
+                                        <p class="text-sm font-bold text-slate-900">ลงชื่อ...................................................... พยาน</p>
+                                        <span x-show="isTyped.witness1" x-text="typedName.witness1" class="absolute left-1/2 -translate-x-1/2 bottom-[1px] text-2xl font-bold text-slate-800 whitespace-nowrap pointer-events-none"></span>
+                                        @if($existing && $existing->witness1_agreed_at && !str_starts_with($existing->witness1_signature ?? '', 'data:image'))
+                                            <span class="absolute left-1/2 -translate-x-1/2 bottom-[1px] text-2xl font-bold text-slate-800 whitespace-nowrap pointer-events-none">
+                                                {{ $existing->witness1_name }}
+                                            </span>
+                                        @endif
+                                    </div>
                                     @if($existing)
-                                        <p class="text-xs font-bold text-slate-500">({{ $existing->witness1_name }})</p>
+                                        <p class="text-xs font-bold text-slate-500">(<span x-text="witness1_data.fullname || '{{ $existing->witness1_name }}'"></span>)</p>
                                         @if($existing->witness1_agreed_at)
                                             <p class="text-[10px] text-green-500 font-bold uppercase tracking-widest mt-1">รับรองแล้วเมื่อ {{ $existing->witness1_agreed_at->format('d/m/Y H:i') }}</p>
                                         @elseif($existing->witness1_user_id !== auth()->id())
@@ -436,10 +543,15 @@
                             <div class="relative group">
                                 <div class="h-32 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl relative overflow-hidden transition-all"
                                     :class="{'ring-4 ring-blue-50 border-blue-500 bg-white': activePad === 'witness2'}">
-                                    @if($existing && $existing->witness2_signature)
+                                    @if($existing && $existing->witness2_signature && str_starts_with($existing->witness2_signature, 'data:image'))
                                         <img src="{{ $existing->witness2_signature }}" class="h-full mx-auto">
+                                    @elseif($existing && $existing->witness2_agreed_at)
+                                        {{-- Moved text-based signature to dotted line below --}}
+                                        <div class="h-full flex items-center justify-center text-slate-300 italic text-xs">บันทึกข้อมูลเรียบร้อยแล้ว</div>
                                     @else
-                                        <canvas id="signature-witness2" class="w-full h-full cursor-crosshair @if(!$canSignWitness2) pointer-events-none opacity-20 @endif"></canvas>
+                                        <div :class="{'opacity-0 pointer-events-none': isTyped.witness2}">
+                                            <canvas id="signature-witness2" class="w-full h-full cursor-crosshair @if(!$canSignWitness2) pointer-events-none opacity-20 @endif"></canvas>
+                                        </div>
                                         <input type="hidden" name="witness2_signature" id="witness2_signature" value="{{ old('witness2_signature') }}">
                                         <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20 group-hover:opacity-10" x-show="!activePad">
                                             <i class="fa-solid fa-pen-nib text-4xl"></i>
@@ -448,6 +560,10 @@
                                 </div>
                                 @if($canSignWitness2)
                                 <div class="absolute -top-3 -right-3 flex gap-2">
+                                    <input type="file" id="upload-witness2" accept="image/*" class="hidden" @change="uploadToPad('witness2', $event)">
+                                    <button type="button" @click="document.getElementById('upload-witness2').click()" class="w-8 h-8 bg-emerald-600 text-white rounded-full shadow-md flex items-center justify-center hover:bg-emerald-700 transition" title="อัปโหลดรูปภาพลายเซ็น">
+                                        <i class="fa-solid fa-image text-xs"></i>
+                                    </button>
                                     @if(Auth::user()->signature)
                                     <button type="button" @click="useSystemSignature('witness2')" class="w-8 h-8 bg-blue-600 text-white rounded-full shadow-md flex items-center justify-center hover:bg-blue-700 transition" title="ใช้ลายเซ็นจากระบบ">
                                         <i class="fa-solid fa-file-signature text-xs"></i>
@@ -461,10 +577,18 @@
                             </div>
                             <div class="space-y-4">
                                 <div class="space-y-1">
-                                    <p class="text-sm font-bold text-slate-900">ลงชื่อ...................................................... พยาน</p>
+                                    <div class="relative inline-block">
+                                        <p class="text-sm font-bold text-slate-900">ลงชื่อ...................................................... พยาน</p>
+                                        <span x-show="isTyped.witness2" x-text="typedName.witness2" class="absolute left-1/2 -translate-x-1/2 bottom-[1px] text-2xl font-bold text-slate-800 whitespace-nowrap pointer-events-none"></span>
+                                        @if($existing && $existing->witness2_agreed_at && !str_starts_with($existing->witness2_signature ?? '', 'data:image'))
+                                            <span class="absolute left-1/2 -translate-x-1/2 bottom-[1px] text-2xl font-bold text-slate-800 whitespace-nowrap pointer-events-none">
+                                                {{ $existing->witness2_name }}
+                                            </span>
+                                        @endif
+                                    </div>
                                     @if($existing)
                                         @if($existing->witness2_user_id)
-                                            <p class="text-xs font-bold text-slate-500">({{ $existing->witness2_name }})</p>
+                                            <p class="text-xs font-bold text-slate-500">(<span x-text="witness2_data.fullname || '{{ $existing->witness2_name }}'"></span>)</p>
                                             @if($existing->witness2_agreed_at)
                                                 <p class="text-[10px] text-green-500 font-bold uppercase tracking-widest mt-1">รับรองแล้วเมื่อ {{ $existing->witness2_agreed_at->format('d/m/Y H:i') }}</p>
                                             @elseif($existing->witness2_user_id !== auth()->id())
@@ -531,7 +655,7 @@
                     ยืนยันบันทึกข้อตกลงรักษาความลับ
                 </button>
                 @else
-                    @if($existing->witness1_agreed_at && $existing->witness2_agreed_at)
+                    @if($existing->witness1_agreed_at && (!$existing->witness2_user_id || $existing->witness2_agreed_at))
                         <div class="px-8 py-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center gap-3 text-green-600">
                             <i class="fa-solid fa-circle-check"></i>
                             <span class="text-sm font-bold uppercase tracking-widest">บันทึกข้อตกลงเสร็จสมบูรณ์แล้ว</span>
@@ -667,7 +791,10 @@ function ndaForm() {
         filteredAmphures: [],
         filteredTambons: [],
         
-        isSigned: { employee: false, witness1: false, witness2: false },
+        
+        isSigned: { employee: false, company: false, witness1: false, witness2: false },
+        isTyped: { employee: false, company: false, witness1: false, witness2: false },
+        typedName: { employee: '', company: '', witness1: '', witness2: '' },
         showErrors: {{ $errors->any() ? 'true' : 'false' }},
         formData: {
             prefix: '{{ old('prefix', $existing->prefix ?? '') }}',
@@ -729,11 +856,13 @@ function ndaForm() {
         async init() {
             this.$nextTick(async () => {
                 this.initPad('employee', 'signature-employee');
+                this.initPad('company', 'signature-company');
                 this.initPad('witness1', 'signature-witness1');
                 this.initPad('witness2', 'signature-witness2');
 
                 window.addEventListener('resize', () => {
                     this.initPad('employee', 'signature-employee');
+                    this.initPad('company', 'signature-company');
                     this.initPad('witness1', 'signature-witness1');
                     this.initPad('witness2', 'signature-witness2');
                 });
@@ -751,7 +880,7 @@ function ndaForm() {
                 }
 
                 // Restore signatures from old() or auto-load system signature
-                ['employee', 'witness1', 'witness2'].forEach(name => {
+                ['employee', 'company', 'witness1', 'witness2'].forEach(name => {
                     const input = document.getElementById(name + '_signature');
                     if (input && input.value) {
                         this.pads[name].fromDataURL(input.value);
@@ -760,11 +889,14 @@ function ndaForm() {
                         // Auto-load employee system signature for new NDA
                         this.useSystemSignature('employee');
                     } else {
-                        // Check if it's a witness turn and they have a system signature
+                        // Check if it's a witness/company turn and they have a system signature
                         const canSignWitness1 = {{ $canSignWitness1 ? 'true' : 'false' }};
                         const canSignWitness2 = {{ $canSignWitness2 ? 'true' : 'false' }};
+                        const canSignCompany = {{ $canSignCompany ? 'true' : 'false' }};
+                        
                         if (name === 'witness1' && canSignWitness1) this.useSystemSignature('witness1');
                         if (name === 'witness2' && canSignWitness2) this.useSystemSignature('witness2');
+                        if (name === 'company' && canSignCompany) this.useSystemSignature('company');
                     }
                 });
 
@@ -853,20 +985,51 @@ function ndaForm() {
             if (this.pads[name]) {
                 this.pads[name].clear();
                 this.isSigned[name] = false;
+                this.isTyped[name] = false;
+                this.typedName[name] = '';
                 if (this.activePad === name) this.activePad = null;
             }
+        },
+        
+        uploadToPad(name, event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.pads[name].fromDataURL(e.target.result, {
+                    ratio: 1,
+                    width: this.pads[name].canvas.width / window.devicePixelRatio,
+                    height: this.pads[name].canvas.height / window.devicePixelRatio
+                });
+                this.isSigned[name] = true;
+                this.activePad = name;
+            };
+            reader.readAsDataURL(file);
         },
 
         async useSystemSignature(name) {
             const signatureFile = "{{ Auth::user()->signature }}";
             if (!signatureFile) return;
 
-            const url = `{{ asset('storage/signatures/') }}/${signatureFile}`;
-            
+            // Try local storage first, fallback to central AppKum server
+            const localUrl = `{{ asset('storage/signatures/') }}/${encodeURIComponent(signatureFile)}`;
+            const fallbackUrl = `https://appkum.kumwell.com/storage/signatures/${encodeURIComponent(signatureFile)}`;
+
             try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Network response was not ok');
-                
+                let response = await fetch(localUrl);
+                let urlToUse = localUrl;
+
+                if (!response.ok) {
+                    console.log('Local signature not found, trying fallback...');
+                    response = await fetch(fallbackUrl);
+                    if (response.ok) {
+                        urlToUse = fallbackUrl;
+                    } else {
+                        throw new Error('Signature not found in both local and fallback');
+                    }
+                }
+
                 const blob = await response.blob();
                 const reader = new FileReader();
                 reader.onloadend = () => {
@@ -877,11 +1040,20 @@ function ndaForm() {
                     });
                     this.isSigned[name] = true;
                     this.activePad = name;
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ดึงลายเซ็นสำเร็จ',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
                 };
                 reader.readAsDataURL(blob);
             } catch (error) {
-                console.error('Error fetching signature:', error);
-                Swal.fire('ไม่พบไฟล์ลายเซ็น', 'กรุณาลงลายมือชื่อใหม่ด้วยตนเอง', 'info');
+                console.error('Signature fetch error:', error);
+                Swal.fire('ไม่พบไฟล์ลายเซ็น', 'กรุณาอัปโหลดรูปภาพลายเซ็น หรือลงลายมือชื่อใหม่ด้วยตนเอง', 'info');
             }
         },
 
@@ -899,19 +1071,57 @@ function ndaForm() {
             ctx.setTransform(1, 0, 0, 1, 0, 0);
             
             // Set styles
-            ctx.font = `italic 700 ${28 * ratio}px 'Charm', cursive`;
+            ctx.font = `700 ${24 * ratio}px 'Sarabun', sans-serif`;
             ctx.fillStyle = "rgb(15, 23, 42)";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             
-            // Draw text at the exact physical center
+            // Draw text at the exact physical center (Keep drawing so pad.toDataURL() works for backend)
             ctx.fillText(fullname, canvas.width / 2, canvas.height / 2);
             
             // Restore scale for future SignaturePad operations
             ctx.scale(ratio, ratio);
             
             this.isSigned[name] = true;
+            this.isTyped[name] = true;
+            this.typedName[name] = fullname;
             this.activePad = name;
+        },
+
+        async agreeCompany() {
+            if (!this.isSigned.company) {
+                Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: 'กรุณาลงลายมือชื่อ' });
+                return;
+            }
+
+            const { value: confirm } = await Swal.fire({
+                title: 'ยืนยันการลงนาม',
+                text: "คุณยืนยันที่จะลงนามในนามบริษัทใช่หรือไม่?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'ยืนยัน',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if (confirm) {
+                try {
+                    const response = await fetch('{{ route('request.nda.company.agree', $requestForm->request_no) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ signature: this.pads.company.toDataURL() })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'ลงนามเรียบร้อยแล้ว' })
+                            .then(() => window.location.reload());
+                    }
+                } catch (error) {
+                    Swal.fire({ icon: 'error', title: 'ผิดพลาด', text: 'เกิดข้อผิดพลาดในการบันทึก' });
+                }
+            }
         },
 
         async agreeWitness(witnessNo) {
